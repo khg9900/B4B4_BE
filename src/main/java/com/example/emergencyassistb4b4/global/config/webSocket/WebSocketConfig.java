@@ -1,7 +1,7 @@
 package com.example.emergencyassistb4b4.global.config.webSocket;
 
-import com.example.emergencyassistb4b4.attendance.socket.controller.LocationTrackingWebSocketHandler;
-import com.example.emergencyassistb4b4.attendance.socket.handler.TrackingSocketHandler;
+import com.example.emergencyassistb4b4.domain.attendance.socket.controller.LocationTrackingWebSocketHandler;
+import com.example.emergencyassistb4b4.domain.attendance.socket.handler.TrackingSocketHandler;
 import com.example.emergencyassistb4b4.global.security.JwtUtils;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;

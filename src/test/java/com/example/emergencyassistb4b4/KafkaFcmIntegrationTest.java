@@ -1,8 +1,7 @@
 package com.example.emergencyassistb4b4;
 
-import com.example.emergencyassistb4b4.alert.kafka.consumer.listener.ImmediateAlertEventListener;
-import com.example.emergencyassistb4b4.alert.kafka.repository.KafkaDlqLogRepository;
-import com.example.emergencyassistb4b4.alert.todo.FcmFailureService;
+import com.example.emergencyassistb4b4.domain.alert.kafka.consumer.listener.ImmediateAlertEventListener;
+import com.example.emergencyassistb4b4.domain.alert.kafka.repository.KafkaDlqLogRepository;
 import com.example.emergencyassistb4b4.global.kafka.dto.DisasterReportedEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.awaitility.Awaitility;

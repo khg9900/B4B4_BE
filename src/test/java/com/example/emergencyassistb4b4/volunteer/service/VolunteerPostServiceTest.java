@@ -1,22 +1,22 @@
 package com.example.emergencyassistb4b4.volunteer.service;
 
-import com.example.emergencyassistb4b4.user.domain.LoginType;
-import com.example.emergencyassistb4b4.user.domain.User;
-import com.example.emergencyassistb4b4.user.domain.UserRole;
-import com.example.emergencyassistb4b4.user.repository.UserRepository;
-import com.example.emergencyassistb4b4.volunteer.domain.Post;
-import com.example.emergencyassistb4b4.volunteer.dto.Post.CreatePostRequest;
-import com.example.emergencyassistb4b4.volunteer.dto.Post.UpdatePostRequest;
-import com.example.emergencyassistb4b4.volunteer.dto.Post.common.PostAttendancePolicyDto;
-import com.example.emergencyassistb4b4.volunteer.dto.Post.common.PostLocationDto;
-import com.example.emergencyassistb4b4.volunteer.repository.PostRepository;
+import com.example.emergencyassistb4b4.domain.user.domain.LoginType;
+import com.example.emergencyassistb4b4.domain.user.domain.User;
+import com.example.emergencyassistb4b4.domain.user.domain.UserRole;
+import com.example.emergencyassistb4b4.domain.user.repository.UserRepository;
+import com.example.emergencyassistb4b4.domain.volunteer.domain.Post;
+import com.example.emergencyassistb4b4.domain.volunteer.dto.Post.CreatePostRequest;
+import com.example.emergencyassistb4b4.domain.volunteer.dto.Post.UpdatePostRequest;
+import com.example.emergencyassistb4b4.domain.volunteer.dto.Post.common.PostAttendancePolicyDto;
+import com.example.emergencyassistb4b4.domain.volunteer.dto.Post.common.PostLocationDto;
+import com.example.emergencyassistb4b4.domain.volunteer.repository.PostRepository;
+import com.example.emergencyassistb4b4.domain.volunteer.service.VolunteerPostService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 

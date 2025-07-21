@@ -1,11 +1,11 @@
 package com.example.emergencyassistb4b4.global.security;
 
-import com.example.emergencyassistb4b4.auth.token.RefreshTokenService;
+import com.example.emergencyassistb4b4.domain.auth.token.RefreshTokenService;
 import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
-import com.example.emergencyassistb4b4.user.domain.User;
-import com.example.emergencyassistb4b4.user.dto.UserResponseDto;
-import com.example.emergencyassistb4b4.user.repository.UserRepository;
+import com.example.emergencyassistb4b4.domain.user.domain.User;
+import com.example.emergencyassistb4b4.domain.user.dto.UserResponseDto;
+import com.example.emergencyassistb4b4.domain.user.repository.UserRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.ServletRequest;
@@ -36,7 +36,6 @@ import java.util.Set;
 public class JwtUtils {
 
     private final JwtProperties jwtProperties; //jwt 비밀키 등의 값을 주입받기 위한 객체
-    private final RefreshTokenService refreshTokenService;
     private final UserRepository userRepository;
 
     /**
