@@ -18,6 +18,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
+
     private final List<LoginStrategy> loginStrategyList;
     private final JwtUtils jwtUtils;
     private final RedisService redisService;
@@ -25,23 +26,20 @@ public class AuthService {
 
     public TokenResponseDto login(LoginRequestDto loginRequestDto) {
 
-
-        return loginStrategyList.stream()
-                .filter(strategy -> strategy.supports(loginRequestDto.getLoginType()))
-                .findFirst()
-                .orElseThrow(() -> new ApiException(ErrorStatus.LOGIN_STRATEGY_NOT_FOUND))
-                .login(loginRequestDto);
+        return loginStrategyList.get(0).login(loginRequestDto);
     }
 
     public TokenResponseDto signup(SignUpRequestDto requestDto) {
+
         return signUpStrategyList.stream()
-                .filter(strategy -> strategy.supports(requestDto.getUserRole(), requestDto.getLoginType()))
+                .filter(strategy -> strategy.supports(requestDto.getUserRole()))
                 .findFirst()
                 .orElseThrow( () -> new ApiException(ErrorStatus.SIGNUP_STRATEGY_NOT_FOUND))
                 .signUp(requestDto);
     }
 
     public void logout(String token) {
+
         // 1. token 유효성 검사
         if (!jwtUtils.validateToken(token)) {
             throw new ApiException(ErrorStatus.INVALID_ACCESS_TOKEN);
@@ -54,6 +52,7 @@ public class AuthService {
 
         // 4. AccessToken 블랙리스트 등록
         long expiration = jwtUtils.getRemainingExpiration(token);
+
         redisService.addToBlackList(token, expiration);
     }
 }

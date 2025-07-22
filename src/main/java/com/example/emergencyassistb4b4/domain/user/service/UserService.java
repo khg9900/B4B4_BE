@@ -22,8 +22,10 @@ public class UserService {
     private final ReportRepository reportRepository;
 
     public UserResponseDto getMyInfo(UserRequestDto userRequestDto) {
+
         User user = userRepository.findByEmail(userRequestDto.getEmail())
                 .orElseThrow( () -> new ApiException(ErrorStatus.USER_NOT_FOUND));
+
         return UserResponseDto.from(user);
     }
 
@@ -44,6 +46,7 @@ public class UserService {
     }
 
     public List<Long> findUsersByRegion(String province, String city) {
+
         return userRepository.findUsersByRegion(province, city, UserRole.IND);
     }
 }

@@ -57,6 +57,7 @@ public class UserController {
     // 확인용 api
     @GetMapping("/my-info")
     public ResponseEntity<ApiResponse<UserResponseDto>> getMyInfo(@AuthenticationPrincipal CustomUserDetails userDetails) {
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         log.info(" userDetails = {}", userDetails);
@@ -69,6 +70,4 @@ public class UserController {
 
         return ApiResponse.onSuccess(SuccessStatus.CUSTOM_SUCCESS_STATUS, response);
     }
-
-
 }

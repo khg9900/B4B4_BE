@@ -5,7 +5,6 @@ import com.example.emergencyassistb4b4.domain.auth.dto.response.TokenResponseDto
 import com.example.emergencyassistb4b4.domain.auth.token.TokenService;
 import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
-import com.example.emergencyassistb4b4.domain.user.domain.LoginType;
 import com.example.emergencyassistb4b4.domain.user.domain.User;
 import com.example.emergencyassistb4b4.domain.user.domain.UserRole;
 import com.example.emergencyassistb4b4.domain.user.dto.UserResponseDto;
@@ -17,17 +16,20 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class NgoSignUpStrategy implements SignUpStrategy {
+
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final TokenService tokenService;
 
     @Override
-    public boolean supports(UserRole userRole, LoginType loginType) {
-        return userRole == UserRole.NGO && loginType == LoginType.LOCAL;
+    public boolean supports(UserRole userRole) {
+
+        return userRole == UserRole.NGO;
     }
 
     @Override
     public TokenResponseDto signUp(SignUpRequestDto requestDto) {
+
         // 이메일 중복 체크
         if (userRepository.existsByEmail(requestDto.getEmail())) {
             throw new ApiException(ErrorStatus.DUPLICATED_EMAIL);
@@ -39,7 +41,6 @@ public class NgoSignUpStrategy implements SignUpStrategy {
                 .email(requestDto.getEmail())
                 .password(bCryptPasswordEncoder.encode(requestDto.getPassword()))
                 .phoneNumber(requestDto.getPhoneNumber())
-                .loginType(LoginType.LOCAL)
                 .userRole(UserRole.NGO)
                 .build();
 
@@ -51,6 +52,7 @@ public class NgoSignUpStrategy implements SignUpStrategy {
     }
 
     private TokenResponseDto loginAfterSignUp(User user) {
+
         // 로그인 후 토큰 발급 (즉시 로그인 처리)
         return tokenService.issueToken(UserResponseDto.from(user));
     }

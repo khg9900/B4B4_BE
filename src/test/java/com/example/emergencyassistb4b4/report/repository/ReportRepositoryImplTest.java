@@ -7,7 +7,6 @@ import com.example.emergencyassistb4b4.domain.report.dto.ReportStatusResponseDto
 import com.example.emergencyassistb4b4.domain.report.enums.ReportStatus;
 import com.example.emergencyassistb4b4.domain.report.repository.ReportRepository;
 import com.example.emergencyassistb4b4.domain.report.service.ReportService;
-import com.example.emergencyassistb4b4.domain.user.domain.LoginType;
 import com.example.emergencyassistb4b4.domain.user.domain.User;
 import com.example.emergencyassistb4b4.domain.user.domain.UserRole;
 import com.example.emergencyassistb4b4.domain.user.repository.UserRepository;

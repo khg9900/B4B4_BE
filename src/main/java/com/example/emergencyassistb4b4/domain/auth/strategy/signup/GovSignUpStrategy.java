@@ -3,7 +3,6 @@ package com.example.emergencyassistb4b4.domain.auth.strategy.signup;
 import com.example.emergencyassistb4b4.domain.auth.dto.request.SignUpRequestDto;
 import com.example.emergencyassistb4b4.domain.auth.dto.response.TokenResponseDto;
 import com.example.emergencyassistb4b4.domain.auth.token.TokenService;
-import com.example.emergencyassistb4b4.domain.user.domain.LoginType;
 import com.example.emergencyassistb4b4.domain.user.domain.User;
 import com.example.emergencyassistb4b4.domain.user.domain.UserRole;
 import com.example.emergencyassistb4b4.domain.user.dto.UserResponseDto;
@@ -15,13 +14,15 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class GovSignUpStrategy implements SignUpStrategy {
+
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final TokenService tokenService;
 
     @Override
-    public boolean supports(UserRole userRole, LoginType loginType) {
-        return userRole == UserRole.GOV && loginType == LoginType.LOCAL;
+    public boolean supports(UserRole userRole) {
+
+        return userRole == UserRole.GOV;
     }
 
     @Override
@@ -35,15 +36,16 @@ public class GovSignUpStrategy implements SignUpStrategy {
                 .phoneNumber(requestDto.getPhoneNumber())
                 .province(requestDto.getProvince())
                 .city(requestDto.getCity())
-                .loginType(LoginType.LOCAL)
                 .userRole(UserRole.GOV)
                 .build();
 
         userRepository.save(user);
+
         return loginAfterSignUp(user);
     }
 
     private TokenResponseDto loginAfterSignUp(User user) {
+
         // 로그인 후 토큰 발급 (즉시 로그인 처리)
         return tokenService.issueToken(UserResponseDto.from(user));
     }

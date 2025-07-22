@@ -15,11 +15,13 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 public class TokenService {
+
     private final JwtUtils jwtUtils;
     private final RefreshTokenService refreshTokenService;
     private final UserRepository userRepository;
 
     public TokenResponseDto reissueAccessToken(String refreshToken) {
+
         // 1. 리프레시 토큰 유효성 검사
         if (!jwtUtils.validateToken(refreshToken)) {
             throw new ApiException(ErrorStatus.INVAlID_REFRESH_TOKEN);
@@ -45,7 +47,6 @@ public class TokenService {
         refreshTokenService.saveToken(userId, newRefreshToken);
 
         return new TokenResponseDto(newAccessToken, newRefreshToken);
-
     }
 
     public TokenResponseDto issueToken(UserResponseDto user) {

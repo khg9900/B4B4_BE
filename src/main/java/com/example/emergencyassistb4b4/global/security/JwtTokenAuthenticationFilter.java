@@ -26,8 +26,6 @@ import java.util.Set;
 public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtils jwtUtils;
-
-
     public final static String HEADER_AUTHORIZATION = "Authorization";
     public final static String HEADER_PREFIX = "Bearer ";
     private final PathMatcher pathMatcher;
@@ -69,16 +67,19 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
         } else {
             log.debug("No token found in request.");
         }
+
         filterChain.doFilter(request, response);
     }
 
     private String getAccessToken(String authorizationHeader) {
+
         if (authorizationHeader != null) {
             log.debug("Authorization Header: {}", authorizationHeader);  // 헤더 값 확인
             if (authorizationHeader.startsWith(HEADER_PREFIX)) {
                 return authorizationHeader.substring(HEADER_PREFIX.length());
             }
         }
+
         return null;
     }
 
@@ -91,6 +92,7 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
     );
 
     private boolean isSkipPath(String path) {
+
         return SKIP_PATH.stream().anyMatch(pattern -> pathMatcher.match(pattern, path));
     }
 }

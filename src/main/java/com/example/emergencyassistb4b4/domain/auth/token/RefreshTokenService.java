@@ -16,6 +16,7 @@ public class RefreshTokenService {
     private static final String REFRESH_TOKEN_PREFIX = "refresh_token:";
 
     public void saveToken(Long userId, String refreshToken) {
+
         redisTemplate.opsForValue().set(
                 getKey(userId),
                 refreshToken,
@@ -23,14 +24,17 @@ public class RefreshTokenService {
     }
 
     private String getKey(Long userId) {
+
         return REFRESH_TOKEN_PREFIX + userId;
     }
 
     public String getRefreshToken(Long userId) {
+
         return (String) redisTemplate.opsForValue().get(getKey(userId));
     }
 
     public void deleteRefreshToken(Long userId) {
+
         redisTemplate.delete(getKey(userId));
     }
 }

@@ -4,7 +4,6 @@ import com.example.emergencyassistb4b4.domain.auth.dto.request.LoginRequestDto;
 import com.example.emergencyassistb4b4.domain.auth.dto.response.TokenResponseDto;
 import com.example.emergencyassistb4b4.domain.auth.token.TokenService;
 import com.example.emergencyassistb4b4.global.security.CustomUserDetails;
-import com.example.emergencyassistb4b4.domain.user.domain.LoginType;
 import com.example.emergencyassistb4b4.domain.user.dto.UserResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,13 +14,9 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class GeneralLoginStrategy implements LoginStrategy {
+
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
-
-    @Override
-    public boolean supports(LoginType loginType) {
-        return loginType == LoginType.LOCAL;
-    }
 
     @Override
     public TokenResponseDto login(LoginRequestDto loginRequestDto) {
