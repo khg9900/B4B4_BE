@@ -32,7 +32,8 @@ class DisasterAlertKafkaTest { // Kafka Producer -> Kafka Broker (Kafka Producer
         DisasterReportedEvent message = DisasterReportedEvent.builder()
                 .reportId(123L)
                 .disasterType("EARTHQUAKE")
-                .location("서울 강남구")
+                .province("서울특별시")
+                .city("강남구")
                 .reporterId(1L)
                 .reportedAt(LocalDateTime.now())
                 .build();

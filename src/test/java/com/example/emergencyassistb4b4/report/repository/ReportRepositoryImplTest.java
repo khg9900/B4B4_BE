@@ -1,15 +1,16 @@
 package com.example.emergencyassistb4b4.report.repository;
 
-import com.example.emergencyassistb4b4.report.enums.DisasterType;
-import com.example.emergencyassistb4b4.report.domain.Report;
-import com.example.emergencyassistb4b4.report.dto.ReportDto;
-import com.example.emergencyassistb4b4.report.dto.ReportStatusResponseDto;
-import com.example.emergencyassistb4b4.report.enums.ReportStatus;
-import com.example.emergencyassistb4b4.report.service.ReportService;
-import com.example.emergencyassistb4b4.user.domain.LoginType;
-import com.example.emergencyassistb4b4.user.domain.User;
-import com.example.emergencyassistb4b4.user.domain.UserRole;
-import com.example.emergencyassistb4b4.user.repository.UserRepository;
+import com.example.emergencyassistb4b4.domain.report.enums.DisasterType;
+import com.example.emergencyassistb4b4.domain.report.domain.Report;
+import com.example.emergencyassistb4b4.domain.report.dto.ReportDto;
+import com.example.emergencyassistb4b4.domain.report.dto.ReportStatusResponseDto;
+import com.example.emergencyassistb4b4.domain.report.enums.ReportStatus;
+import com.example.emergencyassistb4b4.domain.report.repository.ReportRepository;
+import com.example.emergencyassistb4b4.domain.report.service.ReportService;
+import com.example.emergencyassistb4b4.domain.user.domain.LoginType;
+import com.example.emergencyassistb4b4.domain.user.domain.User;
+import com.example.emergencyassistb4b4.domain.user.domain.UserRole;
+import com.example.emergencyassistb4b4.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,7 +39,8 @@ import static org.mockito.Mockito.when;
 class ReportServiceTest {
 
 
-    @Mock ReportRepository reportRepository;
+    @Mock
+    ReportRepository reportRepository;
     @Mock ReportResponseRepository reportResponseRepository;
     @Mock UserRepository userRepository;
     @InjectMocks ReportService reportService;

@@ -2,9 +2,9 @@ package com.example.emergencyassistb4b4.global.security;
 
 import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
-import com.example.emergencyassistb4b4.user.domain.LoginType;
-import com.example.emergencyassistb4b4.user.domain.User;
-import com.example.emergencyassistb4b4.user.repository.UserRepository;
+import com.example.emergencyassistb4b4.domain.user.domain.LoginType;
+import com.example.emergencyassistb4b4.domain.user.domain.User;
+import com.example.emergencyassistb4b4.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.core.userdetails.UserDetails;

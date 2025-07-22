@@ -8,8 +8,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.example.emergencyassistb4b4.alert.redis.RedisThresholdCounter;
-import com.example.emergencyassistb4b4.alert.orchestrator.ReportThresholdAlertOrchestratorService;
+import com.example.emergencyassistb4b4.domain.alert.redis.RedisThresholdCounter;
+import com.example.emergencyassistb4b4.domain.alert.orchestrator.ReportThresholdAlertOrchestratorService;
+import com.example.emergencyassistb4b4.domain.alert.service.trigger.ReportThresholdAlertTriggerService;
 import com.example.emergencyassistb4b4.global.kafka.dto.DisasterReportedEvent;
 import java.time.LocalDateTime;
 import java.util.List;

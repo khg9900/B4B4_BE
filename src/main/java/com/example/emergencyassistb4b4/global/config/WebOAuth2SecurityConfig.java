@@ -1,10 +1,10 @@
 package com.example.emergencyassistb4b4.global.config;
 
-import com.example.emergencyassistb4b4.auth.oauth.handler.OAuth2SuccessHandler;
-import com.example.emergencyassistb4b4.auth.oauth.repository.OAuth2AuthorizationRequestBasedOnCookieRepository;
-import com.example.emergencyassistb4b4.auth.oauth.service.KakaoService;
-import com.example.emergencyassistb4b4.auth.oauth.service.OAuth2UserCustomService;
-import com.example.emergencyassistb4b4.auth.token.TokenService;
+import com.example.emergencyassistb4b4.domain.auth.oauth.handler.OAuth2SuccessHandler;
+import com.example.emergencyassistb4b4.domain.auth.oauth.repository.OAuth2AuthorizationRequestBasedOnCookieRepository;
+import com.example.emergencyassistb4b4.domain.auth.oauth.service.KakaoService;
+import com.example.emergencyassistb4b4.domain.auth.oauth.service.OAuth2UserCustomService;
+import com.example.emergencyassistb4b4.domain.auth.token.TokenService;
 import com.example.emergencyassistb4b4.global.security.JwtTokenAuthenticationFilter;
 import com.example.emergencyassistb4b4.global.security.JwtUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,10 +26,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-import org.springframework.security.web.context.SecurityContextHolderFilter;
-import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 

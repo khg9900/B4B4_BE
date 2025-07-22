@@ -1,6 +1,6 @@
 package com.example.emergencyassistb4b4.global.kafka.dto;
 
-import com.example.emergencyassistb4b4.volunteer.domain.Post;
+import com.example.emergencyassistb4b4.domain.volunteer.domain.Post;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
