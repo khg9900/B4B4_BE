@@ -1,4 +1,4 @@
-package com.example.emergencyassistb4b4.global.security;
+package com.example.emergencyassistb4b4.global.security.jwt;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -22,7 +22,6 @@ import java.util.Set;
 @RequiredArgsConstructor
 @Component
 @Slf4j
-
 public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtils jwtUtils;

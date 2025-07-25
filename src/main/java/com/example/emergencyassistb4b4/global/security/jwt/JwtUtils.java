@@ -1,7 +1,8 @@
-package com.example.emergencyassistb4b4.global.security;
+package com.example.emergencyassistb4b4.global.security.jwt;
 
-import com.example.emergencyassistb4b4.domain.auth.token.RefreshTokenService;
 import com.example.emergencyassistb4b4.global.exception.ApiException;
+import com.example.emergencyassistb4b4.global.security.auth.CustomUserDetails;
+import com.example.emergencyassistb4b4.global.security.config.JwtProperties;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
 import com.example.emergencyassistb4b4.domain.user.domain.User;
 import com.example.emergencyassistb4b4.domain.user.dto.UserResponseDto;

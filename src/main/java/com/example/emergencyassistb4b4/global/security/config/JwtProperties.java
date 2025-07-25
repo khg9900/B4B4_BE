@@ -1,4 +1,4 @@
-package com.example.emergencyassistb4b4.global.security;
+package com.example.emergencyassistb4b4.global.security.config;
 
 import lombok.Getter;
 import lombok.Setter;

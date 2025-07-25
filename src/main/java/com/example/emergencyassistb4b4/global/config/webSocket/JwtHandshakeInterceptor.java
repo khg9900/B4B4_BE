@@ -1,6 +1,6 @@
 package com.example.emergencyassistb4b4.global.config.webSocket;
 
-import com.example.emergencyassistb4b4.global.security.JwtUtils;
+import com.example.emergencyassistb4b4.global.security.jwt.JwtUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;

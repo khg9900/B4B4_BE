@@ -1,7 +1,7 @@
 package com.example.emergencyassistb4b4.domain.user.controller;
 
 import com.example.emergencyassistb4b4.global.response.ApiResponse;
-import com.example.emergencyassistb4b4.global.security.CustomUserDetails;
+import com.example.emergencyassistb4b4.global.security.auth.CustomUserDetails;
 import com.example.emergencyassistb4b4.global.status.SuccessStatus;
 import com.example.emergencyassistb4b4.domain.report.service.ReportService;
 import com.example.emergencyassistb4b4.domain.user.domain.User;

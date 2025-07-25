@@ -7,7 +7,7 @@ import com.example.emergencyassistb4b4.domain.auth.dto.response.TokenResponseDto
 import com.example.emergencyassistb4b4.domain.auth.service.AuthService;
 import com.example.emergencyassistb4b4.domain.auth.token.TokenService;
 import com.example.emergencyassistb4b4.global.response.ApiResponse;
-import com.example.emergencyassistb4b4.global.security.JwtUtils;
+import com.example.emergencyassistb4b4.global.security.jwt.JwtUtils;
 import com.example.emergencyassistb4b4.global.status.SuccessStatus;
 import jakarta.servlet.ServletRequest;
 import jakarta.validation.Valid;

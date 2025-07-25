@@ -10,7 +10,7 @@ import com.example.emergencyassistb4b4.domain.report.dto.ReportResponseDto;
 import com.example.emergencyassistb4b4.domain.report.dto.ReportStatusResponseDto;
 import com.example.emergencyassistb4b4.domain.report.enums.ReportStatus;
 import com.example.emergencyassistb4b4.domain.report.service.ReportService;
-import com.example.emergencyassistb4b4.global.security.CustomUserDetails;
+import com.example.emergencyassistb4b4.global.security.auth.CustomUserDetails;
 import com.example.emergencyassistb4b4.domain.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;

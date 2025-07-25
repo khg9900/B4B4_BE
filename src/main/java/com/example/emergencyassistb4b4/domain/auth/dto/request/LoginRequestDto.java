@@ -15,7 +15,4 @@ public class LoginRequestDto {
     @NotBlank(message = "비밀번호는 필수 입력값입니다.")
     private String password;
 
-    private String accessToken; // OAuth2 로그인 (카카오, 구글 등에서 받은 액세스 토큰)
-    private String refreshToken; // 카카오 리프레시 토큰
-
 }

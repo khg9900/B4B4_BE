@@ -11,6 +11,7 @@ import java.util.List;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ErrorReasonDto {
+
     private final boolean isSuccess;
     private final HttpStatus httpStatus;
     private final String code;

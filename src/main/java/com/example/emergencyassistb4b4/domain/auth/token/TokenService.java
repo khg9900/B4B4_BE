@@ -2,7 +2,7 @@ package com.example.emergencyassistb4b4.domain.auth.token;
 
 import com.example.emergencyassistb4b4.domain.auth.dto.response.TokenResponseDto;
 import com.example.emergencyassistb4b4.global.exception.ApiException;
-import com.example.emergencyassistb4b4.global.security.JwtUtils;
+import com.example.emergencyassistb4b4.global.security.jwt.JwtUtils;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
 import com.example.emergencyassistb4b4.domain.user.domain.User;
 import com.example.emergencyassistb4b4.domain.user.dto.UserResponseDto;
@@ -43,7 +43,7 @@ public class TokenService {
         String newRefreshToken = jwtUtils.generateRefreshToken(UserResponseDto.from(user));
         refreshTokenService.saveToken(userId, newRefreshToken); // refresh 토큰 저장
 
-        // 6. 리프레시 토큰 저장 ( 기존 것을 덮어씀)
+        // 6. 리프레시 토큰 저장 (기존 것을 덮어씀)
         refreshTokenService.saveToken(userId, newRefreshToken);
 
         return new TokenResponseDto(newAccessToken, newRefreshToken);
