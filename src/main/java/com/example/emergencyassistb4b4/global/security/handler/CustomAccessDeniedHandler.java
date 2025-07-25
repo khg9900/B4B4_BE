@@ -1,5 +1,7 @@
 package com.example.emergencyassistb4b4.global.security.handler;
 
+import com.example.emergencyassistb4b4.global.exception.ApiException;
+import com.example.emergencyassistb4b4.global.response.ApiResponse;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
 import com.example.emergencyassistb4b4.global.exception.dto.ErrorReasonDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,13 +28,15 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
                        HttpServletResponse response,
                        AccessDeniedException accessDeniedException) throws IOException, ServletException {
 
-        // 403 Forbidden: 인증은 되었으나 권한 부족
-        ErrorReasonDto errorResponse = ErrorStatus.FORBIDDEN.getReasonHttpStatus();
+        // 공통 실패 응답 생성 (403 Forbidden: 인증은 되었으나 권한 부족)
+        ApiException exception = new ApiException(ErrorStatus.FORBIDDEN);
+        ApiResponse<Object> errorResponse = ApiResponse.onFailure(exception.getErrorCode()).getBody();
 
-        response.setStatus(errorResponse.getHttpStatus().value());
+        response.setStatus(exception.getErrorCode().getReasonHttpStatus().getHttpStatus().value());
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
+        // JSON 직렬화 후 응답
         String json = objectMapper.writeValueAsString(errorResponse);
         response.getWriter().write(json);
     }

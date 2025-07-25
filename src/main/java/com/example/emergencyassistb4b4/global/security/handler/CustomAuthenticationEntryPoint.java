@@ -2,6 +2,7 @@ package com.example.emergencyassistb4b4.global.security.handler;
 
 import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.global.exception.dto.ErrorReasonDto;
+import com.example.emergencyassistb4b4.global.response.ApiResponse;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
@@ -29,22 +30,29 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
                          AuthenticationException authException)
             throws IOException, ServletException {
 
-        Exception exception = (Exception) request.getAttribute("exception");
+        Object ex = request.getAttribute("exception");
 
-        ErrorReasonDto errorResponse;
-        int statusCode;
+        // 기본 에러 상태
+        ErrorStatus errorStatus = ErrorStatus.UNAUTHORIZED;
 
-        if (exception instanceof ApiException apiException) {
-            errorResponse = apiException.getErrorCode().getReasonHttpStatus();
-            statusCode = errorResponse.getHttpStatus().value(); // ← 안전한 방식
-        } else {
-            errorResponse = ErrorStatus.UNAUTHORIZED.getReasonHttpStatus();
-            statusCode = errorResponse.getHttpStatus().value(); // ← 마찬가지
+        String message = errorStatus.getReasonHttpStatus().getMessage(); // 기본 메시지
+
+        if (ex instanceof JwtAuthenticationException jwtEx) {
+            message = jwtEx.getMessage(); // 예외에 담긴 메시지로 대체
         }
 
-        response.setStatus(statusCode);
+        // ErrorReasonDto → ApiResponse 변환
+        ApiResponse<Object> errorResponse = new ApiResponse<>(
+                false,
+                errorStatus.getReasonHttpStatus().getCode(),
+                message, // 커스텀 메시지 적용
+                null
+        );
+
+        response.setStatus(errorStatus.getReasonHttpStatus().getHttpStatus().value());
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
+
         response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
     }
 }

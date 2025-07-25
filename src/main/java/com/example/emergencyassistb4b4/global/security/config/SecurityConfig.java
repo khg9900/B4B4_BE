@@ -5,6 +5,7 @@ import com.example.emergencyassistb4b4.global.security.jwt.JwtTokenAuthenticatio
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -21,6 +22,7 @@ import com.example.emergencyassistb4b4.global.security.handler.CustomAuthenticat
 public class SecurityConfig {
 
     private final JwtUtils jwtUtils;
+    private final RedisTemplate<String, String> redisTemplate;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
@@ -55,7 +57,7 @@ public class SecurityConfig {
                 )
                 // JWT 인증 필터 등록
                 .addFilterBefore(
-                        new JwtTokenAuthenticationFilter(jwtUtils, new AntPathMatcher()),
+                        new JwtTokenAuthenticationFilter(jwtUtils, redisTemplate, new AntPathMatcher()),
                         UsernamePasswordAuthenticationFilter.class
                 );
 
