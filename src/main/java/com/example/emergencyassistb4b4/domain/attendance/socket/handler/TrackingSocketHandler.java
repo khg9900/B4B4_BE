@@ -1,5 +1,6 @@
 package com.example.emergencyassistb4b4.domain.attendance.socket.handler;
 
+import com.example.emergencyassistb4b4.domain.attendance.redis.RedisService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,10 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 @RequiredArgsConstructor
 public class TrackingSocketHandler implements WebSocketHandler {
-
-    // RedisTemplate 타입 변경
-    private final RedisTemplate<String, String> redisTemplate;
-    private static final String VOLUNTEER_USER_PREFIX = "volunteer_user:";
+    private final RedisService redisService;
     // userId → sessions (1:N)
     private final Map<Long, Set<WebSocketSession>> userSessions = new ConcurrentHashMap<>();
     private final ObjectMapper objectMapper;
@@ -28,14 +26,12 @@ public class TrackingSocketHandler implements WebSocketHandler {
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
         Long userId = (Long) session.getAttributes().get("userId"); // attributes에서 userId 꺼내기
-        log.info("WebSocket afterConnectionEstablished - sessionId={}, userId={}", session.getId(), userId);
+
         if (userId == null) {
-            log.warn("userId 누락 또는 인증 실패. 세션 종료: {}", session.getId());
             closeSession(session, CloseStatus.NOT_ACCEPTABLE);
             return;
         }
         registerSession(userId, session);
-        log.info("WebSocket 연결 완료 - userId={}, sessionId={}", userId, session.getId());
     }
 
     private void registerSession(Long userId, WebSocketSession session) {
@@ -81,27 +77,24 @@ public class TrackingSocketHandler implements WebSocketHandler {
     // ============= Redis 캐싱 (participantId → userId) =============
 
     public void cacheVolunteerUserMapping(Long volunteerParticipantId, Long userId) {
-        String key = VOLUNTEER_USER_PREFIX + volunteerParticipantId;
-        redisTemplate.opsForValue().set(key, userId.toString());
-        log.debug("Redis 매핑 저장: {} -> {}", key, userId);
+
+        redisService.cacheTeamIdForVolunteer(volunteerParticipantId, userId);
     }
 
     public Long getUserIdByVolunteerId(Long volunteerParticipantId) {
-        String key = VOLUNTEER_USER_PREFIX + volunteerParticipantId;
-        String userIdStr = redisTemplate.opsForValue().get(key);
+
+        String userIdStr = redisService.getTeamIdForVolunteer(volunteerParticipantId).toString();
         if (userIdStr == null) return null;
         try {
             return Long.parseLong(userIdStr);
         } catch (NumberFormatException e) {
-            log.error("Redis에 저장된 userId 형식 오류: key={}, value={}", key, userIdStr);
             return null;
         }
     }
 
     public void removeVolunteerUserMapping(Long volunteerParticipantId) {
-        String key = VOLUNTEER_USER_PREFIX + volunteerParticipantId;
-        redisTemplate.delete(key);
-        log.debug("Redis 매핑 삭제: {}", key);
+        redisService.deleteTeamIdForVolunteer(volunteerParticipantId);
+
     }
 
     // ============= WebSocket 메시지 전송 =============

@@ -1,4 +1,4 @@
-package com.example.emergencyassistb4b4.domain.attendance.dto;
+package com.example.emergencyassistb4b4.domain.attendance.rabbitmq.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

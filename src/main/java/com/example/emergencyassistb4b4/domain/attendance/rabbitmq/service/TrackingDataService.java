@@ -1,5 +1,6 @@
-package com.example.emergencyassistb4b4.domain.attendance.service;
+package com.example.emergencyassistb4b4.domain.attendance.rabbitmq.service;
 
+import com.example.emergencyassistb4b4.domain.attendance.redis.RedisService;
 import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.domain.volunteer.domain.VolunteerParticipant;
 import com.example.emergencyassistb4b4.domain.volunteer.enums.CheckinStatus;
@@ -21,9 +22,7 @@ import static com.example.emergencyassistb4b4.global.status.ErrorStatus.ATTENDAN
 @Service
 public class TrackingDataService {
 
-    private static final String REDIS_ATTENDANCE_KEY_PREFIX = "attendance:session:";
-
-    private final RedisTemplate<String, String> redisTemplate;
+    private final RedisService redisService;
     private final VolunteerParticipantRepository participantRepository;
 
     @Transactional
@@ -31,10 +30,9 @@ public class TrackingDataService {
         List<VolunteerParticipant> updateList = new ArrayList<>();
 
         for (Long volunteerId : volunteerIds) {
-            String redisKey = REDIS_ATTENDANCE_KEY_PREFIX + volunteerId;
-            List<String> records = redisTemplate.opsForList().range(redisKey, 0, -1);
+            List<String> records = redisService.getAttendanceRecords(volunteerId);
             if (records == null || records.isEmpty()) {
-                log.debug("Redis 기록 없음 - volunteerId={}", volunteerId);
+
                 continue;
             }
 
@@ -59,8 +57,7 @@ public class TrackingDataService {
 
         // ⚠️ Redis는 트랜잭션 대상이 아니므로 DB 저장 성공 후 삭제
         for (Long volunteerId : volunteerIds) {
-            String redisKey = REDIS_ATTENDANCE_KEY_PREFIX + volunteerId;
-            redisTemplate.delete(redisKey);
+            redisService.deleteAttendanceRecords(volunteerId);
         }
 
         log.info("참여자 출석 상태 {}건 저장 완료 (teamId={})", updateList.size(), teamId);
