@@ -1,4 +1,4 @@
-package com.example.emergencyassistb4b4.domain.attendance.rabbitmq.event;
+package com.example.emergencyassistb4b4.domain.attendance.rabbitmq.consumer;
 
 import com.example.emergencyassistb4b4.domain.attendance.redis.RedisService;
 import lombok.RequiredArgsConstructor;

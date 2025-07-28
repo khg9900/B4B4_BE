@@ -1,8 +1,4 @@
-<<<<<<<< HEAD:src/main/java/com/example/emergencyassistb4b4/domain/attendance/rabbitmq/dto/IndividualTrackingSessionDto.java
 package com.example.emergencyassistb4b4.domain.attendance.rabbitmq.dto;
-========
-package com.example.emergencyassistb4b4.domain.attendance.dto;
->>>>>>>> 91a6ba41dbd82173278648d8e0dd59d73ebbb3e5:src/main/java/com/example/emergencyassistb4b4/domain/attendance/dto/IndividualTrackingSessionDto.java
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;

@@ -1,9 +1,4 @@
-<<<<<<<< HEAD:src/main/java/com/example/emergencyassistb4b4/domain/attendance/rabbitmq/service/TrackingDataService.java
 package com.example.emergencyassistb4b4.domain.attendance.rabbitmq.service;
-========
-package com.example.emergencyassistb4b4.domain.attendance.service;
->>>>>>>> 91a6ba41dbd82173278648d8e0dd59d73ebbb3e5:src/main/java/com/example/emergencyassistb4b4/domain/attendance/service/TrackingDataService.java
-
 import com.example.emergencyassistb4b4.domain.attendance.redis.RedisService;
 import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.domain.volunteer.domain.VolunteerParticipant;

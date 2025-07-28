@@ -1,4 +1,3 @@
-<<<<<<<< HEAD:src/main/java/com/example/emergencyassistb4b4/domain/attendance/rabbitmq/consumer/TrackingListener.java
 package com.example.emergencyassistb4b4.domain.attendance.rabbitmq.consumer;
 
 import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.dto.MessageWrapper;
@@ -6,15 +5,6 @@ import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.dto.SessionSta
 import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.dto.TrackingSessionDto;
 import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.dto.IndividualTrackingSessionDto;
 import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.service.TrackingDataService;
-========
-package com.example.emergencyassistb4b4.domain.attendance.consumer;
-
-import com.example.emergencyassistb4b4.domain.attendance.dto.MessageWrapper;
-import com.example.emergencyassistb4b4.domain.attendance.dto.SessionState;
-import com.example.emergencyassistb4b4.domain.attendance.dto.TrackingSessionDto;
-import com.example.emergencyassistb4b4.domain.attendance.dto.IndividualTrackingSessionDto;
-import com.example.emergencyassistb4b4.domain.attendance.service.TrackingDataService;
->>>>>>>> 91a6ba41dbd82173278648d8e0dd59d73ebbb3e5:src/main/java/com/example/emergencyassistb4b4/domain/attendance/consumer/TrackingListener.java
 import com.example.emergencyassistb4b4.domain.attendance.socket.handler.TrackingSocketHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

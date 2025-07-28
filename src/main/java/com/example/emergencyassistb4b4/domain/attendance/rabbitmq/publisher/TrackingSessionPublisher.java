@@ -1,12 +1,6 @@
-<<<<<<<< HEAD:src/main/java/com/example/emergencyassistb4b4/domain/attendance/rabbitmq/publisher/TrackingSessionPublisher.java
 package com.example.emergencyassistb4b4.domain.attendance.rabbitmq.publisher;
 
 import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.dto.MessageWrapper;
-========
-package com.example.emergencyassistb4b4.domain.attendance.publisher;
-
-import com.example.emergencyassistb4b4.domain.attendance.dto.MessageWrapper;
->>>>>>>> 91a6ba41dbd82173278648d8e0dd59d73ebbb3e5:src/main/java/com/example/emergencyassistb4b4/domain/attendance/publisher/TrackingSessionPublisher.java
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.AmqpException;

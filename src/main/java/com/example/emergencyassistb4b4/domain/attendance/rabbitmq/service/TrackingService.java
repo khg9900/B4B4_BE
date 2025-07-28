@@ -1,22 +1,13 @@
-<<<<<<<< HEAD:src/main/java/com/example/emergencyassistb4b4/domain/attendance/rabbitmq/service/TrackingService.java
 package com.example.emergencyassistb4b4.domain.attendance.rabbitmq.service;
 
 import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.dto.MessageWrapper;
 import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.dto.SessionState;
 import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.dto.TrackingSessionDto;
 import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.publisher.TrackingSessionPublisher;
-========
-package com.example.emergencyassistb4b4.domain.attendance.service;
-
-import com.example.emergencyassistb4b4.domain.attendance.dto.MessageWrapper;
-import com.example.emergencyassistb4b4.domain.attendance.dto.SessionState;
-import com.example.emergencyassistb4b4.domain.attendance.dto.TrackingSessionDto;
-import com.example.emergencyassistb4b4.domain.attendance.publisher.TrackingSessionPublisher;
->>>>>>>> 91a6ba41dbd82173278648d8e0dd59d73ebbb3e5:src/main/java/com/example/emergencyassistb4b4/domain/attendance/service/TrackingService.java
 import com.example.emergencyassistb4b4.domain.volunteer.domain.*;
-import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.domain.volunteer.enums.CheckinStatus;
 import com.example.emergencyassistb4b4.domain.volunteer.repository.VolunteerTeamRepository;
+import com.example.emergencyassistb4b4.global.exception.ApiException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
