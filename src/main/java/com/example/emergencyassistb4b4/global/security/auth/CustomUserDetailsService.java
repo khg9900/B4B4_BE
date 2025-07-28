@@ -1,8 +1,7 @@
-package com.example.emergencyassistb4b4.global.security;
+package com.example.emergencyassistb4b4.global.security.auth;
 
 import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
-import com.example.emergencyassistb4b4.domain.user.domain.LoginType;
 import com.example.emergencyassistb4b4.domain.user.domain.User;
 import com.example.emergencyassistb4b4.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,21 +16,23 @@ import org.springframework.util.StringUtils;
 @Service
 @Log4j2
 public class CustomUserDetailsService implements UserDetailsService {
+
     private final UserRepository userRepository;
+
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> {
                     log.warn("User not found with email {}", email);
                     throw new ApiException(ErrorStatus.USER_NOT_FOUND);
                 });
 
-
-
-        // local 인데 비밀번호가 null 이면 예외
-        if (user.getLoginType() == LoginType.LOCAL && !StringUtils.hasText(user.getPassword())) {
+        // 비밀번호가 null 이면 예외
+        if (!StringUtils.hasText(user.getPassword())) {
             throw new ApiException(ErrorStatus.INVALID_PASSWORD);
         }
+
         return new CustomUserDetails(user);
     }
 }

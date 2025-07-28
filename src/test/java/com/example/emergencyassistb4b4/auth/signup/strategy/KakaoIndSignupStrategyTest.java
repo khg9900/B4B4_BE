@@ -2,9 +2,7 @@ package com.example.emergencyassistb4b4.auth.signup.strategy;
 
 import com.example.emergencyassistb4b4.domain.auth.dto.request.SignUpRequestDto;
 import com.example.emergencyassistb4b4.domain.auth.dto.response.TokenResponseDto;
-import com.example.emergencyassistb4b4.domain.auth.strategy.signup.KakaoIndSignupStrategy;
 import com.example.emergencyassistb4b4.domain.auth.token.TokenService;
-import com.example.emergencyassistb4b4.domain.user.domain.LoginType;
 import com.example.emergencyassistb4b4.domain.user.domain.User;
 import com.example.emergencyassistb4b4.domain.user.domain.UserRole;
 import com.example.emergencyassistb4b4.domain.user.dto.UserResponseDto;

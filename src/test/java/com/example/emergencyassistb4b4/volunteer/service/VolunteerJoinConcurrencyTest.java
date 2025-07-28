@@ -1,6 +1,5 @@
 package com.example.emergencyassistb4b4.volunteer.service;
 
-import com.example.emergencyassistb4b4.domain.user.domain.LoginType;
 import com.example.emergencyassistb4b4.domain.user.domain.User;
 
 import com.example.emergencyassistb4b4.domain.user.domain.UserRole;

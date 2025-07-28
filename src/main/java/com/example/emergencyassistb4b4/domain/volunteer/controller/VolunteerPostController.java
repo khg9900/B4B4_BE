@@ -2,7 +2,7 @@ package com.example.emergencyassistb4b4.domain.volunteer.controller;
 
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Post.*;
 import com.example.emergencyassistb4b4.global.response.ApiResponse;
-import com.example.emergencyassistb4b4.global.security.CustomUserDetails;
+import com.example.emergencyassistb4b4.global.security.auth.CustomUserDetails;
 import com.example.emergencyassistb4b4.global.status.SuccessStatus;
 import com.example.emergencyassistb4b4.domain.volunteer.service.VolunteerPostService;
 import jakarta.validation.Valid;

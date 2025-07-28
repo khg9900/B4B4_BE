@@ -1,4 +1,4 @@
-package com.example.emergencyassistb4b4.global.config;
+package com.example.emergencyassistb4b4.global.config.querydsl;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;

@@ -1,5 +1,6 @@
 package com.example.emergencyassistb4b4.domain.user.service;
 
+import com.example.emergencyassistb4b4.domain.user.dto.UserInfoResponseDto;
 import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
 import com.example.emergencyassistb4b4.domain.report.domain.Report;
@@ -21,12 +22,6 @@ public class UserService {
     private final UserRepository userRepository;
     private final ReportRepository reportRepository;
 
-    public UserResponseDto getMyInfo(UserRequestDto userRequestDto) {
-        User user = userRepository.findByEmail(userRequestDto.getEmail())
-                .orElseThrow( () -> new ApiException(ErrorStatus.USER_NOT_FOUND));
-        return UserResponseDto.from(user);
-    }
-
     @Transactional(readOnly = true)
     public User getReporterInfo(Long reportId, User responder) {
 
@@ -43,7 +38,25 @@ public class UserService {
         return report.getReporter();
     }
 
+    public UserResponseDto getMyInfo(String email) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow( () -> new ApiException(ErrorStatus.USER_NOT_FOUND));
+
+        return UserResponseDto.from(user);
+    }
+
     public List<Long> findUsersByRegion(String province, String city) {
+
         return userRepository.findUsersByRegion(province, city, UserRole.IND);
+    }
+
+    // 컨트롤러를 위한 DTO 반환용 메서드
+    @Transactional(readOnly = true)
+    public UserInfoResponseDto getReporterInfoDto(Long reportId, User responder) {
+
+        User reporter = getReporterInfo(reportId, responder);
+
+        return UserInfoResponseDto.from(reporter);
     }
 }

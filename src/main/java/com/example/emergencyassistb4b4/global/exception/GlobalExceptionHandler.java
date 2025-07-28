@@ -1,8 +1,9 @@
 package com.example.emergencyassistb4b4.global.exception;
 
+import com.example.emergencyassistb4b4.global.exception.dto.ErrorReasonDto;
 import com.example.emergencyassistb4b4.global.exception.dto.FieldErrorDetail;
 import com.example.emergencyassistb4b4.global.response.ApiResponse;
-import com.example.emergencyassistb4b4.global.response.ErrorReasonDto;
+import com.example.emergencyassistb4b4.global.exception.dto.ErrorReasonDto;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpMediaTypeNotSupportedException;

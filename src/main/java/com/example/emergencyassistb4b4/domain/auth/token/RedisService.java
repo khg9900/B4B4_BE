@@ -11,9 +11,11 @@ import java.util.concurrent.TimeUnit;
 @Service
 @RequiredArgsConstructor
 public class RedisService {
+
     private final StringRedisTemplate stringRedisTemplate;
     private static final String REFRESH_TOKEN_PREFIX = "refresh:";
     private static final String BLACKLIST_PREFIX = "blacklist:";
+
     // RefreshToken 삭제
     public void deleteRefreshToken(String email) {
         stringRedisTemplate.delete(REFRESH_TOKEN_PREFIX + email);
@@ -30,7 +32,9 @@ public class RedisService {
         // ttl이 초 단위로 제대로´ 설정되도록 설정
         stringRedisTemplate.opsForValue().set(BLACKLIST_PREFIX + token, "logout", ttlSeconds, TimeUnit.SECONDS );
     }
+
     public boolean isBlacklisted(String token) {
+
         return stringRedisTemplate.hasKey(BLACKLIST_PREFIX + token);
     }
 }

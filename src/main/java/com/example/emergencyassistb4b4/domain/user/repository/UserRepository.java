@@ -17,8 +17,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findById(Long id);
 
-    Optional<User> findFirstByProvinceStartingWithAndUserRole(String province, UserRole role);
-
     // 예: city 와 role 기준 조회
     Optional<User> findFirstByProvinceAndCityAndUserRole(String province, String city, UserRole role);
 
