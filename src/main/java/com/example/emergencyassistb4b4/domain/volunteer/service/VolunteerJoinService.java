@@ -1,7 +1,7 @@
 package com.example.emergencyassistb4b4.domain.volunteer.service;
 
-import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.event.TrackingScheduleEvent;
-import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.event.TrackingScheduleEventListener;
+import com.example.emergencyassistb4b4.domain.attendance.event.TrackingScheduleEvent;
+import com.example.emergencyassistb4b4.domain.attendance.event.TrackingScheduleEventListener;
 import com.example.emergencyassistb4b4.domain.attendance.socket.handler.TrackingSocketHandler;
 import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;

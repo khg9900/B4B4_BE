@@ -2,7 +2,7 @@ package com.example.emergencyassistb4b4.domain.auth.token;
 
 import com.example.emergencyassistb4b4.domain.auth.dto.response.TokenResponseDto;
 import com.example.emergencyassistb4b4.global.exception.ApiException;
-import com.example.emergencyassistb4b4.global.security.JwtUtils;
+import com.example.emergencyassistb4b4.global.security.jwt.JwtUtils;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
 import com.example.emergencyassistb4b4.domain.user.domain.User;
 import com.example.emergencyassistb4b4.domain.user.dto.UserResponseDto;
@@ -15,11 +15,13 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 public class TokenService {
+
     private final JwtUtils jwtUtils;
     private final RefreshTokenService refreshTokenService;
     private final UserRepository userRepository;
 
     public TokenResponseDto reissueAccessToken(String refreshToken) {
+
         // 1. 리프레시 토큰 유효성 검사
         if (!jwtUtils.validateToken(refreshToken)) {
             throw new ApiException(ErrorStatus.INVAlID_REFRESH_TOKEN);
@@ -41,11 +43,10 @@ public class TokenService {
         String newRefreshToken = jwtUtils.generateRefreshToken(UserResponseDto.from(user));
         refreshTokenService.saveToken(userId, newRefreshToken); // refresh 토큰 저장
 
-        // 6. 리프레시 토큰 저장 ( 기존 것을 덮어씀)
+        // 6. 리프레시 토큰 저장 (기존 것을 덮어씀)
         refreshTokenService.saveToken(userId, newRefreshToken);
 
         return new TokenResponseDto(newAccessToken, newRefreshToken);
-
     }
 
     public TokenResponseDto issueToken(UserResponseDto user) {

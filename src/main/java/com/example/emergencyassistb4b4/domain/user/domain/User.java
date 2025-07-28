@@ -1,6 +1,5 @@
 package com.example.emergencyassistb4b4.domain.user.domain;
 
-import com.example.emergencyassistb4b4.domain.auth.oauth.dto.SocialUserUpdateDto;
 import com.example.emergencyassistb4b4.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -30,10 +29,6 @@ public class User extends BaseEntity{
     @Column(length = 255)
     private String password; //필수
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "login_type")
-    private LoginType loginType; //필수
-
     @Column(name = "provider", length = 255)
     private String provider;
 
@@ -50,26 +45,21 @@ public class User extends BaseEntity{
     private UserRole userRole;
 
     @Builder
-    public User(String email, String password, String nickname, String province, String city, LoginType loginType, String provider, UserRole userRole) {
+    public User(String email, String password, String nickname, String province, String city, String provider, UserRole userRole) {
+
         this.email = email;
         this.password = password;
         this.nickname = nickname;
         this.province = province;
         this.city = city;
-        this.loginType = loginType;
         this.provider = provider;
         this.userRole = userRole;
-
     }
-
 
     public User updateNickname(String nickname) {
-        this.nickname = nickname;
-        return this;
-    }
 
-    public User updateSocialInfo(SocialUserUpdateDto dto) {
-        this.nickname = dto.getNickname();
+        this.nickname = nickname;
+
         return this;
     }
 }

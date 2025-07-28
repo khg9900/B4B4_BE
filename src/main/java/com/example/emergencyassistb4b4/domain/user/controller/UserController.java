@@ -1,7 +1,7 @@
 package com.example.emergencyassistb4b4.domain.user.controller;
 
 import com.example.emergencyassistb4b4.global.response.ApiResponse;
-import com.example.emergencyassistb4b4.global.security.CustomUserDetails;
+import com.example.emergencyassistb4b4.global.security.auth.CustomUserDetails;
 import com.example.emergencyassistb4b4.global.status.SuccessStatus;
 import com.example.emergencyassistb4b4.domain.report.service.ReportService;
 import com.example.emergencyassistb4b4.domain.user.domain.User;
@@ -39,36 +39,18 @@ public class UserController {
         // 현재 공공기관 사용자 정보 가져오기
         User currentUser = userDetails.getUser();
 
-        User reporter = userService.getReporterInfo(reportId, currentUser);
-
-        UserInfoResponseDto responseDto = UserInfoResponseDto.from(reporter);
+        // DTO 반환을 서비스에서 처리
+        UserInfoResponseDto responseDto = userService.getReporterInfoDto(reportId, currentUser);
 
         return ApiResponse.onSuccess(SuccessStatus.REPORT_REPORTER_GET_SUCCESS, responseDto);
     }
- /*   @PreAuthorize("hasRole('IND')")
-    @GetMapping("/user/me")
-    public ResponseEntity<ApiResponse<UserResponseDto>> getMyInfo(@AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        UserResponseDto userResponseDto = userService.getMyInfo(userDetails.getUsername());
-        log.info("️ user = {}", userDetails.getUser().getEmail());
-        return ApiResponse.onSuccess(SuccessStatus.CUSTOM_SUCCESS_STATUS, userResponseDto);
-    }
-*/
-    // 확인용 api
     @GetMapping("/my-info")
-    public ResponseEntity<ApiResponse<UserResponseDto>> getMyInfo(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    public ResponseEntity<ApiResponse<UserResponseDto>> getMyInfo(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        log.info(" userDetails = {}", userDetails);
-        log.info(" user = {}", userDetails.getUser());
-        UserResponseDto response = new UserResponseDto(
-                userDetails.getUser().getId(),
-                userDetails.getUser().getEmail(),
-                userDetails.getUser().getUserRole()
-        );
+        UserResponseDto responseDto = userService.getMyInfo(userDetails.getUsername());
 
-        return ApiResponse.onSuccess(SuccessStatus.CUSTOM_SUCCESS_STATUS, response);
+        return ApiResponse.onSuccess(SuccessStatus.CUSTOM_SUCCESS_STATUS, responseDto);
     }
-
-
 }

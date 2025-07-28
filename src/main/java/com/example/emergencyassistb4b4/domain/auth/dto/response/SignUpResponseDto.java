@@ -8,12 +8,17 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class SignUpResponseDto {
+
     private Long id;
+
     private String email;
+
     private String nickname;
+
     private UserRole userRole;
 
     public static SignUpResponseDto from(User user) {
+
         return new SignUpResponseDto(
                 user.getId(),
                 user.getEmail(),

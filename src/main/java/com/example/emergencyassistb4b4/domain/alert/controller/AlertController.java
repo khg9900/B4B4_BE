@@ -4,7 +4,7 @@ import com.example.emergencyassistb4b4.domain.alert.dto.response.UserAlert;
 import com.example.emergencyassistb4b4.domain.alert.enums.AlertType;
 import com.example.emergencyassistb4b4.domain.alert.service.query.AlertQueryService;
 import com.example.emergencyassistb4b4.global.response.ApiResponse;
-import com.example.emergencyassistb4b4.global.security.CustomUserDetails;
+import com.example.emergencyassistb4b4.global.security.auth.CustomUserDetails;
 import com.example.emergencyassistb4b4.global.status.SuccessStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
