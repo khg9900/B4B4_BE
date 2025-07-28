@@ -31,28 +31,12 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtils jwtUtils;
     private final RedisTemplate<String, String> redisTemplate;
-    private final PathMatcher pathMatcher;
-
-    // 필터 skip 경로 (로그인, 회원가입 등만 포함)
-    private static final Set<String> SKIP_PATH = Set.of(
-            "/api/auth/login",
-            "/api/auth/signup",
-            "/oauth2/**",
-            "/api/login/oauth2/code/**"
-    );
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         String path = request.getRequestURI();
         log.debug("Request Path: {}", path); // 경로 로그 출력
-
-        // 필터 예외 경로 처리
-        if (isSkipPath(path)) {
-            log.debug("Skipping path: {}", path); // 필터를 건너뛴 경로 로그
-            filterChain.doFilter(request, response);
-            return;
-        }
 
         // 요청 헤더의 Authorization 키의 값 조회
         String authorizationHeader = request.getHeader(HEADER_AUTHORIZATION);
@@ -62,25 +46,7 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
         //가져온 토큰이 유효한지 확인하고 유효한 때는 인증 정보 설정
         try {
             if (token != null) {
-                // Redis에 로그아웃된 토큰 확인
-                if (Boolean.TRUE.equals(redisTemplate.hasKey(token))) {
-                    log.warn("Token is blacklisted (logged out).");
-                    throw new JwtAuthenticationException("로그아웃 된 토큰입니다.");
-                }
-
-                // JWT 유효성 검사
-                if (!jwtUtils.validateToken(token)) {
-                    log.warn("Invalid JWT token.");
-                    throw new JwtAuthenticationException("유효하지 않은 JWT 토큰입니다.");
-                }
-
-                // 유효한 토큰일 경우 SecurityContext에 인증 정보 등록
-                Authentication authentication = jwtUtils.getAuthentication(token);
-                SecurityContext context = SecurityContextHolder.createEmptyContext();
-                context.setAuthentication(authentication);
-                SecurityContextHolder.setContext(context);
-                log.debug("Authentication successful, user: {}", authentication.getName());
-
+                validateAndAuthenticateToken(token); // 추출된 메서드로 인증 로직 분리
             } else {
                 log.debug("No token found in request.");
             }
@@ -95,6 +61,25 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
         }
     }
 
+    // 유효성 검사 및 SecurityContext 설정 메서드 (기존 로직 그대로 분리)
+    private void validateAndAuthenticateToken(String token) {
+        if (Boolean.TRUE.equals(redisTemplate.hasKey(token))) {
+            log.warn("Token is blacklisted (logged out).");
+            throw new JwtAuthenticationException("로그아웃 된 토큰입니다.");
+        }
+
+        if (!jwtUtils.validateToken(token)) {
+            log.warn("Invalid JWT token.");
+            throw new JwtAuthenticationException("유효하지 않은 JWT 토큰입니다.");
+        }
+
+        Authentication authentication = jwtUtils.getAuthentication(token);
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(authentication);
+        SecurityContextHolder.setContext(context);
+        log.debug("Authentication successful, user: {}", authentication.getName());
+    }
+
     private String getAccessToken(String authorizationHeader) {
 
         log.debug("Authorization Header: {}", authorizationHeader);
@@ -104,11 +89,5 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
         }
 
         return null;
-    }
-
-
-    private boolean isSkipPath(String path) {
-
-        return SKIP_PATH.stream().anyMatch(pattern -> pathMatcher.match(pattern, path));
     }
 }

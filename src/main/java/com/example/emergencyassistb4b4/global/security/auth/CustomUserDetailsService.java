@@ -35,13 +35,4 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         return new CustomUserDetails(user);
     }
-
-    public UserDetails loadUserById(Long id) { // 로그인 시 시큐리티가 이 메서드 자동 호출함
-
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new ApiException(ErrorStatus.USER_NOT_FOUND));
-
-        // 시큐리티가 이해할 수 있는 CustomUserDetails 객체 반환
-        return new CustomUserDetails(user); // 직접 만든 UserDetails 구현체
-    }
 }

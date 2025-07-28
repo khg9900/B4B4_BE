@@ -1,7 +1,5 @@
 package com.example.emergencyassistb4b4.global.security.handler;
 
-import com.example.emergencyassistb4b4.global.exception.ApiException;
-import com.example.emergencyassistb4b4.global.exception.dto.ErrorReasonDto;
 import com.example.emergencyassistb4b4.global.response.ApiResponse;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
 import com.fasterxml.jackson.databind.ObjectMapper;

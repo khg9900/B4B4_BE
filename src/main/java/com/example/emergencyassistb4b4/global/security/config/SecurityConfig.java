@@ -11,7 +11,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.util.AntPathMatcher;
 import com.example.emergencyassistb4b4.global.security.handler.CustomAccessDeniedHandler;
 import com.example.emergencyassistb4b4.global.security.handler.CustomAuthenticationEntryPoint;
 
@@ -37,9 +36,12 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // 인증 없이 허용할 경로
                         .requestMatchers(
-                                "/auth/login",
                                 "/auth/signup",
+                                "/auth/login",
                                 "/auth/reissue",
+                                "/error/**", // Spring 기본 에러 핸들링
+                                "/tracking/**", // 위치 추적 및 WebSocket 핸드쉐이크용
+                                "/location-tracking/**",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**" // swagger 문서 접근 허용(API 테스트 편의성 목적)
                         ).permitAll()
@@ -57,7 +59,7 @@ public class SecurityConfig {
                 )
                 // JWT 인증 필터 등록
                 .addFilterBefore(
-                        new JwtTokenAuthenticationFilter(jwtUtils, redisTemplate, new AntPathMatcher()),
+                        new JwtTokenAuthenticationFilter(jwtUtils, redisTemplate),
                         UsernamePasswordAuthenticationFilter.class
                 );
 
