@@ -70,11 +70,11 @@ public class Post extends BaseEntity {
         this.location.update(placeName, latitude, longitude);
     }
 
-    public void updateAttendancePolicy(LocalDateTime start, LocalDateTime end, int radius, int minutes) {
+    public void updateAttendancePolicy(LocalDateTime start, LocalDateTime end, int radius) {
         if (this.attendancePolicy == null) {
             this.attendancePolicy = new AttendancePolicy();
         }
-        this.attendancePolicy.update(start, end, radius, minutes);
+        this.attendancePolicy.update(start, end, radius);
     }
 
     public void addTeams(List<VolunteerTeam> teamList) {

@@ -2,7 +2,6 @@ package com.example.emergencyassistb4b4.auth.signup.strategy;
 
 import com.example.emergencyassistb4b4.domain.auth.dto.request.SignUpRequestDto;
 import com.example.emergencyassistb4b4.domain.auth.dto.response.TokenResponseDto;
-import com.example.emergencyassistb4b4.domain.auth.strategy.signup.IndSignupStrategy;
 import com.example.emergencyassistb4b4.domain.auth.token.TokenService;
 import com.example.emergencyassistb4b4.domain.user.domain.User;
 import com.example.emergencyassistb4b4.domain.user.domain.UserRole;
@@ -22,8 +21,6 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class IndSignupStrategyTest {
-    @InjectMocks
-    private IndSignupStrategy indSignupStrategy;
     @Mock
     private UserRepository userRepository;
     @Mock
@@ -39,7 +36,6 @@ class IndSignupStrategyTest {
                 .email("test@local.com")
                 .password("secure123!")
                 .name("tester")
-                .loginType(LoginType.LOCAL)
                 .userRole(UserRole.IND)
                 .build();
 
@@ -49,7 +45,6 @@ class IndSignupStrategyTest {
                 .email(request.getEmail())
                 .password("encodedPw")
                 .nickname(request.getName())
-                .loginType(LoginType.LOCAL)
                 .userRole(UserRole.IND)
                 .build();
 

@@ -15,8 +15,7 @@ public class TrackingSessionPublisher {
 
     private final RabbitTemplate rabbitTemplate;
 
-    private static final String DELAYED_EXCHANGE_NAME = "tracking.delay.exchange";
-    private static final String DELAYED_ROUTING_KEY = "tracking.delay.routingkey";
+    private static final String DELAYED_EXCHANGE_NAME = "tracking.delay.exchange";;
 
     /**
      * 지연 메시지 전송
@@ -28,7 +27,7 @@ public class TrackingSessionPublisher {
                 return message;
             };
 
-            rabbitTemplate.convertAndSend(DELAYED_EXCHANGE_NAME, DELAYED_ROUTING_KEY, messageWrapper, messagePostProcessor);
+            rabbitTemplate.convertAndSend(DELAYED_EXCHANGE_NAME, messageWrapper, messagePostProcessor);
 
             log.info("Published delayed tracking session: participants={}, delay={}ms",
                     messageWrapper.getPayload().getParticipantUserIds(), delayMillis);

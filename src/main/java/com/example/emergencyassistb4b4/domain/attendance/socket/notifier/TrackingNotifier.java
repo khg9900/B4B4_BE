@@ -1,7 +1,7 @@
 package com.example.emergencyassistb4b4.domain.attendance.socket.notifier;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.example.emergencyassistb4b4.domain.attendance.redis.RedisService;
+import com.example.emergencyassistb4b4.domain.attendance.redis.RabbitMQRedisService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -19,7 +19,7 @@ public class TrackingNotifier {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    private final RedisService redisService; // RedisService 주입
+    private final RabbitMQRedisService rabbitMQRedisService; // RabbitMQRedisService 주입
 
     // userId → WebSocket 세션 저장 (예: TrackingSocketHandler 등에서 관리)
     private final Map<Long, Set<WebSocketSession>> userSessions = new ConcurrentHashMap<>();
@@ -53,7 +53,7 @@ public class TrackingNotifier {
 
     private Long getUserIdByVolunteerId(Long volunteerId) {
         try {
-            return redisService.getTeamIdForVolunteer(volunteerId);
+            return rabbitMQRedisService.findUserIdByVolunteer(volunteerId);
         } catch (Exception e) {
             log.error("Redis 조회 중 오류 발생", e);
             return null;

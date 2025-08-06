@@ -39,7 +39,6 @@ public class PostDetailResponse {
                         .checkinStart(post.getAttendancePolicy().getCheckinStart())
                         .checkinEnd(post.getAttendancePolicy().getCheckinEnd())
                         .allowedRadiusM(post.getAttendancePolicy().getAttendanceRadiusMeters())
-                        .minStayMinutes(post.getAttendancePolicy().getMinCheckinMinutes())
                         .build())
                 .build();
     }

@@ -1,75 +1,77 @@
 package com.example.emergencyassistb4b4.domain.attendance.rabbitmq.event;
 
-import com.example.emergencyassistb4b4.domain.attendance.redis.RedisService;
+import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.dto.RabbitMQ;
+import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.service.TrackingService;
+import com.example.emergencyassistb4b4.domain.attendance.redis.RabbitMQRedisService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
+import java.time.LocalDateTime;
+
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class AttendanceEventListener {
 
-    private final RedisService redisService;
-    private final RabbitTemplate rabbitTemplate;
+    private final RabbitMQRedisService rabbitMQRedisService;
+    private final TrackingService trackingService;
 
-    // 출석 상태 설정 후 커밋 처리
+    // 1. 출석 예약 상태 저장
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 5000))
-    public void onAttendanceStateSet(Long teamId) {
-        // 트랜잭션 커밋 후 처리되도록 보장
+    public void onAttendanceStateSet(AttendanceStateSetEvent event) {
         try {
-            // 출석 상태를 Redis에 설정 (트랜잭션 커밋 후)
-            redisService.setRabbitMQState(teamId);
-            log.info("Attendance state set to false for teamId: {}", teamId);
+            rabbitMQRedisService.scheduleTrackingStart(event.getTeamId(), event.getJoinedAt()); // state = false, joinedAt 저장
+            log.info("[예약 등록] 출석 예약 저장 완료 - teamId: {}, joinedAt: {}", event.getTeamId(), event.getJoinedAt());
         } catch (Exception e) {
-            log.error("Error setting RabbitMQ state for teamId: {}", teamId, e);
+            log.error("[예약 등록 실패] teamId: {}", event.getTeamId(), e);
         }
     }
 
-    // 출석 상태 변경 처리
+    // 2. 출석 시작 처리 (예약 시간 5분 전)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 5000))
     public void onAttendanceStateChanged(Long teamId) {
-        // 트랜잭션 커밋 후 처리되도록 보장
         try {
-            String state = redisService.getRabbitmqState(teamId);
+            RabbitMQ state = rabbitMQRedisService.getTrackingState(teamId);
 
-            // 출석 상태가 false일 때만 처리
-            if ("false".equals(state)) {
-                // 출석 시작 메시지 발행
-                rabbitTemplate.convertAndSend("attendance.exchange", "attendance.start", teamId.toString());
-                // 상태를 true로 변경
-                redisService.changeRabbitMQState(teamId);
-                log.info("Attendance state set to true for teamId: {}", teamId);
+            boolean isTimeToTrigger = LocalDateTime.now().isAfter(state.getJoinedAt().minusMinutes(5));
+            boolean isNotStarted = !state.isState();
+
+            if (isTimeToTrigger && isNotStarted) {
+                trackingService.scheduleTrackingForTeam(teamId);
+                rabbitMQRedisService.updateTrackingState(teamId, state.getJoinedAt()); // state = true
+                log.info("[출석 시작] 출석 상태 변경 완료 - teamId: {}", teamId);
+            } else {
+                log.debug("[조건 미충족] 출석 시작 안함 - teamId: {}, isTimeToTrigger: {}, isNotStarted: {}",
+                        teamId, isTimeToTrigger, isNotStarted);
             }
         } catch (Exception e) {
-            log.error("Error processing attendance state change for teamId: {}", teamId, e);
+            log.error("[출석 시작 실패] teamId: {}", teamId, e);
         }
     }
 
-    // 출석 종료 처리
+    // 3. 출석 종료 처리
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 5000))
     public void onAttendanceEnded(Long teamId) {
-        // 트랜잭션 커밋 후 처리되도록 보장
         try {
-            String state = redisService.getRabbitmqState(teamId);
+            RabbitMQ state = rabbitMQRedisService.getTrackingState(teamId);
 
-            // 상태가 false가 아니면 상태 삭제
-            if (state != null && !"false".equals(state)) {
-                redisService.deleteRabbitMQState(teamId);
-                log.info("Attendance state deleted for teamId: {}", teamId);
+            if (state.isState()) {
+                rabbitMQRedisService.clearTrackingState(teamId);
+                log.info("[출석 종료] 출석 상태 삭제 완료 - teamId: {}", teamId);
+            } else if (LocalDateTime.now().isAfter(state.getJoinedAt())) {
+                rabbitMQRedisService.clearTrackingState(teamId);
+                log.warn("[출석 종료 비정상] 출석이 시작되지 않은 상태에서 종료 요청 - teamId: {}", teamId);
             } else {
-                log.warn("No valid attendance state to delete for teamId: {}", teamId);
+                log.debug("[출석 종료 스킵] 아직 출석 시간 전 - teamId: {}, joinedAt: {}", teamId, state.getJoinedAt());
             }
         } catch (Exception e) {
-            log.error("Error ending attendance for teamId: {}", teamId, e);
+            log.error("[출석 종료 실패] teamId: {}", teamId, e);
         }
     }
 }

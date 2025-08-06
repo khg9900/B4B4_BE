@@ -1,10 +1,9 @@
 package com.example.emergencyassistb4b4.domain.attendance.socket.handler;
 
-import com.example.emergencyassistb4b4.domain.attendance.redis.RedisService;
+import com.example.emergencyassistb4b4.domain.attendance.redis.RabbitMQRedisService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.*;
@@ -18,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 @RequiredArgsConstructor
 public class TrackingSocketHandler implements WebSocketHandler {
-    private final RedisService redisService;
+    private final RabbitMQRedisService rabbitMQRedisService;
     // userId → sessions (1:N)
     private final Map<Long, Set<WebSocketSession>> userSessions = new ConcurrentHashMap<>();
     private final ObjectMapper objectMapper;
@@ -74,26 +73,20 @@ public class TrackingSocketHandler implements WebSocketHandler {
         userSessions.entrySet().removeIf(entry -> entry.getValue().isEmpty());
     }
 
-    // ============= Redis 캐싱 (participantId → userId) =============
+    // ============= Redis 캐싱 (volunteerId → userId) =============
 
-    public void cacheVolunteerUserMapping(Long volunteerParticipantId, Long userId) {
+    public void cacheVolunteerUserMapping(Long volunteerId, Long userId) {
 
-        redisService.cacheTeamIdForVolunteer(volunteerParticipantId, userId);
+        rabbitMQRedisService.mapVolunteerToUser(volunteerId, userId);
     }
 
     public Long getUserIdByVolunteerId(Long volunteerParticipantId) {
 
-        String userIdStr = redisService.getTeamIdForVolunteer(volunteerParticipantId).toString();
-        if (userIdStr == null) return null;
-        try {
-            return Long.parseLong(userIdStr);
-        } catch (NumberFormatException e) {
-            return null;
-        }
+        return rabbitMQRedisService.findUserIdByVolunteer(volunteerParticipantId);
     }
 
     public void removeVolunteerUserMapping(Long volunteerParticipantId) {
-        redisService.deleteTeamIdForVolunteer(volunteerParticipantId);
+        rabbitMQRedisService.unmapVolunteerFromUser(volunteerParticipantId);
 
     }
 

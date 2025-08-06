@@ -4,6 +4,7 @@ import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.dto.MessageWra
 import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.dto.SessionState;
 import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.dto.TrackingSessionDto;
 import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.publisher.TrackingSessionPublisher;
+import com.example.emergencyassistb4b4.domain.attendance.socket.handler.TrackingSocketHandler;
 import com.example.emergencyassistb4b4.domain.volunteer.domain.*;
 import com.example.emergencyassistb4b4.domain.volunteer.enums.CheckinStatus;
 import com.example.emergencyassistb4b4.domain.volunteer.repository.VolunteerTeamRepository;
@@ -25,7 +26,7 @@ public class TrackingService {
 
     private final TrackingSessionPublisher trackingSessionPublisher;
     private final VolunteerTeamRepository volunteerTeamRepository;
-
+    private final TrackingSocketHandler trackingSocketHandler;
     /**
      * 팀에 대한 위치 추적 세션 예약 시작
      */
@@ -41,14 +42,25 @@ public class TrackingService {
             throw new ApiException(ATTENDANCE_LOCATION_OR_POLICY_MISSING);
         }
 
-        List<Long> participantUserIds = team.getParticipants().stream()
+        List<VolunteerParticipant> participants = team.getParticipants().stream()
                 .filter(participant -> participant.getCheckinStatus() == CheckinStatus.PARTICIPATED)
+                .toList();
+
+        List<Long> participantUserIds = participants.stream()
                 .map(VolunteerParticipant::getId)
                 .toList();
+
+        for (VolunteerParticipant participant : participants) {
+            trackingSocketHandler.cacheVolunteerUserMapping(
+                    participant.getId(),                     // 자원봉사자 ID
+                    participant.getUser().getId()            // 유저 ID
+            );
+        }
 
         TrackingSessionDto sessionDto = TrackingSessionDto.from(team, location, policy, participantUserIds);
 
         LocalDateTime checkinStart = policy.getCheckinStart();
+
 
         // 1. READY 메시지 예약 (출석 시작 1분 전)
         LocalDateTime readyTime = checkinStart.minusMinutes(1);
@@ -57,8 +69,8 @@ public class TrackingService {
         // 2. STARTED 메시지 예약 (출석 시작 시점)
         scheduleTrackingAtTime(new MessageWrapper(SessionState.STARTED, sessionDto), checkinStart);
 
-        // 3. ENDED 메시지 예약 (출석 시작 30분 뒤)
-        LocalDateTime endTime = checkinStart.plusMinutes(30);
+        // 3. ENDED 메시지 예약 (출석 종료 시점)
+        LocalDateTime endTime = policy.getCheckinEnd();
         scheduleTrackingAtTime(new MessageWrapper(SessionState.ENDED, sessionDto), endTime);
 
         log.debug("Tracking session scheduled: teamId={}, ready={}, start={}, end={}",
