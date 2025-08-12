@@ -1,6 +1,6 @@
-package com.example.emergencyassistb4b4.domain.alert.kafka.consumer.dlq;
+package com.example.emergencyassistb4b4.domain.alert.kafka.consumer.dlt;
 
-import com.example.emergencyassistb4b4.domain.alert.kafka.service.KafkaDlqLogService;
+import com.example.emergencyassistb4b4.domain.alert.kafka.service.KafkaDltLogService;
 import com.example.emergencyassistb4b4.global.kafka.dto.VolunteerUpdatedEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
@@ -12,10 +12,10 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class VolunteerUpdateAlertDlqHandler {
+public class VolunteerUpdateAlertDltHandler {
 
     private final ObjectMapper objectMapper;
-    private final KafkaDlqLogService kafkaDlqLogService;
+    private final KafkaDltLogService kafkaDltLogService;
 
     @KafkaListener(
         topics = "volunteer-post-updated-dlt",
@@ -30,7 +30,7 @@ public class VolunteerUpdateAlertDlqHandler {
         } catch (Exception e) {
             log.error("[DLQ:누적알림] 역직렬화 실패 - 리스너: {}, 이유: {}", listener, e.getMessage());
 
-            kafkaDlqLogService.logFailure(
+            kafkaDltLogService.logFailure(
                 "volunteer-post-updated",
                 "alert-volunteer-update-group",
                 rawMessage,

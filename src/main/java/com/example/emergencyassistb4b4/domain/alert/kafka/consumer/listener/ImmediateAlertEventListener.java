@@ -5,6 +5,8 @@ import com.example.emergencyassistb4b4.global.kafka.dto.DisasterReportedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.support.KafkaHeaders;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -22,9 +24,17 @@ public class ImmediateAlertEventListener { // 즉시 알림(예: 재난 발생 �
      */
     @KafkaListener(
         topics = "report-reported",
+        groupId = "alert-immediate-group", // 즉시 알림 전용 group
         containerFactory = "immediateListenerFactory"
     )
-    public void onDisasterReported(DisasterReportedEvent event) {
+    public void onDisasterReported(
+            DisasterReportedEvent event,
+            @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
+            @Header(KafkaHeaders.RECEIVED_PARTITION) int partition,
+            @Header(KafkaHeaders.OFFSET) long offset
+    ) {
+
+        log.info("[IMMEDIATE] consumed topic={}, partition={}, offset={}, payload={}", topic, partition, offset, event);
 
         try {
             // Kafka 메시지 수신 시 orchestratorService를 통해 즉시 알림 처리

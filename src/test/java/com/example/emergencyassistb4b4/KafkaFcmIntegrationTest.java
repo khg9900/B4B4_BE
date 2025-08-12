@@ -1,7 +1,7 @@
 package com.example.emergencyassistb4b4;
 
 import com.example.emergencyassistb4b4.domain.alert.kafka.consumer.listener.ImmediateAlertEventListener;
-import com.example.emergencyassistb4b4.domain.alert.kafka.repository.KafkaDlqLogRepository;
+import com.example.emergencyassistb4b4.domain.alert.kafka.repository.KafkaDltLogRepository;
 import com.example.emergencyassistb4b4.global.kafka.dto.DisasterReportedEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.awaitility.Awaitility;
@@ -42,7 +42,7 @@ public class KafkaFcmIntegrationTest { // Kafka to FCM 전체 연동 테스트 (
     private FcmFailureService fcmFailureService; // FCM 발송 서비스 -> 실제 사용 + 호출 감시
 
     @Autowired
-    private KafkaDlqLogRepository kafkaDlqLogRepository; // DLQ 로그 저장소
+    private KafkaDltLogRepository kafkaDlqLogRepository; // DLQ 로그 저장소
 
     /*
     테스트 1: Kafka 메시지가 정상적으로 Consumer에게 도달하는지 검증하는 테스트

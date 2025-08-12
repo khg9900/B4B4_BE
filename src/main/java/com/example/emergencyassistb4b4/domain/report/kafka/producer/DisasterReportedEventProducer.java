@@ -23,10 +23,17 @@ public class DisasterReportedEventProducer {
      */
     public void sendDisasterReportedEvent(DisasterReportedEvent event) {
 
-        kafkaTemplate.send(TOPIC, event)
-                .thenAccept(result -> log.info("kafka - report-reported 발행 성공: {}", event)) // 메시지 전송 성공 시 로그 출력
+        // 예시 키: "Seoul:Mapo" 형태 (도메인에 맞춰 결정)
+        String key = event.getProvince() + ":" + event.getCity();
+
+        kafkaTemplate.send(TOPIC, key, event)
+                .thenAccept(result -> {
+                    var meta = result.getRecordMetadata();
+                    log.info("kafka publish OK topic={}, partition={}, offset={}, key={}, event={}",
+                            meta.topic(), meta.partition(), meta.offset(), key, event);
+                }) // 메시지 전송 성공 시 로그 출력
                 .exceptionally(ex -> { // 메시지 전송 실패 시 예외 및 이벤트 로그 출력
-                    log.error("kafka - report-reported 발행 실패: {}", event, ex);
+                    log.error("kafka publish FAIL key={}, event={}", key, event, ex);
 
                     return null;
                 });

@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.listener.ContainerProperties;
 
 @Configuration
@@ -16,7 +15,6 @@ import org.springframework.kafka.listener.ContainerProperties;
 public class ImmediateAlertListenerConfig { // 즉시 알림 처리용 Kafka 리스너 설정
 
     private final KafkaBaseConfig kafkaBaseConfig; // 공통 Kafka 설정을 분리한 Config
-    private final KafkaTemplate<String, Object> kafkaTemplate; // 오류 발생 시 DLT로 메시지 전송에 사용
 
     // DisasterReportedEvent 객체를 처리할 ConsumerFactory 설정
     @Bean
@@ -39,8 +37,8 @@ public class ImmediateAlertListenerConfig { // 즉시 알림 처리용 Kafka 리
         factory.setConcurrency(3); // 동시에 최대 3개의 consumer 스레드로 처리
         factory.getContainerProperties()
             .setAckMode(ContainerProperties.AckMode.RECORD); // 메시지 단위 수동 커밋
-        factory.setCommonErrorHandler(
-            kafkaBaseConfig.defaultErrorHandler(kafkaTemplate)); // 공통 에러 핸들러 등록
+        factory.getContainerProperties().setIdleEventInterval(30000L); // 30초간 수신 없으면 이벤트 발생
+        factory.setCommonErrorHandler(kafkaBaseConfig.defaultErrorHandler()); // 여기서 DLT/재시도 정책 적용
 
         return factory;
     }

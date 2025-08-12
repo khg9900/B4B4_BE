@@ -16,10 +16,10 @@ import org.springframework.kafka.listener.ContainerProperties;
 public class VolunteerUpdatedAlertListenerConfig {
 
     private final KafkaBaseConfig kafkaBaseConfig;
-    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Bean
     public ConsumerFactory<String, VolunteerUpdatedEvent> VolunteerUpdateConsumerFactory() {
+
         return new DefaultKafkaConsumerFactory<>(
             kafkaBaseConfig.baseConsumerProps("alert-volunteer-update-group", VolunteerUpdatedEvent.class.getName())
         );
@@ -27,11 +27,14 @@ public class VolunteerUpdatedAlertListenerConfig {
 
     @Bean(name = "volunteerUpdatedListenerFactory")
     public ConcurrentKafkaListenerContainerFactory<String, VolunteerUpdatedEvent> volunteerUpdateListenerFactory() {
+
         var factory = new ConcurrentKafkaListenerContainerFactory<String, VolunteerUpdatedEvent>();
+
         factory.setConsumerFactory(VolunteerUpdateConsumerFactory());
         factory.setConcurrency(3);
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.RECORD);
-        factory.setCommonErrorHandler(kafkaBaseConfig.defaultErrorHandler(kafkaTemplate));
+        factory.setCommonErrorHandler(kafkaBaseConfig.defaultErrorHandler()); // 자동설정 템플릿을 쓰는 에러핸들러
+
         return factory;
     }
 }

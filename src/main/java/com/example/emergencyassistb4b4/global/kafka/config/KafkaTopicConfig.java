@@ -3,9 +3,11 @@ package com.example.emergencyassistb4b4.global.kafka.config;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.config.TopicBuilder;
 
 @Configuration
+@Profile("dev") // 운영에서는 인프라 코드(Terraform/Ansible/kafka-topics.sh 등)로 관리하는 게 일반적
 public class KafkaTopicConfig { // Kafka 토픽을 코드에서 직접 생성하는 설정 (주로 개발 초기나 테스트 환경에서 유용)
 
     /**
