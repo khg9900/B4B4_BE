@@ -81,6 +81,9 @@ dependencies {
     // S3
     implementation platform("software.amazon.awssdk:bom:2.25.28") // 최신 BOM 버전
     implementation 'software.amazon.awssdk:s3'
+
+    // sql
+    implementation 'org.postgresql:postgresql:42.7.7'
 }
 
 tasks.withType(JavaCompile) {
