@@ -26,6 +26,7 @@ public class ImmediateAlertDltListener {
             @Header(KafkaHeaders.EXCEPTION_FQCN) String exClass,
             @Header(KafkaHeaders.EXCEPTION_MESSAGE) String exMessage
     ) {
+
         // TODO: rawMessage 파싱 + 위 메타데이터까지 DB 저장
         log.warn("[DLT-IMMEDIATE] topic={}, partition={}, offset={}, ex={} - {}, payload={}",
                 topic, partition, offset, exClass, exMessage, rawMessage);

@@ -14,11 +14,17 @@ import lombok.*;
         @Index(name="idx_payload", columnList = "payloadId", unique = true)
 })
 public class Result {
+
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) Long id;
-    String test;        // "delay-accuracy" | "broadcast"
-    String system;      // "rabbit" | "kafka"
+    String test;        // "delay-accuracy" or "broadcast"
+
+    String system;      // "rabbit" or "kafka"
+
     Long scheduledAtMs; // 목표 시각
+
     Long publishedAtMs; // 보낸 시각
+
     Long consumedAtMs;  // 소비 시각
+
     String payloadId;
 }

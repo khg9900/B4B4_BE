@@ -18,6 +18,7 @@ public class KafkaTopicConfig { // Kafka 토픽을 코드에서 직접 생성하
      */
     @Bean
     public NewTopic disasterReported() {
+
         return TopicBuilder.name("report-reported")
             .partitions(3) // 컨슈머 병렬성을 위한 파티션 수 (토픽이 3개의 파티션으로 분할됨)
             .replicas(1) // 장애 대응을 위한 복제본 수, 운영 환경에서는 최소 replica = 2 이상 권장 (1이면 단일 노드에만 저장됨 >> 각 파티션의 복제본이 없다는 뜻(ex.Partition 0이 브로커 A에만 존재 → A가 죽으면 해당 파티션도 사용 불가))
@@ -31,6 +32,7 @@ public class KafkaTopicConfig { // Kafka 토픽을 코드에서 직접 생성하
      */
     @Bean
     public NewTopic disasterReportedDLT() {
+
         return TopicBuilder.name("report-reported-dlt")
             .partitions(3)
             .replicas(1)
@@ -39,6 +41,7 @@ public class KafkaTopicConfig { // Kafka 토픽을 코드에서 직접 생성하
 
     @Bean
     public NewTopic volunteerPostUpdated() {
+
         return TopicBuilder.name("volunteer-post-updated")
             .partitions(3)
             .replicas(1)
@@ -47,6 +50,7 @@ public class KafkaTopicConfig { // Kafka 토픽을 코드에서 직접 생성하
 
     @Bean
     public NewTopic volunteerPostUpdatedDLT() {
+
         return TopicBuilder.name("volunteer-post-updated-dlt")
             .partitions(3)
             .replicas(1)

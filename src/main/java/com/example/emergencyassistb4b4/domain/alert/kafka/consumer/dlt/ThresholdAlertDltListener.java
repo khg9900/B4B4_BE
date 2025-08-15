@@ -26,6 +26,7 @@ public class ThresholdAlertDltListener {
             @Header(KafkaHeaders.EXCEPTION_FQCN) String exClass,
             @Header(KafkaHeaders.EXCEPTION_MESSAGE) String exMessage
     ) {
+
         // TODO: 누적/임계 로직용 저장 또는 별도 후처리
         log.warn("[DLT-THRESHOLD] topic={}, partition={}, offset={}, ex={} - {}, payload={}",
                 topic, partition, offset, exClass, exMessage, rawMessage);

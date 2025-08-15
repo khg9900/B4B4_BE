@@ -57,7 +57,7 @@ public class KafkaBaseConfig { // Kafka 공통 설정 클래스 (Consumer 설정
     // Kafka 메시지 처리 중 오류 발생 시 DLT로 전송하는 DefaultErrorHandler 정의
     public DefaultErrorHandler defaultErrorHandler() {
 
-        // 1) 원토픽 -> "<원토픽>-dlt" 로 목적지 매핑
+        // 원토픽 -> <원토픽>-dlt 로 목적지 매핑
         DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(
                 kafkaTemplate,
                 (record, ex) -> new TopicPartition(
@@ -65,12 +65,12 @@ public class KafkaBaseConfig { // Kafka 공통 설정 클래스 (Consumer 설정
                 )
         );
 
-        // 2) 백오프 (1초 간격, 3회)
+        // 백오프 (1초 간격, 3회)
         FixedBackOff backOff = new FixedBackOff(1000L, 3);
 
         DefaultErrorHandler handler = new DefaultErrorHandler(recoverer, backOff);
 
-        // 3) 재시도 무의미 예외는 즉시 DLT
+        // 재시도 무의미 예외는 즉시 DLT
         handler.addNotRetryableExceptions(
                 org.springframework.kafka.support.serializer.DeserializationException.class,
                 com.fasterxml.jackson.databind.JsonMappingException.class,

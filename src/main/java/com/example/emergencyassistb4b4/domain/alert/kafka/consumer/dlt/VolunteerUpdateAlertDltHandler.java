@@ -22,6 +22,7 @@ public class VolunteerUpdateAlertDltHandler {
         containerFactory = "volunteerUpdatedDltListenerFactory"
     )
     public void handle(String rawMessage) {
+
         final String listener = "volunteerUpdatedEventListener";
 
         VolunteerUpdatedEvent parsedEvent = null;

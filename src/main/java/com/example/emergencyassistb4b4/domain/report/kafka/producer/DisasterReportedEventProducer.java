@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 public class DisasterReportedEventProducer {
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
-    // 메시지를 보낼 Kafka 토픽 이름 (하드코딩되어 있음, 운영 시에는 application.yml에서 주입받는 방식 권장)
+    // 메시지를 보낼 Kafka 토픽 이름(하드코딩되어 있음, 운영 시에는 application.yml에서 주입받는 방식 권장)
     private static final String TOPIC = "report-reported";
 
     /**

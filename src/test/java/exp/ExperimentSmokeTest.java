@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +48,7 @@ class ExperimentSmokeTest extends TestContainersConfig {
 
     @Test @Order(1)
     void rabbit_delay_accuracy_two_lines() throws Exception {
+
         int N = 300;
         long now = System.currentTimeMillis();
         int[] delays = {5000, 30000};
@@ -67,16 +67,16 @@ class ExperimentSmokeTest extends TestContainersConfig {
         rabbitLine = String.format("[RabbitMQ Delay] 5s/30s, n=%d  → p95=%.1f ms, p99=%.1f ms",
                 errors.size(), p95, p99);
 
-        // 즉시 한 번 출력
         System.out.println(rabbitLine);
         System.out.flush();
     }
 
     @Test @Order(2)
     void kafka_broadcast_two_lines() throws Exception {
+
         kafka.sendBurst(5000);
 
-        // ✅ 소비 반영될 때까지 최대 20초 대기 (500ms 간격)
+        // 소비 반영될 때까지 최대 20초 대기(500ms 간격)
         Instant deadline = Instant.now().plusSeconds(20);
         List<Long> e2e = List.of();
         do {
@@ -90,15 +90,17 @@ class ExperimentSmokeTest extends TestContainersConfig {
 
         double p95 = Metrics.percentile(e2e, 0.95);
         double p99 = Metrics.percentile(e2e, 0.99);
-        // 콘솔 바로 출력 + 요약 저장 (둘 다)
+        // 콘솔 바로 출력 + 요약 저장(둘 다)
         kafkaLine = String.format("[Kafka Broadcast] burst=5k, n=%d → p95=%.1f ms, p99=%.1f ms, loss=0",
                 e2e.size(), p95, p99);
+
         System.out.println(kafkaLine);
         System.out.flush();
     }
 
     @AfterAll
     static void printSummary() {
+
         System.out.println("=== SUMMARY ===");
         System.out.println(rabbitLine.isEmpty() ? "(no rabbit data)" : rabbitLine);
         System.out.println(kafkaLine.isEmpty() ? "(no kafka data)" : kafkaLine);
