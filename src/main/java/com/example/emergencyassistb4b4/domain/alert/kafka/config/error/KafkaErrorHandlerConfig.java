@@ -42,11 +42,10 @@ public class KafkaErrorHandlerConfig { // CommonErrorHandler 빈 제공 (DLT 라
     @Bean
     public CommonErrorHandler commonErrorHandler() {
 
-        Map<String, String> bizDltMap = Map.of(
-                immediateTopic, immediateDltTopic,
-                thresholdTopic, thresholdDltTopic,
-                volunteerTopic, volunteerDltTopic
-        );
+        Map<String, String> bizDltMap = new java.util.HashMap<>();
+        bizDltMap.put(immediateTopic, immediateDltTopic);
+        bizDltMap.put(thresholdTopic, thresholdDltTopic);
+        bizDltMap.put(volunteerTopic, volunteerDltTopic);
 
         DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(
                 kafkaTemplate,

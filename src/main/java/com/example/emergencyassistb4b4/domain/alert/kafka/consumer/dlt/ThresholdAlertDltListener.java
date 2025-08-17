@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 public class ThresholdAlertDltListener {
 
     @KafkaListener(
-            topics = "${spring.kafka.topic.dlt.immediate}",
+            topics = "${spring.kafka.topic.dlt.threshold}",
             groupId = "${spring.kafka.group.dlt.threshold}",
             containerFactory = "dltListenerFactory",
             properties = { "auto.offset.reset=earliest" }
