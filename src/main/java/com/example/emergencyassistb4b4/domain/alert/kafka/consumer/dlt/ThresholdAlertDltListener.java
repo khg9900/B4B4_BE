@@ -11,12 +11,10 @@ import org.springframework.stereotype.Component;
 public class ThresholdAlertDltListener {
 
     @KafkaListener(
-            topics = "report-reported-dlt",
-            groupId = "alert-dlt-threshold-group",
-            containerFactory = "disasterReportedDltListenerFactory",
-            properties = {
-                    "auto.offset.reset=earliest"
-            }
+            topics = "${spring.kafka.topic.dlt.immediate}",
+            groupId = "${spring.kafka.group.dlt.threshold}",
+            containerFactory = "dltListenerFactory",
+            properties = { "auto.offset.reset=earliest" }
     )
     public void onDlt(
             String rawMessage,
@@ -27,7 +25,6 @@ public class ThresholdAlertDltListener {
             @Header(KafkaHeaders.EXCEPTION_MESSAGE) String exMessage
     ) {
 
-        // TODO: 누적/임계 로직용 저장 또는 별도 후처리
         log.warn("[DLT-THRESHOLD] topic={}, partition={}, offset={}, ex={} - {}, payload={}",
                 topic, partition, offset, exClass, exMessage, rawMessage);
     }

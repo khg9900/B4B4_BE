@@ -11,12 +11,10 @@ import org.springframework.stereotype.Component;
 public class ImmediateAlertDltListener {
 
     @KafkaListener(
-            topics = "report-reported-dlt",
-            groupId = "alert-dlt-immediate-group",
-            containerFactory = "disasterReportedDltListenerFactory", // 기존 DLT용 팩토리 이름 사용
-            properties = {
-                    "auto.offset.reset=earliest" // 테스트 시 과거 메시지도 읽기
-            }
+            topics = "${spring.kafka.topic.dlt.immediate}",
+            groupId = "${spring.kafka.group.dlt.immediate}",
+            containerFactory = "dltListenerFactory",
+            properties = { "auto.offset.reset=earliest" }
     )
     public void onDlt(
             String rawMessage,
@@ -27,7 +25,6 @@ public class ImmediateAlertDltListener {
             @Header(KafkaHeaders.EXCEPTION_MESSAGE) String exMessage
     ) {
 
-        // TODO: rawMessage 파싱 + 위 메타데이터까지 DB 저장
         log.warn("[DLT-IMMEDIATE] topic={}, partition={}, offset={}, ex={} - {}, payload={}",
                 topic, partition, offset, exClass, exMessage, rawMessage);
     }

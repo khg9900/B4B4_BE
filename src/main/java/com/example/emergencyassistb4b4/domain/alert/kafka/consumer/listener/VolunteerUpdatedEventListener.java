@@ -17,8 +17,9 @@ public class VolunteerUpdatedEventListener {
     private final VolunteerUpdateAlertOrchestratorService orchestratorService;
 
     @KafkaListener(
-        topics = "volunteer-post-updated",
-        containerFactory = "volunteerUpdatedListenerFactory"
+            topics = "${spring.kafka.topic.volunteer}",
+            groupId = "${spring.kafka.group.volunteer}",
+            containerFactory = "volunteerUpdatedListenerFactory"
     )
     public void onVolunteerUpdated(
             VolunteerUpdatedEvent event,
@@ -27,7 +28,7 @@ public class VolunteerUpdatedEventListener {
             @Header(KafkaHeaders.OFFSET) long offset
     ) {
 
-        log.info("[THRESHOLD] consumed topic={}, partition={}, offset={}, payload={}", topic, partition, offset, event);
+        log.info("[VOLUNTEER] consumed topic={}, partition={}, offset={}, payload={}", topic, partition, offset, event);
 
         try {
             orchestratorService.process(event);
