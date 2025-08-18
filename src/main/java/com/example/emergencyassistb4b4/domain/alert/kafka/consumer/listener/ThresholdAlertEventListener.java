@@ -5,6 +5,8 @@ import com.example.emergencyassistb4b4.global.kafka.dto.DisasterReportedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.support.KafkaHeaders;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -21,10 +23,18 @@ public class ThresholdAlertEventListener { // 누적 기준(예: 같은 장소�
      * - 메시지는 DisasterReportedEvent 객체로 역직렬화됨
      */
     @KafkaListener(
-        topics = "report-reported",
-        containerFactory = "thresholdListenerFactory"
+            topics = "${spring.kafka.topic.threshold}",
+            groupId = "${spring.kafka.group.threshold}",
+            containerFactory = "thresholdListenerFactory"
     )
-    public void onDisasterReported(DisasterReportedEvent event) {
+    public void onDisasterReported(
+            DisasterReportedEvent event,
+            @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
+            @Header(KafkaHeaders.RECEIVED_PARTITION) int partition,
+            @Header(KafkaHeaders.OFFSET) long offset
+    ) {
+
+        log.info("[THRESHOLD] consumed topic={}, partition={}, offset={}, payload={}", topic, partition, offset, event);
 
         try {
             // 수신된 메시지 기반으로 누적 기준 검사 및 알림 트리거

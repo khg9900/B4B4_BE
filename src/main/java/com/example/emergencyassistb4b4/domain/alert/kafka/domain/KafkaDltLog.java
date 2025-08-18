@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
     sequenceName = "kafka_fail_log_seq", // DB 시퀀스 이름
     allocationSize = 50 // 50개씩 미리 할당해 성능 최적화
 )
-public class KafkaDlqLog { // Kafka DLQ 메시지의 실패 내역 저장용 엔티티
+public class KafkaDltLog { // Kafka DLQ 메시지의 실패 내역 저장용 엔티티
 
     @Id
     @GeneratedValue(
