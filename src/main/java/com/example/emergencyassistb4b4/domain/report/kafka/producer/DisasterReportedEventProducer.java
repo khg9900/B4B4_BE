@@ -15,7 +15,7 @@ public class DisasterReportedEventProducer {
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Value("${spring.kafka.topic.immediate}")
-    private String reportReportedTopic;
+    private String topic;
 
     /**
      * 재난 신고 발생 이벤트를 Kafka로 발행하는 메서드
@@ -28,7 +28,7 @@ public class DisasterReportedEventProducer {
         // 예시 키: "Seoul:Mapo" 형태 (도메인에 맞춰 결정)
         String key = event.getProvince() + ":" + event.getCity();
 
-        kafkaTemplate.send(reportReportedTopic, key, event)
+        kafkaTemplate.send(topic, key, event)
                 .thenAccept(result -> {
                     var meta = result.getRecordMetadata();
                     log.info("kafka publish OK topic={}, partition={}, offset={}, key={}, event={}",
