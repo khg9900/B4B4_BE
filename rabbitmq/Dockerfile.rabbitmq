@@ -1,8 +1,12 @@
 FROM rabbitmq:3.12-management
 
-# 플러그인 복사 (Dockerfile 기준: ./rabbitmq)
-COPY rabbitmq-plugins/rabbitmq_delayed_message_exchange-3.12.0.ez /opt/rabbitmq/plugins/
+USER root
 
-# 플러그인 활성화
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
+RUN curl -L -o /opt/rabbitmq/plugins/rabbitmq_delayed_message_exchange-3.12.0.ez \
+    https://github.com/rabbitmq/rabbitmq-delayed-message-exchange/releases/download/v3.12.0/rabbitmq_delayed_message_exchange-3.12.0.ez
+
 RUN rabbitmq-plugins enable --offline rabbitmq_delayed_message_exchange
 
+USER rabbitmq
