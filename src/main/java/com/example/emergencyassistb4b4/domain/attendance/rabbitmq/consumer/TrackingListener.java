@@ -21,9 +21,18 @@ public class TrackingListener {
 
     private final TrackingSocketHandler socketHandler;
     private final TrackingDataService trackingService;
+    private final ObjectMapper objectMapper;
 
     @RabbitListener(queues = "tracking-delay-queue")
     public void onMessage(MessageWrapper message) {
+        try {
+            String json = objectMapper.writeValueAsString(message);
+            log.debug("Received raw message from queue: {}", json);
+        } catch (Exception e) {
+            log.error("Failed to serialize message to JSON for debugging", e);
+        }
+
+
         if (!isValidMessage(message)) {
             log.warn("잘못된 메시지를 수신했습니다: {}", message);
             return;
