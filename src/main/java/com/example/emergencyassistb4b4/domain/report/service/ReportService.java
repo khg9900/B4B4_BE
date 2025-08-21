@@ -1,14 +1,11 @@
 package com.example.emergencyassistb4b4.domain.report.service;
 
+import com.example.emergencyassistb4b4.domain.report.dto.*;
 import com.example.emergencyassistb4b4.global.S3.S3Uploader;
 import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.global.kafka.dto.DisasterReportedEvent;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
 import com.example.emergencyassistb4b4.domain.report.domain.Report;
-import com.example.emergencyassistb4b4.domain.report.dto.ReportDto;
-import com.example.emergencyassistb4b4.domain.report.dto.ReportRequestDto;
-import com.example.emergencyassistb4b4.domain.report.dto.ReportResponseDto;
-import com.example.emergencyassistb4b4.domain.report.dto.ReportStatusResponseDto;
 import com.example.emergencyassistb4b4.domain.report.enums.ReportStatus;
 import com.example.emergencyassistb4b4.domain.report.kafka.producer.DisasterReportedEventProducer;
 import com.example.emergencyassistb4b4.domain.report.repository.ReportRepository;
@@ -159,4 +156,50 @@ public class ReportService {
         return reportRepository.findByReporter(userId, status, start, end, pageable)
                 .map(ReportDto::of);
     }
+
+    //  Cursor
+    @Transactional(readOnly = true)
+    public CursorResponse<ReportDto> getNearbyReportsByCursor(ReportCursorRequest req) {
+        int size = req.effectivePageSize();
+        List<Report> rows = reportRepository.findNearbyByCursor(
+                req.province(), req.city(), req.status(),
+                req.lastCreatedAt(), req.lastId(),
+                size + 1
+        );
+
+        List<ReportDto> content = rows.stream()
+                .limit(size)
+                .map(ReportDto::of)
+                .toList();
+
+        // ReportDto의 getter를 그대로 사용
+        return CursorResponse.of(
+                content, size,
+                ReportDto::getCreatedAt,
+                ReportDto::getId
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public CursorResponse<ReportDto> getMyReportsByCursor(Long userId, ReportCursorRequest req) {
+        int size = req.effectivePageSize();
+        List<Report> rows = reportRepository.findByReporterByCursor(
+                userId, req.status(), null, null,   // 기간 필터 필요 시 req에 추가 확장
+                req.lastCreatedAt(), req.lastId(),
+                size + 1
+        );
+
+        List<ReportDto> content = rows.stream()
+                .limit(size)
+                .map(ReportDto::of)
+                .toList();
+
+        return CursorResponse.of(
+                content, size,
+                ReportDto::getCreatedAt,
+                ReportDto::getId
+        );
+    }
+
+
 }

@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public interface ReportRepositoryCustom {
     /**
@@ -29,5 +30,16 @@ public interface ReportRepositoryCustom {
      * @return          해당 작성자가 지정된 상태와 기간 조건으로 생성한 신고들을 DTO로 매핑하여 페이징(Slice) 형태로 반환
      */
         Slice<Report> findByReporter(Long userId, ReportStatus status, LocalDateTime start, LocalDateTime end, Pageable pageable);
-    }
+
+    //cursor 페이징
+    List<Report> findNearbyByCursor(String province, String city, ReportStatus status,
+                                    LocalDateTime lastCreatedAt, Long lastId,
+                                    int limitPlusOne);
+
+    List<Report> findByReporterByCursor(Long userId, ReportStatus status,
+                                        LocalDateTime start, LocalDateTime end,
+                                        LocalDateTime lastCreatedAt, Long lastId,
+                                        int limitPlusOne);
+
+}
 

@@ -24,6 +24,7 @@ public class ReportRepositoryImpl implements ReportRepositoryCustom {
     private final JPAQueryFactory queryFactory;
     private final QReport r = report;
 
+    //offset
     @Override
     public Slice<Report> findNearby(String province, String city,ReportStatus status, Pageable pageable) {
         BooleanBuilder where = new BooleanBuilder();
@@ -65,5 +66,59 @@ public class ReportRepositoryImpl implements ReportRepositoryCustom {
         //넘치는거 다시 제거
         if (hasNext) content.remove(pageable.getPageSize());
         return new SliceImpl<>(content, pageable, hasNext);
+    }
+
+    //cursor 페이지
+    @Override
+    public List<Report> findNearbyByCursor(String province, String city, ReportStatus status,
+                                           LocalDateTime lastCreatedAt, Long lastId,
+                                           int limitPlusOne) {
+        BooleanBuilder where = new BooleanBuilder();
+        if(province != null && !province.isEmpty()) where.and(r.province.eq(province));
+        if (city != null && !city.isEmpty()) where.and(r.city.eq(city));
+        if (status != null) where.and(r.status.eq(status));
+
+        BooleanBuilder cursor = buildCursorWhere(lastCreatedAt, lastId);
+
+        return queryFactory
+                .selectFrom(r)
+                .where(where.and(cursor))
+                .orderBy(r.createdAt.desc(), r.id.desc())
+                .limit(limitPlusOne)
+                .fetch();
+    }
+
+    @Override
+    public List<Report> findByReporterByCursor(Long userId, ReportStatus status,
+                                               LocalDateTime start, LocalDateTime end,
+                                               LocalDateTime lastCreatedAt, Long lastId,
+                                               int limitPlusOne) {
+        BooleanBuilder where = new BooleanBuilder().and(r.reporter.id.eq(userId));
+        if (status != null) where.and(r.status.eq(status));
+        if (start != null) where.and(r.createdAt.goe(start));
+        if (end != null) where.and(r.createdAt.loe(end));
+
+        BooleanBuilder cursor = buildCursorWhere(lastCreatedAt, lastId);
+
+        return queryFactory
+                .selectFrom(r)
+                .where(where.and(cursor))
+                .orderBy(r.createdAt.desc(), r.id.desc())
+                .limit(limitPlusOne)
+                .fetch();
+    }
+
+    /*
+    * (createdAt DESC, id DESC) 커서 다음 구간:
+    *  createdAt < lastCreatedAt OR (createdAt = lastCreatedAt AND id < lastId)
+    */
+    private BooleanBuilder buildCursorWhere(LocalDateTime lastCreatedAt, Long lastId){
+    BooleanBuilder b = new BooleanBuilder();
+        if(lastCreatedAt == null || lastId ==null) return b;
+        b.and(
+            r.createdAt.lt(lastCreatedAt)
+                    .or(r.createdAt.eq(lastCreatedAt).and(r.id.lt(lastId)))
+        );
+        return b;
     }
 }
