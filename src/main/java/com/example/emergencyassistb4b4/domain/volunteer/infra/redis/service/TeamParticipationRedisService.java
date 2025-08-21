@@ -20,20 +20,20 @@ public class TeamParticipationRedisService {
     private final DefaultRedisScript<Long> cancelJoinScript;
     private final TTLRedisService ttlRedisService;
 
-    private static final String COUNT_KEY_FORMAT = "team:%d:count";
-    private static final String USERS_KEY_FORMAT = "team:%d:users";
+    // hash tag 적용: {teamId} → 같은 slot에 배치
+    private static final String TEAM_KEY_FORMAT = "team:{%d}:info";
+    private static final String USERS_KEY_FORMAT = "team:{%d}:users";
 
-    // 참가 : 현재 인원 +
+    // 참가
     public void tryJoinTeam(Long teamId, Long userId, int maxCapacity, LocalDateTime checkinEnd) {
-        String countKey = String.format(COUNT_KEY_FORMAT, teamId);
+        String teamKey = String.format(TEAM_KEY_FORMAT, teamId);
         String usersKey = String.format(USERS_KEY_FORMAT, teamId);
 
         Long result = redisTemplate.execute(
                 joinTeamScript,
-                List.of(countKey, usersKey), // KEYS[1], KEYS[2]
-                String.valueOf(maxCapacity), // ARGV[1] = 최대 수용 인원
-                String.valueOf(userId)       // ARGV[2] = 참가 요청 유저 ID
-
+                List.of(teamKey, usersKey),
+                String.valueOf(maxCapacity),
+                String.valueOf(userId)
         );
 
         if (result == null) {
@@ -50,14 +50,14 @@ public class TeamParticipationRedisService {
         }
     }
 
-    // 취소 : 현재 인원 -
+    // 취소
     public void cancelJoin(Long teamId, Long userId) {
+        String teamKey = String.format(TEAM_KEY_FORMAT, teamId);
         String usersKey = String.format(USERS_KEY_FORMAT, teamId);
-        String countKey = String.format(COUNT_KEY_FORMAT, teamId);
 
         Long result = redisTemplate.execute(
                 cancelJoinScript,
-                List.of(usersKey, countKey),
+                List.of(teamKey, usersKey),
                 String.valueOf(userId)
         );
 
@@ -68,8 +68,8 @@ public class TeamParticipationRedisService {
 
     // 현재 인원 조회
     public int getCurrentCount(Long teamId) {
-        String countKey = String.format(COUNT_KEY_FORMAT, teamId);
-        String count = redisTemplate.opsForValue().get(countKey);
-        return count != null ? Integer.parseInt(count) : 0;
+        String teamKey = String.format(TEAM_KEY_FORMAT, teamId);
+        Object count = redisTemplate.opsForHash().get(teamKey, "count");
+        return count != null ? Integer.parseInt(count.toString()) : 0;
     }
 }

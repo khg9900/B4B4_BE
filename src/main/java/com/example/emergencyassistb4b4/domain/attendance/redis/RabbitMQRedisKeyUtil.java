@@ -6,6 +6,9 @@ public class RabbitMQRedisKeyUtil {
     private static final String PREFIX_VOLUNTEER_USER = "attendance:volunteer:user:";
     private static final String PREFIX_GEO = "attendance:geo:team:";
     private static final String PREFIX_ATTENDANCE_SESSION = "attendance:session:";
+    private static final String VOLUNTEER_TEAM_PREFIX = "attendance:volunteer:team:";
+
+
 
     public static String rabbitMQStateKey(Long teamId) {
         return PREFIX_RABBITMQ_STATE + teamId;
@@ -25,5 +28,9 @@ public class RabbitMQRedisKeyUtil {
 
     public static String attendanceSessionKey(Long volunteerId) {
         return PREFIX_ATTENDANCE_SESSION + volunteerId;
+    }
+
+    public static String volunteerTeamKey(Long volunteerId) {
+        return VOLUNTEER_TEAM_PREFIX + volunteerId;
     }
 }

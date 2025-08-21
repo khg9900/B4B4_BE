@@ -6,6 +6,7 @@ import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.dto.TrackingSe
 import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.dto.IndividualTrackingSessionDto;
 import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.service.TrackingDataService;
 import com.example.emergencyassistb4b4.domain.attendance.socket.handler.TrackingSocketHandler;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;

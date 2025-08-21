@@ -83,8 +83,8 @@ public class RabbitMQRedisService {
 
     // ======================== 팀 위치 ========================
 
-    public void updateTeamLocation(Long teamId, double lat, double lon) {
-        rabbitMQRedisRepository.addTeamGeoLocation(teamId, lat, lon);
+    public void updateTeamLocation(Long teamId, double lat, double lon, Duration ttl) {
+        rabbitMQRedisRepository.addTeamGeoLocation(teamId, lat, lon, ttl );
     }
 
     public boolean locationExists(Long teamId) {
@@ -95,10 +95,19 @@ public class RabbitMQRedisService {
         return rabbitMQRedisRepository.radiusSearch(teamId, lat, lon, radiusMeters);
     }
 
+    // ======================== 자원봉사자 - 팀 매핑 ========================
+    public void mapVolunteerToTeam(Long volunteerId, Long teamId) {
+        rabbitMQRedisRepository.mapVolunteerToTeam(volunteerId, teamId);
+    }
+
+    public Long findTeamByVolunteer(Long volunteerId) {
+        return rabbitMQRedisRepository.findTeamByVolunteer(volunteerId);
+    }
+
     // ======================== 출석 세션 ========================
 
-    public void recordAttendance(Long volunteerId, boolean isPresent) {
-        rabbitMQRedisRepository.saveAttendanceRecord(volunteerId, isPresent);
+    public void recordAttendance(Long volunteerId, boolean isPresent, Duration ttl) {
+        rabbitMQRedisRepository.saveAttendanceRecord(volunteerId, isPresent,ttl);
     }
 
     public List<String> fetchAttendanceRecords(Long volunteerId) {
