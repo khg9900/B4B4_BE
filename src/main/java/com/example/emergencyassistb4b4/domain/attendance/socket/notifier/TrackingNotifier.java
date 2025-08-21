@@ -18,7 +18,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class TrackingNotifier {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
-
     private final RabbitMQRedisService rabbitMQRedisService; // RabbitMQRedisService 주입
 
     // userId → WebSocket 세션 저장 (예: TrackingSocketHandler 등에서 관리)

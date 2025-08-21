@@ -6,6 +6,7 @@ import com.example.emergencyassistb4b4.domain.volunteer.enums.CheckinStatus;
 import com.example.emergencyassistb4b4.domain.volunteer.repository.VolunteerParticipantRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +30,7 @@ public class TrackingDataService {
 
         for (Long volunteerId : volunteerIds) {
             List<String> records = rabbitMQRedisService.fetchAttendanceRecords(volunteerId);
+
             if (records == null || records.isEmpty()) {
 
                 continue;
@@ -55,8 +57,8 @@ public class TrackingDataService {
 
         // ⚠️ Redis는 트랜잭션 대상이 아니므로 DB 저장 성공 후 삭제
         for (Long volunteerId : volunteerIds) {
+
             rabbitMQRedisService.clearAttendanceHistory(volunteerId);
-        }
 
         log.info("참여자 출석 상태 {}건 저장 완료 (teamId={})", updateList.size(), teamId);
     }

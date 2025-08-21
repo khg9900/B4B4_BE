@@ -26,7 +26,6 @@ public class TrackingService {
 
     private final TrackingSessionPublisher trackingSessionPublisher;
     private final VolunteerTeamRepository volunteerTeamRepository;
-    private final TrackingSocketHandler trackingSocketHandler;
     /**
      * 팀에 대한 위치 추적 세션 예약 시작
      */
@@ -60,7 +59,6 @@ public class TrackingService {
         TrackingSessionDto sessionDto = TrackingSessionDto.from(team, location, policy, participantUserIds);
 
         LocalDateTime checkinStart = policy.getCheckinStart();
-
 
         // 1. READY 메시지 예약 (출석 시작 1분 전)
         LocalDateTime readyTime = checkinStart.minusMinutes(1);

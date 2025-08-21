@@ -1,4 +1,5 @@
 package com.example.emergencyassistb4b4.domain.attendance.rabbitmq.event;
+
 import lombok.Getter;
 
 @Getter
