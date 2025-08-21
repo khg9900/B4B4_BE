@@ -24,11 +24,8 @@ public class TrackingDataService {
 
     private final RabbitMQRedisService rabbitMQRedisService;
     private final VolunteerParticipantRepository participantRepository;
-    private final ObjectMapper objectMapper;
 
-    // ✅ 상수화: 출석 기준, JSON 필드
     private static final int ATTENDANCE_THRESHOLD = 27;
-    private static final String FIELD_PRESENT = "present";
 
     @Transactional
     public void saveSessionAttendanceData(List<Long> volunteerIds, Long teamId) {
@@ -63,20 +60,14 @@ public class TrackingDataService {
         log.info("참여자 출석 상태 {}건 저장 완료 (teamId={})", updateList.size(), teamId);
     }
 
-    // JSON 기반 출석 기록 파싱
-    private Optional<Boolean> parseRecordToBoolean(String recordJson) {
-        try {
-            Map<?, ?> map = objectMapper.readValue(recordJson, Map.class);
-            Object present = map.get(FIELD_PRESENT);
-            if (present instanceof Boolean) {
-                return Optional.of((Boolean) present);
-            } else if (present instanceof String) {
-                return Optional.of("1".equals(present));
-            } else {
-                return Optional.empty();
-            }
-        } catch (Exception e) {
-            throw new ApiException(ATTENDANCE_RECORD_PARSE_FAILED);
-        }
+    private Optional<Boolean> parseRecordToBoolean(String record) {
+        if (record == null || record.isBlank()) return Optional.empty();
+
+        // "1" → true, "0" → false
+        return switch (record) {
+            case "1" -> Optional.of(true);
+            case "0" -> Optional.of(false);
+            default -> Optional.empty();
+        };
     }
 }

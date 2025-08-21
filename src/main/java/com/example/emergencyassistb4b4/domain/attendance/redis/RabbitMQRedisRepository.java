@@ -22,6 +22,9 @@ public class RabbitMQRedisRepository {
     private final RedisTemplate<String, Object> redisTemplate;
     private final ObjectMapper objectMapper;
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private static final String FIELD_TIMESTAMP = "timestamp";
+    private static final String FIELD_PRESENT = "present";
+
 
     // === RabbitMQ 상태 ===
     public void saveRabbitMQState(Long teamId, LocalDateTime joinedAt) {
@@ -124,22 +127,23 @@ public class RabbitMQRedisRepository {
     public void saveAttendanceRecord(Long volunteerId, boolean isPresent, Duration ttl) {
         String key = RabbitMQRedisKeyUtil.attendanceSessionKey(volunteerId);
         Map<String, Object> record = Map.of(
-                "timestamp", LocalDateTime.now().format(FORMATTER),
-                "present", isPresent
+                FIELD_TIMESTAMP, LocalDateTime.now().format(FORMATTER),
+                FIELD_PRESENT, isPresent
         );
         redisTemplate.opsForList().rightPush(key, record);
         redisTemplate.expire(key, ttl);
     }
 
-    public List<String> getAttendanceRecords(Long volunteerId) {
+    public List<String> fetchAttendanceRecords(Long volunteerId) {
         String key = RabbitMQRedisKeyUtil.attendanceSessionKey(volunteerId);
         List<Object> objects = redisTemplate.opsForList().range(key, 0, -1);
         if (objects == null) return List.of();
 
+        // present 값만 "1"/"0" 문자열로 변환
         return objects.stream()
                 .map(obj -> {
                     Map<?, ?> map = objectMapper.convertValue(obj, Map.class);
-                    return map.get("timestamp") + ":" + (Boolean.TRUE.equals(map.get("present")) ? "1" : "0");
+                    return Boolean.TRUE.equals(map.get(FIELD_PRESENT)) ? "1" : "0";
                 })
                 .toList();
     }

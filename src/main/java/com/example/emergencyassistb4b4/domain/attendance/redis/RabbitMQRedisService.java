@@ -111,7 +111,7 @@ public class RabbitMQRedisService {
     }
 
     public List<String> fetchAttendanceRecords(Long volunteerId) {
-        return rabbitMQRedisRepository.getAttendanceRecords(volunteerId).stream()
+        return rabbitMQRedisRepository.fetchAttendanceRecords(volunteerId).stream()
                 .map(Object::toString)
                 .toList();
     }
