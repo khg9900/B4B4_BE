@@ -1,6 +1,5 @@
 package com.example.emergencyassistb4b4.domain.attendance.rabbitmq.service;
-
-import com.example.emergencyassistb4b4.domain.attendance.redis.RedisService;
+import com.example.emergencyassistb4b4.domain.attendance.redis.RabbitMQRedisService;
 import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.domain.volunteer.domain.VolunteerParticipant;
 import com.example.emergencyassistb4b4.domain.volunteer.enums.CheckinStatus;
@@ -22,7 +21,7 @@ import static com.example.emergencyassistb4b4.global.status.ErrorStatus.ATTENDAN
 @Service
 public class TrackingDataService {
 
-    private final RedisService redisService;
+    private final RabbitMQRedisService rabbitMQRedisService;
     private final VolunteerParticipantRepository participantRepository;
 
     @Transactional
@@ -30,7 +29,8 @@ public class TrackingDataService {
         List<VolunteerParticipant> updateList = new ArrayList<>();
 
         for (Long volunteerId : volunteerIds) {
-            List<String> records = redisService.getAttendanceRecords(volunteerId);
+            List<String> records = rabbitMQRedisService.fetchAttendanceRecords(volunteerId);
+
             if (records == null || records.isEmpty()) {
 
                 continue;
@@ -57,8 +57,8 @@ public class TrackingDataService {
 
         // ⚠️ Redis는 트랜잭션 대상이 아니므로 DB 저장 성공 후 삭제
         for (Long volunteerId : volunteerIds) {
-            redisService.deleteAttendanceRecords(volunteerId);
-        }
+
+            rabbitMQRedisService.clearAttendanceHistory(volunteerId);
 
         log.info("참여자 출석 상태 {}건 저장 완료 (teamId={})", updateList.size(), teamId);
     }

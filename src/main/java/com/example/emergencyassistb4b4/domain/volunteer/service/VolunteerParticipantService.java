@@ -1,7 +1,6 @@
 package com.example.emergencyassistb4b4.domain.volunteer.service;
 
-import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.event.TrackingScheduleEvent;
-import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.event.TrackingScheduleEventListener;
+import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.event.AttendanceEventListener;
 import com.example.emergencyassistb4b4.domain.attendance.socket.handler.TrackingSocketHandler;
 import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
@@ -27,7 +26,7 @@ public class VolunteerParticipantService {
     private final VolunteerTeamRepository teamRepository;
     private final VolunteerParticipantRepository participantRepository;
     private final TrackingSocketHandler trackingSocketHandler;
-    private final TrackingScheduleEventListener eventListener;
+    private final AttendanceEventListener eventListener;
 
     @Transactional
     public VolunteerParticipant joinSave(Long userId, Long teamId) {
@@ -50,11 +49,6 @@ public class VolunteerParticipantService {
         // 저장
         participant = participantRepository.save(participant);
 
-        // WebSocket userId ↔ volunteerId 매핑
-        trackingSocketHandler.cacheVolunteerUserMapping(participant.getId(), userId);
-
-        // 출석 스케줄 이벤트 트리거
-        eventListener.handleTrackingScheduleEvent(new TrackingScheduleEvent(team.getId()));
 
         return participant;
     }

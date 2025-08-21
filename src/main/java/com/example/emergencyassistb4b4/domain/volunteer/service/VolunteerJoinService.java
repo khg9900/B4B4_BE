@@ -1,7 +1,6 @@
 package com.example.emergencyassistb4b4.domain.volunteer.service;
 
-import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.event.TrackingScheduleEvent;
-import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.event.TrackingScheduleEventListener;
+import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.event.AttendanceEventListener;
 import com.example.emergencyassistb4b4.domain.attendance.socket.handler.TrackingSocketHandler;
 import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
@@ -33,8 +32,6 @@ public class VolunteerJoinService {
     private final TeamParticipationRedisService teamParticipationRedisService;
     private final VolunteerParticipantService participantService;
     private final TrackingSocketHandler trackingSocketHandler;
-    private final TrackingScheduleEventListener eventListener;
-
 
     // 팀 참가
     @Transactional
@@ -50,7 +47,7 @@ public class VolunteerJoinService {
         CheckinPeriodDto period = postRepository.findCheckinPeriodByPostId(postId)
                 .orElseThrow(() -> new ApiException(ErrorStatus.VOLUNTEER_BAD_REQUEST));
 
-        if(now.isAfter(period.checkinStart())) {
+        if(now.isAfter(period.checkinStart().minusMinutes(5))) {
             throw new ApiException(ErrorStatus.VOLUNTEER_BAD_REQUEST);
         }
 
@@ -100,10 +97,6 @@ public class VolunteerJoinService {
         // 상태 변경
         participant.updateStatus(request.getStatus());
 
-        trackingSocketHandler.removeVolunteerUserMapping(participant.getId());
-
-        // 출석 스케줄 이벤트 트리거
-        eventListener.handleTrackingScheduleEvent(new TrackingScheduleEvent(participant.getVolunteerTeam().getId()));
     }
 
     // 참가 목록
