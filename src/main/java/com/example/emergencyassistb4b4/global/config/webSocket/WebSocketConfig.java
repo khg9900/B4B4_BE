@@ -23,12 +23,12 @@ public class WebSocketConfig implements WebSocketConfigurer {
         // 백엔드 → 프론트 메시지 전송용
         registry.addHandler(trackingSocketHandler, "/tracking")
                 .addInterceptors(new JwtHandshakeInterceptor(jwtUtils))
-                .setAllowedOrigins("http://localhost:5501", "http://127.0.0.1:5501");
+                .setAllowedOrigins("*");
 
         // 프론트 → 백엔드 위치 전송용
         registry.addHandler(locationTrackingWebSocketHandler, "/location-tracking")
                 .addInterceptors(new JwtHandshakeInterceptor(jwtUtils))
-                .setAllowedOrigins("http://localhost:5501", "http://127.0.0.1:5501");
+                .setAllowedOrigins("*");
     }
 }
 

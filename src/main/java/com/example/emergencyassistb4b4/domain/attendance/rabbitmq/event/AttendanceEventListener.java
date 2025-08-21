@@ -34,7 +34,6 @@ public class AttendanceEventListener {
     }
 
     // 2. 출석 시작 처리 (예약 시간 5분 전)
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onAttendanceStateChanged(Long teamId) {
         try {
             RabbitMQ state = rabbitMQRedisService.getTrackingState(teamId);
@@ -56,7 +55,6 @@ public class AttendanceEventListener {
     }
 
     // 3. 출석 종료 처리
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onAttendanceEnded(Long teamId) {
         try {
             RabbitMQ state = rabbitMQRedisService.getTrackingState(teamId);

@@ -25,58 +25,67 @@ public class RedisThresholdCounter {
     static {
         LUA_SCRIPT = new DefaultRedisScript<>();
         LUA_SCRIPT.setScriptText(
-            """
-            -- 카운터 증가 및 TTL 설정
-            local count = redis.call('INCR', KEYS[1])
-            redis.call('EXPIRE', KEYS[1], tonumber(ARGV[1]))
-
-            -- 임계치 목록 순회
-            for i = 2, #ARGV do
-                local threshold = tonumber(ARGV[i])
-                if count == threshold then
-                    -- 알림 키 구성 및 중복 알림 방지 (SETNX)
-                    local notifyKey = KEYS[2] .. ":" .. threshold
-                    local set = redis.call('SETNX', notifyKey, "true")
-                    if set == 1 then
-                        redis.call('EXPIRE', notifyKey, tonumber(ARGV[1]))
-                        return threshold
-                    else
-                        return -1 -- 이미 알림 처리됨
+                """
+                -- 카운터 증가 및 TTL 설정
+                local count = redis.call('INCR', KEYS[1])
+                redis.call('EXPIRE', KEYS[1], tonumber(ARGV[1]))
+    
+                -- 임계치 목록 순회
+                for i = 2, #ARGV do
+                    local threshold = tonumber(ARGV[i])
+                    if count == threshold then
+                        -- 알림 키 구성 및 중복 알림 방지 (SETNX)
+                        local notifyKey = KEYS[2] .. ":" .. threshold
+                        local set = redis.call('SETNX', notifyKey, "true")
+                        if set == 1 then
+                            redis.call('EXPIRE', notifyKey, tonumber(ARGV[1]))
+                            return threshold
+                        else
+                            return -1 -- 이미 알림 처리됨
+                        end
                     end
                 end
-            end
-
-            return -1 -- 임계치 조건 미충족
-            """
+    
+                return -1 -- 임계치 조건 미충족
+                """
         );
         LUA_SCRIPT.setResultType(Long.class);
     }
 
-    public Long incrementAndCheckThreshold(String counterKey,
-        String notifyKeyPrefix,
-        Duration ttl,
-        List<Long> thresholds) {
-        // 키 정의: counterKey, notifyKeyPrefix
-        List<String> keys = List.of(counterKey, notifyKeyPrefix);
+    /**
+     * Redis Cluster-safe threshold check
+     *
+     * @param counterKeySuffix  이벤트 고유 식별자 (ex: 경기도:안산시 상록구:지진:2025-08-14)
+     * @param notifyKeyPrefix   알림 키 접두사 (ex: alert:report)
+     * @param ttl               카운터 TTL
+     * @param thresholds        알림 임계치 목록
+     * @return                  임계치 도달 시 해당 값, 아니면 -1
+     */
+    public Long incrementAndCheckThreshold(String counterKeySuffix,
+                                           String notifyKeyPrefix,
+                                           Duration ttl,
+                                           List<Long> thresholds) {
+        // Redis Cluster-safe 키 생성: 해시태그 { } 안에 동일 문자열 넣어 슬롯 일치 보장
+        String hashTag = "{" + counterKeySuffix + "}";
+        String counterKey = "report:" + hashTag + ":count";
+        String notifyKey = notifyKeyPrefix + ":" + hashTag + ":notify";
 
-        // 파라미터 준비: 첫 번째는 TTL, 이후는 유효한 threshold
+        List<String> keys = List.of(counterKey, notifyKey);
+
+        // 파라미터 준비: TTL + thresholds
         List<String> args = new ArrayList<>();
         args.add(String.valueOf(ttl.getSeconds()));
-
         thresholds.stream()
-            .filter(t -> t != null && t > 0)
-            .distinct()
-            .map(String::valueOf)
-            .forEach(args::add);
+                .filter(t -> t != null && t > 0)
+                .distinct()
+                .map(String::valueOf)
+                .forEach(args::add);
 
         try {
-            return redisTemplate.execute(
-                LUA_SCRIPT,
-                keys,
-                args.toArray()
-            );
+            return redisTemplate.execute(LUA_SCRIPT, keys, args.toArray());
         } catch (Exception e) {
-            log.error("Redis Lua 실행 중 예외 발생 - counterKey={}, prefix={}", counterKey, notifyKeyPrefix, e);
+            log.error("Redis Lua 실행 실패 - counterKey={}, notifyKey={}, 원인={}",
+                    counterKey, notifyKey, e.getMessage(), e);
             throw new ApiException(ErrorStatus.REDIS_SERVER_ERROR);
         }
     }

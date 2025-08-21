@@ -53,4 +53,5 @@ public class VolunteerJoinController {
         return ApiResponse.onSuccess(SuccessStatus.VOLUNTEER_SUCCESS, list);
     }
 
+
 }

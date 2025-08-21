@@ -23,8 +23,4 @@ public class RabbitMQ {
         this.joinedAt = joinedAt;
     }
 
-    public boolean isScheduledTimeValid() {
-        return joinedAt != null && joinedAt.isAfter(LocalDateTime.now());
-    }
-
 }
