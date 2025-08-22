@@ -108,9 +108,11 @@ public class RabbitConfig {
 
     // Listener Container Factory (Consumer Ack/Nack + 재시도)
     @Bean
-    public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory(ConnectionFactory connectionFactory) {
+    public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory(ConnectionFactory connectionFactory,
+                                                                               Jackson2JsonMessageConverter messageConverter) {
         SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
         factory.setConnectionFactory(connectionFactory);
+        factory.setMessageConverter(messageConverter);
         factory.setAcknowledgeMode(AcknowledgeMode.MANUAL); // 수동 Ack/Nack
         factory.setPrefetchCount(10); // 한 번에 처리할 메시지 수
         factory.setAdviceChain(RetryInterceptorBuilder.stateless()

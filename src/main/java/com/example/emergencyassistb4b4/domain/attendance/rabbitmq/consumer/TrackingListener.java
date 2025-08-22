@@ -28,7 +28,8 @@ public class TrackingListener {
     private final TrackingDataService trackingService;
     private final ObjectMapper objectMapper;
 
-    @RabbitListener(queues = "tracking-delay-queue")
+    @RabbitListener(queues = "tracking-delay-queue",
+            containerFactory = "rabbitListenerContainerFactory")
     public void onMessage(MessageWrapper message, Channel channel,
                           @Header(AmqpHeaders.DELIVERY_TAG) long tag) throws IOException {
 
