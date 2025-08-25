@@ -1,13 +1,10 @@
 package com.example.emergencyassistb4b4.domain.report.controller;
 
+import com.example.emergencyassistb4b4.domain.report.dto.*;
 import com.example.emergencyassistb4b4.global.response.ApiResponse;
 import com.example.emergencyassistb4b4.global.status.SuccessStatus;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
 import com.example.emergencyassistb4b4.global.exception.ApiException;
-import com.example.emergencyassistb4b4.domain.report.dto.ReportDto;
-import com.example.emergencyassistb4b4.domain.report.dto.ReportRequestDto;
-import com.example.emergencyassistb4b4.domain.report.dto.ReportResponseDto;
-import com.example.emergencyassistb4b4.domain.report.dto.ReportStatusResponseDto;
 import com.example.emergencyassistb4b4.domain.report.enums.ReportStatus;
 import com.example.emergencyassistb4b4.domain.report.service.ReportService;
 import com.example.emergencyassistb4b4.global.security.auth.CustomUserDetails;
@@ -22,6 +19,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -131,5 +129,27 @@ public class ReportController {
         Long userId = userDetails.getUser().getId();
         return ApiResponse.onSuccess(SuccessStatus.REPORT_GET_SUCCESS, reportService.getMyReports(userId, status, start
                 , end, pageable));
+    }
+
+    /** 공공기관용 주변 신고 목록 (Cursor) */
+    @PreAuthorize("hasRole('GOV')")
+    @GetMapping("/cursor")
+    public ResponseEntity<ApiResponse<CursorResponse<ReportDto>>> getNearbyByCursor(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            ReportCursorRequest req
+    ) {
+        CursorResponse<ReportDto> resp = reportService.getNearbyReportsByCursor(req);
+        return ApiResponse.onSuccess(SuccessStatus.REPORT_GET_SUCCESS, resp);
+    }
+    /** 내 신고 목록 (Cursor) */
+// @PreAuthorize("hasRole('IND')")
+    @GetMapping("/my/cursor")
+    public ResponseEntity<ApiResponse<CursorResponse<ReportDto>>> getMyReportsByCursor(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            ReportCursorRequest req
+    ) {
+        Long userId = userDetails.getUser().getId();
+        CursorResponse<ReportDto> resp = reportService.getMyReportsByCursor(userId, req);
+        return ApiResponse.onSuccess(SuccessStatus.REPORT_GET_SUCCESS, resp);
     }
 }

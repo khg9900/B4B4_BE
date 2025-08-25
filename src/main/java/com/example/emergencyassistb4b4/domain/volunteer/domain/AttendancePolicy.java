@@ -25,7 +25,6 @@ public class AttendancePolicy extends BaseEntity {
     private LocalDateTime checkinEnd;
 
     private int attendanceRadiusMeters;
-    private int minCheckinMinutes;
 
     @OneToOne
     @JoinColumn(name = "post_id", nullable = false)
@@ -35,11 +34,10 @@ public class AttendancePolicy extends BaseEntity {
         this.post = post;
     }
 
-    public void update(LocalDateTime start, LocalDateTime end, int radius, int minutes) {
+    public void update(LocalDateTime start, LocalDateTime end, int radius) {
         this.checkinStart = start;
         this.checkinEnd = end;
         this.attendanceRadiusMeters = radius;
-        this.minCheckinMinutes = minutes;
     }
 }
 

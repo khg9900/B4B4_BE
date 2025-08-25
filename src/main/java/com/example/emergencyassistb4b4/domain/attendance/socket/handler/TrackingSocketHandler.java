@@ -1,26 +1,21 @@
 package com.example.emergencyassistb4b4.domain.attendance.socket.handler;
-
+import com.example.emergencyassistb4b4.domain.attendance.redis.RabbitMQRedisService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.*;
-
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class TrackingSocketHandler implements WebSocketHandler {
+    private final RabbitMQRedisService rabbitMQRedisService;
 
-    // RedisTemplate 타입 변경
-    private final RedisTemplate<String, String> redisTemplate;
-    private static final String VOLUNTEER_USER_PREFIX = "volunteer_user:";
     // userId → sessions (1:N)
     private final Map<Long, Set<WebSocketSession>> userSessions = new ConcurrentHashMap<>();
     private final ObjectMapper objectMapper;
@@ -28,14 +23,12 @@ public class TrackingSocketHandler implements WebSocketHandler {
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
         Long userId = (Long) session.getAttributes().get("userId"); // attributes에서 userId 꺼내기
-        log.info("WebSocket afterConnectionEstablished - sessionId={}, userId={}", session.getId(), userId);
+
         if (userId == null) {
-            log.warn("userId 누락 또는 인증 실패. 세션 종료: {}", session.getId());
             closeSession(session, CloseStatus.NOT_ACCEPTABLE);
             return;
         }
         registerSession(userId, session);
-        log.info("WebSocket 연결 완료 - userId={}, sessionId={}", userId, session.getId());
     }
 
     private void registerSession(Long userId, WebSocketSession session) {
@@ -78,30 +71,32 @@ public class TrackingSocketHandler implements WebSocketHandler {
         userSessions.entrySet().removeIf(entry -> entry.getValue().isEmpty());
     }
 
-    // ============= Redis 캐싱 (participantId → userId) =============
+    // ============= Redis 캐싱 (volunteerId → userId) =============
 
-    public void cacheVolunteerUserMapping(Long volunteerParticipantId, Long userId) {
-        String key = VOLUNTEER_USER_PREFIX + volunteerParticipantId;
-        redisTemplate.opsForValue().set(key, userId.toString());
-        log.debug("Redis 매핑 저장: {} -> {}", key, userId);
-    }
+    public void cacheVolunteerUserMapping(Long volunteerId, Long userId) {
+
+        rabbitMQRedisService.mapVolunteerToUser(volunteerId, userId);
+
 
     public Long getUserIdByVolunteerId(Long volunteerParticipantId) {
-        String key = VOLUNTEER_USER_PREFIX + volunteerParticipantId;
-        String userIdStr = redisTemplate.opsForValue().get(key);
+
+        return rabbitMQRedisService.findUserIdByVolunteer(volunteerParticipantId);
+    }
+
+    public void removeVolunteerUserMapping(Long volunteerParticipantId) {
+        rabbitMQRedisService.unmapVolunteerFromUser(volunteerParticipantId);
+        String userIdStr = redisService.getTeamIdForVolunteer(volunteerParticipantId).toString();
         if (userIdStr == null) return null;
         try {
             return Long.parseLong(userIdStr);
         } catch (NumberFormatException e) {
-            log.error("Redis에 저장된 userId 형식 오류: key={}, value={}", key, userIdStr);
             return null;
         }
     }
 
     public void removeVolunteerUserMapping(Long volunteerParticipantId) {
-        String key = VOLUNTEER_USER_PREFIX + volunteerParticipantId;
-        redisTemplate.delete(key);
-        log.debug("Redis 매핑 삭제: {}", key);
+        redisService.deleteTeamIdForVolunteer(volunteerParticipantId);
+
     }
 
     // ============= WebSocket 메시지 전송 =============

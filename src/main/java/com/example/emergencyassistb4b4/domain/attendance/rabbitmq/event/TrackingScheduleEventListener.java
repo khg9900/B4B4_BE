@@ -1,6 +1,6 @@
-package com.example.emergencyassistb4b4.domain.attendance.event;
+package com.example.emergencyassistb4b4.domain.attendance.rabbitmq.event;
 
-import com.example.emergencyassistb4b4.domain.attendance.service.TrackingService;
+import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.service.TrackingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
