@@ -23,6 +23,12 @@ public class KafkaTopicConfig { // Kafka 토픽을 코드에서 직접 생성하
     @Value("${spring.kafka.topic.dlt.threshold}")
     private String thresholdDltTopic;
 
+    @Value("${spring.kafka.topic.volunteer}")
+    private String volunteerTopic;
+
+    @Value("${spring.kafka.topic.dlt.volunteer}")
+    private String volunteerDltTopic;
+
     @Value("${kafka.topic.partitions:3}")
     private int partitions;
 
@@ -58,22 +64,30 @@ public class KafkaTopicConfig { // Kafka 토픽을 코드에서 직접 생성하
             .build();
     }
 
+    // 파생(임계치) 토픽
+    @Bean
+    public NewTopic reportThreshold() {
+
+        return TopicBuilder.name(thresholdTopic).partitions(partitions).replicas(replicas).build();
+    }
+
+    @Bean
+    public NewTopic reportThresholdDLT() {
+
+        return TopicBuilder.name(thresholdDltTopic).partitions(partitions).replicas(replicas).build();
+    }
+
+   // 봉사글 토픽
     @Bean
     public NewTopic volunteerPostUpdated() {
 
-        return TopicBuilder.name(thresholdTopic)
-            .partitions(partitions)
-            .replicas(replicas)
-            .build();
+        return TopicBuilder.name(volunteerTopic).partitions(partitions).replicas(replicas).build();
     }
 
     @Bean
     public NewTopic volunteerPostUpdatedDLT() {
 
-        return TopicBuilder.name(thresholdDltTopic)
-            .partitions(partitions)
-            .replicas(replicas)
-            .build();
+        return TopicBuilder.name(volunteerDltTopic).partitions(partitions).replicas(replicas).build();
     }
 
     // 역직렬화 실패용 DLT(-deser)
@@ -86,13 +100,15 @@ public class KafkaTopicConfig { // Kafka 토픽을 코드에서 직접 생성하
                 .build();
     }
 
-    // 역직렬화 실패용 DLT(-deser)
+    @Bean
+    public NewTopic reportThresholdDLTDeser() {
+
+        return TopicBuilder.name(thresholdDltTopic + "-deser").partitions(partitions).replicas(replicas).build();
+    }
+
     @Bean
     public NewTopic volunteerPostUpdatedDLTDeser() {
 
-        return TopicBuilder.name(thresholdDltTopic + "-deser")
-                .partitions(partitions)
-                .replicas(replicas)
-                .build();
+        return TopicBuilder.name(volunteerDltTopic + "-deser").partitions(partitions).replicas(replicas).build();
     }
 }
