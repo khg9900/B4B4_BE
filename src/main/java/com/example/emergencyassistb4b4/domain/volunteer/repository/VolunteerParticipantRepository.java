@@ -39,12 +39,14 @@ public interface VolunteerParticipantRepository extends JpaRepository<VolunteerP
     Optional<VolunteerParticipant> findWithTeamAndPolicyById(@Param("volunteerId") Long volunteerId);
 
     @Query("""
-        SELECT COUNT(vp) > 0
-        FROM VolunteerParticipant vp
-        WHERE vp.user.id = :userId
-          AND vp.checkinStatus = 'PARTICIPATED'
-    """)
-    boolean existsActiveParticipation(@Param("userId") Long userId);
+    SELECT COUNT(vp) > 0
+    FROM VolunteerParticipant vp
+    WHERE vp.user.id = :userId
+      AND vp.volunteerTeam.post.id = :postId
+      AND vp.checkinStatus = 'PARTICIPATED'
+""")
+    boolean existsActiveParticipation(@Param("userId") Long userId, @Param("postId") Long postId);
+
 
     @Query("""
         SELECT vp FROM VolunteerParticipant vp

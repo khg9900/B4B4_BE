@@ -1,9 +1,13 @@
 package com.example.emergencyassistb4b4.domain.volunteer.dto.Post.common;
 
 import com.example.emergencyassistb4b4.domain.volunteer.domain.AttendancePolicy;
+import com.example.emergencyassistb4b4.domain.volunteer.domain.VolunteerLocation;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
@@ -11,7 +15,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PostAttendancePolicyDto {
+public class PostAttendancePolicyDto implements AttendancePolicyProvider {
 
     @NotNull(message = "출석 시작 시간은 필수입니다.")
     private LocalDateTime checkinStart;
@@ -22,12 +26,22 @@ public class PostAttendancePolicyDto {
     @Min(value = 100, message = "출석 허용 반경은 100m 이상이어야 합니다.")
     private int allowedRadiusM;
 
+    @Override
+    public AttendancePolicy getAttendancePolicy() {
+        return AttendancePolicy.builder()
+                .checkinStart(checkinStart)
+                .checkinEnd(checkinEnd)
+                .attendanceRadiusMeters(allowedRadiusM)
+                .build();
+    }
+
     public AttendancePolicy toEntity() {
         return AttendancePolicy.builder()
                 .checkinStart(checkinStart)
                 .checkinEnd(checkinEnd)
                 .attendanceRadiusMeters(allowedRadiusM)
                 .build();
+
     }
 
     public static PostAttendancePolicyDto from(AttendancePolicy policy) {
