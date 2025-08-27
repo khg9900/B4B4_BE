@@ -1,10 +1,12 @@
 package com.example.emergencyassistb4b4.domain.volunteer.repository;
 
 import com.example.emergencyassistb4b4.domain.volunteer.domain.VolunteerParticipant;
+import com.example.emergencyassistb4b4.domain.volunteer.enums.CheckinStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -49,13 +51,22 @@ public interface VolunteerParticipantRepository extends JpaRepository<VolunteerP
 
 
     @Query("""
-        SELECT vp FROM VolunteerParticipant vp
-        JOIN FETCH vp.volunteerTeam t
-        JOIN FETCH t.post p
-        JOIN FETCH p.attendancePolicy ap
-        JOIN FETCH p.location l
-        WHERE vp.user.id = :userId
-    """)
-    List<VolunteerParticipant> findAllByUserIdWithPostAndTeam(@Param("userId") Long userId);
+    SELECT vp FROM VolunteerParticipant vp
+    JOIN FETCH vp.volunteerTeam t
+    JOIN FETCH t.post p
+    JOIN FETCH p.attendancePolicy ap
+    JOIN FETCH p.location l
+    WHERE vp.user.id = :userId
+      AND vp.checkinStatus = COALESCE(:status, vp.checkinStatus)
+      AND ap.checkinStart >= COALESCE(:startTime, ap.checkinStart)
+      AND ap.checkinEnd <= COALESCE(:endTime, ap.checkinEnd)
+""")
+    List<VolunteerParticipant> findAllByUserIdWithPostAndTeam(
+            @Param("userId") Long userId,
+            @Param("status") CheckinStatus status,
+            @Param("startTime") LocalDateTime startTime,
+            @Param("endTime") LocalDateTime endTime
+    );
+
 
 }

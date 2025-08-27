@@ -5,6 +5,7 @@ import com.example.emergencyassistb4b4.domain.volunteer.domain.VolunteerTeam;
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Join.CheckinPeriodDto;
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Join.CheckinStatusRequest;
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Join.VolunteerParticipationResponse;
+import com.example.emergencyassistb4b4.domain.volunteer.enums.CheckinStatus;
 import com.example.emergencyassistb4b4.domain.volunteer.infra.redis.service.TeamParticipationRedisService;
 import com.example.emergencyassistb4b4.domain.volunteer.repository.PostRepository;
 import com.example.emergencyassistb4b4.domain.volunteer.repository.VolunteerParticipantRepository;
@@ -104,8 +105,8 @@ public class VolunteerJoinService {
     }
 
     @Transactional(readOnly = true)
-    public List<VolunteerParticipationResponse> getMyParticipation(Long userId) {
-        List<VolunteerParticipant> participants = participantRepository.findAllByUserIdWithPostAndTeam(userId);
+    public List<VolunteerParticipationResponse> getMyParticipation(Long userId, CheckinStatus status,LocalDateTime startTime, LocalDateTime endTime) {
+        List<VolunteerParticipant> participants = participantRepository.findAllByUserIdWithPostAndTeam(userId,status,startTime,endTime);
         return participants.stream()
                 .map(VolunteerParticipationResponse::from)
                 .toList();
