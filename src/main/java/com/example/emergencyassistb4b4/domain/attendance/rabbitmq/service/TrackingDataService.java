@@ -25,7 +25,7 @@ public class TrackingDataService {
     private final RabbitMQRedisService rabbitMQRedisService;
     private final VolunteerParticipantRepository participantRepository;
 
-    private static final int ATTENDANCE_THRESHOLD = 27;
+    private static final int ATTENDANCE_THRESHOLD = 3;
 
     @Transactional
     public void saveSessionAttendanceData(List<Long> volunteerIds, Long teamId) {

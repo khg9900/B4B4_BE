@@ -6,12 +6,17 @@ import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.dto.TrackingSe
 import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.dto.IndividualTrackingSessionDto;
 import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.service.TrackingDataService;
 import com.example.emergencyassistb4b4.domain.attendance.socket.handler.TrackingSocketHandler;
+import static com.example.emergencyassistb4b4.domain.attendance.rabbitmq.util.RabbitMqUtils.isValidMessage;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.support.AmqpHeaders;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
+import com.rabbitmq.client.Channel;
 
+import java.io.IOException;
 import java.util.List;
 
 @Slf4j
@@ -24,62 +29,46 @@ public class TrackingListener {
     private final ObjectMapper objectMapper;
 
     @RabbitListener(queues = "tracking-delay-queue")
-    public void onMessage(MessageWrapper message) {
+    public void onMessage(MessageWrapper message, Channel channel,
+                          @Header(AmqpHeaders.DELIVERY_TAG) long tag) throws IOException {
+
         try {
             String json = objectMapper.writeValueAsString(message);
             log.debug("Received raw message from queue: {}", json);
+
+            if (!isValidMessage(message)) {
+                log.warn("잘못된 메시지를 수신했습니다: {}", message);
+                channel.basicAck(tag, false); // 잘못된 메시지라도 Ack 처리
+                return;
+            }
+
+            SessionState state = message.getSessionState();
+            TrackingSessionDto dto = message.getPayload();
+            List<Long> participantIds = dto.getParticipantUserIds();
+
+            switch (state) {
+                case READY -> sendTypedMessageToVolunteers(participantIds, "READY", dto);
+                case STARTED -> sendTypedMessageToVolunteers(participantIds, "STARTED", dto);
+                case ENDED -> {
+                    sendTypedMessageToVolunteers(participantIds, "ENDED", dto);
+                    trackingService.saveSessionAttendanceData(participantIds, dto.getTeamId());
+                    participantIds.forEach(socketHandler::removeVolunteerUserMapping);
+                }
+                default -> log.warn("알 수 없는 세션 상태 수신: {}", state);
+            }
+
+            // 성공 처리 시 Ack
+            channel.basicAck(tag, false);
+
         } catch (Exception e) {
-            log.error("Failed to serialize message to JSON for debugging", e);
-        }
-
-
-        if (!isValidMessage(message)) {
-            log.warn("잘못된 메시지를 수신했습니다: {}", message);
-            return;
-        }
-
-        SessionState state = message.getSessionState();
-        TrackingSessionDto dto = message.getPayload();
-        List<Long> participantIds = dto.getParticipantUserIds();
-
-        switch (state) {
-            case READY -> {
-                log.info("[READY] 세션 시작 알림 - 시작 시각: {}", dto.getStartTime());
-                sendTypedMessageToVolunteers(participantIds, "READY", dto);
-            }
-
-            case STARTED -> {
-                log.info("[STARTED] 위치 요청");
-                sendTypedMessageToVolunteers(participantIds, "STARTED", dto);
-            }
-
-            case ENDED -> {
-                log.info("[ENDED] 세션 종료 알림");
-                sendTypedMessageToVolunteers(participantIds, "ENDED", dto);
-
-                trackingService.saveSessionAttendanceData(participantIds, dto.getTeamId());
-                participantIds.forEach(socketHandler::removeVolunteerUserMapping);
-            }
-
-            default -> log.warn("알 수 없는 세션 상태 수신: {}", state);
+            log.error("메시지 처리 실패, 재시도 예정: {}", message, e);
+            // 실패 시 Nack + requeue=true → 재시도
+            channel.basicNack(tag, false, true);
         }
     }
 
-    private boolean isValidMessage(MessageWrapper message) {
-        return message != null
-                && message.getSessionState() != null
-                && message.getPayload() != null
-                && message.getPayload().getParticipantUserIds() != null
-                && !message.getPayload().getParticipantUserIds().isEmpty();
-    }
-
-    /**
-     * 각 volunteerId 별로 개별 메시지를 만들고 전송
-     */
     private void sendTypedMessageToVolunteers(List<Long> volunteerIds, String type, TrackingSessionDto dto) {
         for (Long volunteerId : volunteerIds) {
-            log.info("📨 WebSocket 메시지 전송 - volunteerId={}, type={}", volunteerId, type);
-
             IndividualTrackingSessionDto individualDto = IndividualTrackingSessionDto.builder()
                     .teamId(dto.getTeamId())
                     .startTime(dto.getStartTime())
@@ -88,7 +77,7 @@ public class TrackingListener {
                     .targetLng(dto.getTargetLng())
                     .meter(dto.getMeter())
                     .intervalSeconds(dto.getIntervalSeconds())
-                    .participantUserId(volunteerId) // 개별 아이디 설정
+                    .participantUserId(volunteerId)
                     .build();
 
             socketHandler.sendToUser(volunteerId, type, individualDto);
