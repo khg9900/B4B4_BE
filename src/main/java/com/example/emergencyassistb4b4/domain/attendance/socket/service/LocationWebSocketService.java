@@ -26,7 +26,7 @@ public class LocationWebSocketService {
     private static final int DEFAULT_TTL_MINUTES = 3; // 여유 시간
 
     public boolean checkAttendanceForVolunteer(Long volunteerId, double lat, double lon) {
-        // 1️⃣ 팀 ID 조회/캐싱
+        // 1 팀 ID 조회/캐싱
         VolunteerParticipant participant = volunteerParticipantRepository
                 .findWithTeamAndPolicyById(volunteerId)
                 .orElseThrow(() -> new ApiException(VOLUNTEER_NOT_FOUND));
@@ -38,7 +38,7 @@ public class LocationWebSocketService {
             log.debug("Cached teamId={} for volunteerId={}", teamId, volunteerId);
         }
 
-        // 2️⃣ 팀 위치 확인/캐싱
+        // 2 팀 위치 확인/캐싱
         if (!rabbitMQRedisService.locationExists(teamId)) {
             VolunteerTeam team = participant.getVolunteerTeam();
             Post post = team.getPost();
@@ -57,7 +57,7 @@ public class LocationWebSocketService {
             log.debug("Cached geo center for teamId={} at lat={}, lon={}, ttl={}s", teamId, location.getLocationLat(), location.getLocationLng(), ttl.getSeconds());
         }
 
-        // 3️⃣ 반경 체크
+        // 3 반경 체크
         int radius = participant.getVolunteerTeam().getPost().getAttendancePolicy() != null
                 ? participant.getVolunteerTeam().getPost().getAttendancePolicy().getAttendanceRadiusMeters()
                 : DEFAULT_RADIUS_METERS;
