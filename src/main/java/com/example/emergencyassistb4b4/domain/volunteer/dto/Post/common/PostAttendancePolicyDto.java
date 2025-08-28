@@ -1,7 +1,8 @@
 package com.example.emergencyassistb4b4.domain.volunteer.dto.Post.common;
 
 import com.example.emergencyassistb4b4.domain.volunteer.domain.AttendancePolicy;
-import com.example.emergencyassistb4b4.domain.volunteer.domain.VolunteerLocation;
+import com.example.emergencyassistb4b4.global.exception.ApiException;
+import com.example.emergencyassistb4b4.global.status.ErrorStatus;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -28,14 +29,11 @@ public class PostAttendancePolicyDto implements AttendancePolicyProvider {
 
     @Override
     public AttendancePolicy getAttendancePolicy() {
-        return AttendancePolicy.builder()
-                .checkinStart(checkinStart)
-                .checkinEnd(checkinEnd)
-                .attendanceRadiusMeters(allowedRadiusM)
-                .build();
+        return toEntity();
     }
 
     public AttendancePolicy toEntity() {
+        checkTime(checkinStart, checkinEnd);
         return AttendancePolicy.builder()
                 .checkinStart(checkinStart)
                 .checkinEnd(checkinEnd)
@@ -50,5 +48,16 @@ public class PostAttendancePolicyDto implements AttendancePolicyProvider {
                 .checkinEnd(policy.getCheckinEnd())
                 .allowedRadiusM(policy.getAttendanceRadiusMeters())
                 .build();
+    }
+    private static void checkTime(LocalDateTime checkinStart, LocalDateTime checkinEnd) {
+        LocalDateTime now = LocalDateTime.now();
+
+        if (checkinStart.isAfter(checkinEnd)) {
+            throw new ApiException(ErrorStatus.VOLUNTEER_BAD_REQUEST);
+        }
+
+        if (checkinEnd.isBefore(now)) {
+            throw new ApiException(ErrorStatus.VOLUNTEER_BAD_REQUEST);
+        }
     }
 }

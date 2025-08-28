@@ -49,24 +49,4 @@ public interface VolunteerParticipantRepository extends JpaRepository<VolunteerP
 """)
     boolean existsActiveParticipation(@Param("userId") Long userId, @Param("postId") Long postId);
 
-
-    @Query("""
-    SELECT vp FROM VolunteerParticipant vp
-    JOIN FETCH vp.volunteerTeam t
-    JOIN FETCH t.post p
-    JOIN FETCH p.attendancePolicy ap
-    JOIN FETCH p.location l
-    WHERE vp.user.id = :userId
-      AND vp.checkinStatus = COALESCE(:status, vp.checkinStatus)
-      AND ap.checkinStart >= COALESCE(:startTime, ap.checkinStart)
-      AND ap.checkinEnd <= COALESCE(:endTime, ap.checkinEnd)
-""")
-    List<VolunteerParticipant> findAllByUserIdWithPostAndTeam(
-            @Param("userId") Long userId,
-            @Param("status") CheckinStatus status,
-            @Param("startTime") LocalDateTime startTime,
-            @Param("endTime") LocalDateTime endTime
-    );
-
-
 }

@@ -9,6 +9,7 @@ import com.example.emergencyassistb4b4.domain.volunteer.enums.CheckinStatus;
 import com.example.emergencyassistb4b4.domain.volunteer.infra.redis.service.TeamParticipationRedisService;
 import com.example.emergencyassistb4b4.domain.volunteer.repository.PostRepository;
 import com.example.emergencyassistb4b4.domain.volunteer.repository.VolunteerParticipantRepository;
+import com.example.emergencyassistb4b4.domain.volunteer.repository.VolunteerParticipantRepositoryCustom;
 import com.example.emergencyassistb4b4.domain.volunteer.repository.VolunteerTeamRepository;
 import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
@@ -30,6 +31,7 @@ public class VolunteerJoinService {
     private final PostRepository postRepository;
     private final TeamParticipationRedisService teamParticipationRedisService;
     private final VolunteerParticipantService participantService;
+    private final VolunteerParticipantRepositoryCustom volunteerParticipantRepositoryCustom;
 
     @Transactional
     public void joinTeam(Long postId, int teamNumber, Long userId) {
@@ -106,7 +108,7 @@ public class VolunteerJoinService {
 
     @Transactional(readOnly = true)
     public List<VolunteerParticipationResponse> getMyParticipation(Long userId, CheckinStatus status,LocalDateTime startTime, LocalDateTime endTime) {
-        List<VolunteerParticipant> participants = participantRepository.findAllByUserIdWithPostAndTeam(userId,status,startTime,endTime);
+        List<VolunteerParticipant> participants = volunteerParticipantRepositoryCustom.findAllByUserIdWithPostAndTeam(userId,status,startTime,endTime);
         return participants.stream()
                 .map(VolunteerParticipationResponse::from)
                 .toList();
