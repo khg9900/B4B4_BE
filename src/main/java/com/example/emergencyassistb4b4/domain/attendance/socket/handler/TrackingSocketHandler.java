@@ -1,4 +1,5 @@
 package com.example.emergencyassistb4b4.domain.attendance.socket.handler;
+
 import com.example.emergencyassistb4b4.domain.attendance.redis.RabbitMQRedisService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -6,16 +7,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.*;
+
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class TrackingSocketHandler implements WebSocketHandler {
     private final RabbitMQRedisService rabbitMQRedisService;
-
     // userId → sessions (1:N)
     private final Map<Long, Set<WebSocketSession>> userSessions = new ConcurrentHashMap<>();
     private final ObjectMapper objectMapper;
@@ -76,7 +78,7 @@ public class TrackingSocketHandler implements WebSocketHandler {
     public void cacheVolunteerUserMapping(Long volunteerId, Long userId) {
 
         rabbitMQRedisService.mapVolunteerToUser(volunteerId, userId);
-
+    }
 
     public Long getUserIdByVolunteerId(Long volunteerParticipantId) {
 
@@ -85,17 +87,6 @@ public class TrackingSocketHandler implements WebSocketHandler {
 
     public void removeVolunteerUserMapping(Long volunteerParticipantId) {
         rabbitMQRedisService.unmapVolunteerFromUser(volunteerParticipantId);
-        String userIdStr = redisService.getTeamIdForVolunteer(volunteerParticipantId).toString();
-        if (userIdStr == null) return null;
-        try {
-            return Long.parseLong(userIdStr);
-        } catch (NumberFormatException e) {
-            return null;
-        }
-    }
-
-    public void removeVolunteerUserMapping(Long volunteerParticipantId) {
-        redisService.deleteTeamIdForVolunteer(volunteerParticipantId);
 
     }
 
