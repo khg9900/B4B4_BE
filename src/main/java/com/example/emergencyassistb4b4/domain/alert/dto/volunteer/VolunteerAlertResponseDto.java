@@ -16,7 +16,7 @@ public class VolunteerAlertResponseDto implements UserAlert {
     private Long id;
     private String title;
     private String placeName;
-    private LocalDateTime checkinStart;
+    private LocalDateTime volunteerDate;
     private LocalDateTime createdAt;
 
     public static VolunteerAlertResponseDto fromUserVolunteerAlert(UserVolunteerAlert userVolunteerAlert) {
@@ -26,7 +26,7 @@ public class VolunteerAlertResponseDto implements UserAlert {
             .id(userVolunteerAlert.getId())
             .title(volunteerAlert.getTitle())
             .placeName(volunteerAlert.getPlaceName())
-            .checkinStart(volunteerAlert.getCheckinStart())
+            .volunteerDate(volunteerAlert.getVolunteerDate())
             .createdAt(volunteerAlert.getCreatedAt())
             .build();
     }

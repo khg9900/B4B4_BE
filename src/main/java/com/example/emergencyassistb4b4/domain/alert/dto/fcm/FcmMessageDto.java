@@ -71,7 +71,7 @@ public class FcmMessageDto {
                 """,
             alert.getTitle(),
             alert.getPlaceName(),
-            alert.getCheckinStart().format(DateTimeFormatter.ofPattern("MM월 dd일 HH:mm"))
+            alert.getVolunteerDate().format(DateTimeFormatter.ofPattern("MM월 dd일 HH:mm"))
         );
 
         return FcmMessageDto.builder()

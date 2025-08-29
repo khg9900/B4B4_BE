@@ -11,7 +11,12 @@ import lombok.*;
 @Builder
 public class PostLocationDto {
 
-    @NotBlank(message = "장소 이름은 필수입니다.")
+    @NotBlank(message = "시/도를 선택해 주세요.")
+    private String province;
+
+    private String city;
+
+    @NotBlank(message = "상세 주소명은 필수입니다.")
     private String placeName;
 
     @NotNull(message = "위도는 필수입니다.")
@@ -22,6 +27,8 @@ public class PostLocationDto {
 
     public VolunteerLocation toEntity() {
         return VolunteerLocation.builder()
+                .province(province)
+                .city(city)
                 .placeName(placeName)
                 .locationLat(latitude)
                 .locationLng(longitude)
@@ -30,6 +37,8 @@ public class PostLocationDto {
 
     public static PostLocationDto from(VolunteerLocation location) {
         return PostLocationDto.builder()
+                .province(location.getProvince())
+                .city(location.getCity())
                 .placeName(location.getPlaceName())
                 .latitude(location.getLocationLat())
                 .longitude(location.getLocationLng())

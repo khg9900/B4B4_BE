@@ -13,7 +13,7 @@ public class VolunteerUpdateAlertDto {
     private final Long postId;
     private final String title;
     private final String placeName;
-    private final LocalDateTime checkinStart;
+    private LocalDateTime volunteerDate;
 
     public static VolunteerUpdateAlertDto from(VolunteerUpdatedEvent event) {
 
@@ -21,7 +21,7 @@ public class VolunteerUpdateAlertDto {
             .postId(event.getPostId())
             .title(event.getTitle())
             .placeName(event.getPlaceName())
-            .checkinStart(event.getCheckinStart())
+            .volunteerDate(event.getVolunteerDate())
             .build();
     }
 
@@ -29,7 +29,7 @@ public class VolunteerUpdateAlertDto {
         return VolunteerAlert.builder()
             .title(this.title)
             .placeName(this.placeName)
-            .checkinStart(this.checkinStart)
+            .volunteerDate(this.volunteerDate)
             .build();
     }
 }

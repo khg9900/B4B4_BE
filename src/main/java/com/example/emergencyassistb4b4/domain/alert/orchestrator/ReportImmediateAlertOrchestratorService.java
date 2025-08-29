@@ -1,9 +1,9 @@
 package com.example.emergencyassistb4b4.domain.alert.orchestrator;
 
-import com.example.emergencyassistb4b4.domain.alert.client.userDevice.UserDeviceClient;
 import com.example.emergencyassistb4b4.domain.alert.dto.report.ReportImmediateAlertDto;
 import com.example.emergencyassistb4b4.domain.alert.dto.fcm.FcmMessageDto;
 import com.example.emergencyassistb4b4.domain.alert.fcm.sender.FcmSender;
+import com.example.emergencyassistb4b4.domain.userDevice.service.UserDeviceService;
 import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.global.kafka.dto.DisasterReportedEvent;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ReportImmediateAlertOrchestratorService {
 
     private final FcmSender fcmSender;
-    private final UserDeviceClient userDeviceClient;
+    private final UserDeviceService userDeviceService;
 
     public void process(DisasterReportedEvent event) {
 
@@ -30,7 +30,7 @@ public class ReportImmediateAlertOrchestratorService {
         FcmMessageDto message = FcmMessageDto.fromReportImmediateAlert(info);
 
         // 3. FCM Token 조회
-        String token = userDeviceClient.findFcmTokenByUserId(info.getGovernmentId());
+        String token = userDeviceService.findFcmTokenByUserId(info.getGovernmentId());
 
         if (token == null || token.isBlank()) {
             // 즉시 알림은 발송 대상(관할 공공기관)이 반드시 있어야 함.
