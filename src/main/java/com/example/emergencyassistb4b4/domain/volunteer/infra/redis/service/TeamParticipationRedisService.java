@@ -80,14 +80,15 @@ public class TeamParticipationRedisService {
             throw new ApiException(ErrorStatus.VOLUNTEER_BAD_REQUEST);
         }
 
-        redisTemplate.delete(duplicateKey);
-
         // 취소 성공 시 중복 키 삭제
         String countStr = redisTemplate.opsForValue().get(countKey);
         int currentCount = countStr != null ? Integer.parseInt(countStr) : 0;
         if (currentCount == 0) {
             ttlRedisService.deleteTeamKeys(postId, teamId, null);
         }
+
+        redisTemplate.delete(duplicateKey);
+
     }
 
     /**

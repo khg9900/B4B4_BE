@@ -74,11 +74,21 @@ public class LocationWebSocketService {
                 .orElseThrow(() -> new ApiException(VOLUNTEER_NOT_FOUND));
 
         AttendancePolicy policy = participant.getVolunteerTeam().getPost().getAttendancePolicy();
-        LocalDateTime sessionEnd = policy != null ? policy.getCheckinEnd() : LocalDateTime.now();
-        Duration ttl = Duration.between(LocalDateTime.now(), sessionEnd).plusMinutes(DEFAULT_TTL_MINUTES);
+
+        // ENDED 이벤트 처리 시, 현재 시점과 sessionEnd 중 더 늦은 시간을 기준
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime sessionEnd = (policy != null && policy.getCheckinEnd() != null)
+                ? policy.getCheckinEnd()
+                : now;
+
+        // TTL 계산: sessionEnd 이후 DEFAULT_TTL_MINUTES까지
+        LocalDateTime effectiveEnd = sessionEnd.isAfter(now) ? sessionEnd : now;
+        Duration ttl = Duration.between(now, effectiveEnd).plusMinutes(DEFAULT_TTL_MINUTES);
+
+        // 음수 방어
         if (ttl.isNegative() || ttl.isZero()) ttl = Duration.ofMinutes(DEFAULT_TTL_MINUTES);
 
         rabbitMQRedisService.recordAttendance(volunteerId, isPresent, ttl);
-        log.debug("Saved attendance for volunteerId={}, isPresent={}, ttl={}s", volunteerId, isPresent, ttl.getSeconds());
+        log.info("Saved attendance for volunteerId={}, isPresent={}, ttl={}s", volunteerId, isPresent, ttl.getSeconds());
     }
 }

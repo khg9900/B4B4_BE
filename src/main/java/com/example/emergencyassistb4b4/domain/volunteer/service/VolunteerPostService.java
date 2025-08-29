@@ -4,6 +4,8 @@ import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.event.Attendan
 import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.event.AttendanceStateSetEvent;
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Post.*;
 import com.example.emergencyassistb4b4.domain.volunteer.enums.PostStatus;
+import com.example.emergencyassistb4b4.domain.volunteer.dto.Post.common.AttendancePolicyProvider;
+import com.example.emergencyassistb4b4.domain.volunteer.infra.redis.service.TeamParticipationRedisService;
 import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.global.kafka.dto.VolunteerUpdatedEvent;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
@@ -12,7 +14,6 @@ import com.example.emergencyassistb4b4.domain.user.repository.UserRepository;
 import com.example.emergencyassistb4b4.domain.volunteer.domain.Post;
 import com.example.emergencyassistb4b4.domain.volunteer.domain.VolunteerTeam;
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Join.TeamStatusDto;
-import com.example.emergencyassistb4b4.domain.volunteer.infra.redis.service.TeamParticipationRedisService;
 import com.example.emergencyassistb4b4.domain.volunteer.kafka.producer.VolunteerUpdatedEventProducer;
 import com.example.emergencyassistb4b4.domain.volunteer.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
@@ -53,7 +54,7 @@ public class VolunteerPostService {
         // 저장
         postRepository.save(post);
 
-        scheduleAttendanceForTeams(teams, request);
+        scheduleAttendanceForTeams(teams, request.getAttendancePolicy());
 
     }
 
@@ -67,9 +68,13 @@ public class VolunteerPostService {
         // 업데이트
         post.update(request);
 
+
         // kafka 메세지 발행
         VolunteerUpdatedEvent event = VolunteerUpdatedEvent.from(post);
         producer.sendVolunteerUpdatedEvent(event);
+
+        scheduleAttendanceForTeams(post.getTeams(), request.getAttendancePolicy());
+
     }
 
     // 모집 게시글 다건 조회
@@ -131,7 +136,7 @@ public class VolunteerPostService {
 
         List<TeamStatusDto> teamStatuses = post.getTeams().stream()
                 .map(team -> {
-                    int currentCount = teamParticipationRedisService.getCurrentCount(team.getId());
+                    int currentCount = teamParticipationRedisService.getCurrentCount(postId,team.getId());
                     return new TeamStatusDto(
                             team.getId(),
                             team.getTeamNumber(),
@@ -159,13 +164,16 @@ public class VolunteerPostService {
         return volunteerTeams;
     }
 
-    private void scheduleAttendanceForTeams(List<VolunteerTeam> teams, CreatePostRequest request) {
+    // 제네릭 메서드로 변경
+    private <T extends AttendancePolicyProvider> void scheduleAttendanceForTeams(
+            List<VolunteerTeam> teams,
+            T request
+    ) {
         LocalDateTime checkinStart = request.getAttendancePolicy().getCheckinStart();
 
         teams.stream()
                 .map(team -> new AttendanceStateSetEvent(team.getId(), checkinStart))
                 .forEach(attendanceEventListener::onAttendanceStateSet);
     }
-
 
 }
