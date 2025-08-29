@@ -2,9 +2,12 @@ package com.example.emergencyassistb4b4.domain.alert.service.trigger;
 
 import com.example.emergencyassistb4b4.domain.alert.redis.RedisThresholdCounter;
 import com.example.emergencyassistb4b4.domain.alert.orchestrator.ReportThresholdAlertOrchestratorService;
-import com.example.emergencyassistb4b4.global.kafka.dto.DisasterReportedEvent;
 import java.time.Duration;
 import java.util.List;
+
+import com.example.emergencyassistb4b4.global.kafka.dto.ThresholdAlertEvent;
+import java.time.Instant;
+import java.time.ZoneId;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,7 +22,8 @@ public class ReportThresholdAlertTriggerService {
 
     private static final Duration KEY_TTL = Duration.ofDays(1);
 
-    public void checkReportThreshold(DisasterReportedEvent event) {
+    public void handleThresholdAlert(ThresholdAlertEvent event) {
+
         String counterKey = generateReportCounterKey(event);
         String notifyKeyPrefix = "alert:" + counterKey;
         List<Long> thresholds = List.of(3L, 5L, 7L, 10L);
@@ -34,11 +38,16 @@ public class ReportThresholdAlertTriggerService {
         }
     }
 
-    private String generateReportCounterKey(DisasterReportedEvent event) {
+    private String generateReportCounterKey(ThresholdAlertEvent event) {
+
+        var day = Instant.ofEpochMilli(event.getWindowStart())
+                .atZone(ZoneId.of("Asia/Seoul"))
+                .toLocalDate();
+
         return String.format("report:%s:%s:%s:%s",
             event.getProvince(),
             event.getCity(),
-            event.getDisasterType(),
-            event.getReportedAt().toLocalDate());
+            event.getAlertType(),
+            day);
     }
 }

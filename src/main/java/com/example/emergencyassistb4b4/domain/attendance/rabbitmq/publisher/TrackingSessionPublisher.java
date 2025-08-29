@@ -1,6 +1,6 @@
-package com.example.emergencyassistb4b4.domain.attendance.publisher;
+package com.example.emergencyassistb4b4.domain.attendance.rabbitmq.publisher;
 
-import com.example.emergencyassistb4b4.domain.attendance.dto.MessageWrapper;
+import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.dto.MessageWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.AmqpException;

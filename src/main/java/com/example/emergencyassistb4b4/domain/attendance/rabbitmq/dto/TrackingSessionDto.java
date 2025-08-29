@@ -1,4 +1,4 @@
-package com.example.emergencyassistb4b4.domain.attendance.dto;
+package com.example.emergencyassistb4b4.domain.attendance.rabbitmq.dto;
 
 import com.example.emergencyassistb4b4.domain.volunteer.domain.AttendancePolicy;
 import com.example.emergencyassistb4b4.domain.volunteer.domain.VolunteerLocation;

@@ -1,5 +1,7 @@
 package com.example.emergencyassistb4b4.domain.volunteer.service;
 
+import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.event.AttendanceEventListener;
+import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.event.AttendanceStateSetEvent;
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Post.*;
 import com.example.emergencyassistb4b4.domain.volunteer.enums.PostStatus;
 import com.example.emergencyassistb4b4.global.exception.ApiException;
@@ -14,12 +16,12 @@ import com.example.emergencyassistb4b4.domain.volunteer.infra.redis.service.Team
 import com.example.emergencyassistb4b4.domain.volunteer.kafka.producer.VolunteerUpdatedEventProducer;
 import com.example.emergencyassistb4b4.domain.volunteer.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +33,7 @@ public class VolunteerPostService {
     private final PostRepository postRepository;
     private final TeamParticipationRedisService teamParticipationRedisService;
     private final VolunteerUpdatedEventProducer producer;
+    private final AttendanceEventListener attendanceEventListener;
 
     // 모집 게시글 생성
     @Transactional
@@ -49,6 +52,9 @@ public class VolunteerPostService {
 
         // 저장
         postRepository.save(post);
+
+        scheduleAttendanceForTeams(teams, request);
+
     }
 
     // 모집 게시글 수정
@@ -152,5 +158,14 @@ public class VolunteerPostService {
         }
         return volunteerTeams;
     }
+
+    private void scheduleAttendanceForTeams(List<VolunteerTeam> teams, CreatePostRequest request) {
+        LocalDateTime checkinStart = request.getAttendancePolicy().getCheckinStart();
+
+        teams.stream()
+                .map(team -> new AttendanceStateSetEvent(team.getId(), checkinStart))
+                .forEach(attendanceEventListener::onAttendanceStateSet);
+    }
+
 
 }
