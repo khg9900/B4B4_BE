@@ -54,29 +54,55 @@
 ##  기술 스택
 
 **Backend**
-- Java 17, Spring Boot 3, Gradle
+
+<img width="95" height="28" alt="image" src="https://github.com/user-attachments/assets/6fd1259e-6773-4ae4-a676-7da25b74b92e"/>
+<img width="172" height="28" alt="image" src="https://github.com/user-attachments/assets/bab60c84-dd9b-4624-8983-52e35fd31b74" />
+<img src="https://img.shields.io/badge/gradle-02303A?style=for-the-badge&logo=gradle&logoColor=white">
+<img width="165" height="28" alt="image" src="https://github.com/user-attachments/assets/67862191-7aa7-4562-a5f5-f63f6877a567" />
+<img width="94" height="28" alt="image" src="https://github.com/user-attachments/assets/dd8c2c1a-0c88-481b-99ff-f17c3b15e380" />
+
+
 
 **Security**
-- Spring Security, Kakao OAuth 2.0, JWT
+
+<img width="167" height="28" alt="image" src="https://github.com/user-attachments/assets/ea27dfa7-e997-4d50-be5a-e648c3d14b1c" />
+<img width="71" height="28" alt="image" src="https://github.com/user-attachments/assets/d86de37a-b193-41e7-9e54-9e1c32647e18" />
+
+
 
 **DB & ORM**
-- PostgreSQL, PostGIS, Redis
-- Spring Data JPA, QueryDSL
+
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
+![PostGIS](https://img.shields.io/badge/PostGIS-3982CE?style=for-the-badge&logo=postgresql&logoColor=white)
+<img width="124" height="28" alt="image" src="https://github.com/user-attachments/assets/c8447186-b4e2-475e-a708-0e969e45e6ae" />
+<img width="115" height="28" alt="image" src="https://github.com/user-attachments/assets/f7f3778d-c613-4ee6-95b0-06a0d703d872" />
+
 
 **Message Broker**
-- Kafka, RabbitMQ
+
+![Kafka](https://img.shields.io/badge/Apache%20Kafka-231F20?style=for-the-badge&logo=apachekafka&logoColor=white)
+![RabbitMQ](https://img.shields.io/badge/RabbitMQ-FF6600?style=for-the-badge&logo=rabbitmq&logoColor=white)
 
 **Real-Time**
-- WebSocket
 
-**Push Notification**
-- Firebase Cloud Messaging (FCM)
+![WebSocket](https://img.shields.io/badge/WebSocket-010101?style=for-the-badge&logo=socketdotio&logoColor=white)
+![FCM](https://img.shields.io/badge/Firebase%20Cloud%20Messaging-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)
 
 **Infra**
-- Docker, AWS EC2, S3
+
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![AWS EC2](https://img.shields.io/badge/AWS%20EC2-FF9900?style=for-the-badge&logo=amazonaws&logoColor=white)
+![AWS S3](https://img.shields.io/badge/AWS%20S3-569A31?style=for-the-badge&logo=amazons3&logoColor=white)
+
 
 **Collaboration**
-- GitHub
+
+![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)
+<img width="98" height="28" alt="image" src="https://github.com/user-attachments/assets/aab34b88-cb8a-4399-bb23-3b07539236e9" />
+<img width="86" height="28" alt="image" src="https://github.com/user-attachments/assets/935fd7b3-e11c-4627-8650-db85114a0b84" />
+<img width="87" height="28" alt="image" src="https://github.com/user-attachments/assets/ef81f407-95b2-4018-b0dc-b588af503293" />
+<img width="99" height="28" alt="image" src="https://github.com/user-attachments/assets/d1492cb2-783c-4fed-87c8-8426fd93135e" />
+
 
 
 ## 📌 아키텍처
