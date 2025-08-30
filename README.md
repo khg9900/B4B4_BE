@@ -121,7 +121,7 @@ V2
 
 ## 📌 API 명세서
 
-- Notion: https://www.notion.so/1f5859344fa4810f814ed30ee25a0fc9?v=1f5859344fa4814fbea8000c4ab5c5c2
+- Postman API Docs: https://documenter.getpostman.com/view/27616662/2sB3Hhrgzf
 
 ## 📌 실행 방법
 
