@@ -12,8 +12,6 @@ import com.example.emergencyassistb4b4.global.status.ErrorStatus;
 
 import java.util.List;
 
-import com.example.emergencyassistb4b4.global.exception.ApiException;
-import com.example.emergencyassistb4b4.global.status.ErrorStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

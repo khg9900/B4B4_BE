@@ -37,7 +37,6 @@ public class LocationWebSocketService {
             rabbitMQRedisService.mapVolunteerToTeam(volunteerId, teamId);
             log.debug("Cached teamId={} for volunteerId={}", teamId, volunteerId);
         }
-
         // 2 팀 위치 확인/캐싱
         if (!rabbitMQRedisService.locationExists(teamId)) {
             VolunteerTeam team = participant.getVolunteerTeam();
@@ -90,5 +89,6 @@ public class LocationWebSocketService {
 
         rabbitMQRedisService.recordAttendance(volunteerId, isPresent, ttl);
         log.info("Saved attendance for volunteerId={}, isPresent={}, ttl={}s", volunteerId, isPresent, ttl.getSeconds());
+
     }
 }

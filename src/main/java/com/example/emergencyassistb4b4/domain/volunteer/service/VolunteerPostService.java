@@ -3,6 +3,8 @@ package com.example.emergencyassistb4b4.domain.volunteer.service;
 import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.event.AttendanceEventListener;
 import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.event.AttendanceStateSetEvent;
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Post.*;
+import com.example.emergencyassistb4b4.domain.volunteer.dto.Post.common.AttendancePolicyProvider;
+import com.example.emergencyassistb4b4.domain.volunteer.infra.redis.service.TeamParticipationRedisService;
 import com.example.emergencyassistb4b4.domain.volunteer.enums.PostStatus;
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Post.common.AttendancePolicyProvider;
 import com.example.emergencyassistb4b4.domain.volunteer.infra.redis.service.TeamParticipationRedisService;
@@ -14,6 +16,8 @@ import com.example.emergencyassistb4b4.domain.user.repository.UserRepository;
 import com.example.emergencyassistb4b4.domain.volunteer.domain.Post;
 import com.example.emergencyassistb4b4.domain.volunteer.domain.VolunteerTeam;
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Join.TeamStatusDto;
+import com.example.emergencyassistb4b4.domain.volunteer.dto.Post.common.PostAttendancePolicyDto;
+import com.example.emergencyassistb4b4.domain.volunteer.dto.Post.common.PostLocationDto;
 import com.example.emergencyassistb4b4.domain.volunteer.kafka.producer.VolunteerUpdatedEventProducer;
 import com.example.emergencyassistb4b4.domain.volunteer.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
@@ -67,7 +71,6 @@ public class VolunteerPostService {
 
         // 업데이트
         post.update(request);
-
 
         // kafka 메세지 발행
         VolunteerUpdatedEvent event = VolunteerUpdatedEvent.from(post);
