@@ -9,6 +9,9 @@ import com.example.emergencyassistb4b4.domain.alert.fcm.sender.FcmSender;
 import com.example.emergencyassistb4b4.domain.alert.service.command.AlertCommandService;
 
 import java.util.List;
+
+import com.example.emergencyassistb4b4.global.exception.ApiException;
+import com.example.emergencyassistb4b4.global.status.ErrorStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -35,13 +38,12 @@ public class ReportThresholdAlertOrchestratorService {
         FcmMessageDto message = FcmMessageDto.fromReportThresholdAlert(info);
 
         // 3. FCM 발송 대상 선정 - 사용자 현 위치를 기준으로 (민간단체는 FCM Topic 구독을 통해 처리)
-//        List<Long> userIds = locationClient.findUsersByRegion(info.getProvince(), info.getCity());
-        // 3-1. 사용자 관심 지역 기준 조회
-        List<Long> userIds = userClient.findUsersByRegion(info.getProvince(), info.getCity());
-//        if (userIds == null || userIds.isEmpty()) {
-//            // 재난 신고는 사용자 현 위치 기준 -> 지역 내 사용자 없을 경우 시스템 오류로 간주
-//            throw new ApiException(ErrorStatus.ALERT_SERVER_ERROR);
-//        }
+        List<Long> userIds = locationClient.findUsersByRegion(info.getProvince(), info.getCity());
+
+        if (userIds == null || userIds.isEmpty()) {
+            // 재난 신고는 사용자 현 위치 기준 -> 지역 내 사용자 없을 경우 시스템 오류로 간주
+            throw new ApiException(ErrorStatus.ALERT_SERVER_ERROR);
+        }
 
         // 4. FCM Token 조회
         List<String> tokens = userDeviceClient.findFcmTokensByUserIds(userIds);

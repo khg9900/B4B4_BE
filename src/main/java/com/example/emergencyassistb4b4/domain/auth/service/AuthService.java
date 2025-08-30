@@ -36,19 +36,26 @@ public class AuthService {
     public TokenResponseDto login(LoginRequestDto loginRequestDto) {
 
         // 1. 인증 시도
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginRequestDto.getEmail(),
-                        loginRequestDto.getPassword()
-                )
-        );
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            loginRequestDto.getEmail(),
+                            loginRequestDto.getPassword()
+                    )
+            );
+            // 2. 인증된 사용자 정보
+            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+            UserResponseDto userDto = UserResponseDto.from(userDetails.getUser());
 
-        // 2. 인증된 사용자 정보
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        UserResponseDto userDto = UserResponseDto.from(userDetails.getUser());
+            // 3. 토큰 발급
+            return tokenService.issueToken(userDto);
 
-        // 3. 토큰 발급
-        return tokenService.issueToken(userDto);
+        } catch (Exception e) {
+            throw new ApiException(ErrorStatus.USER_NOT_FOUND);
+        }
+
+
+
     }
 
     public TokenResponseDto signup(SignUpRequestDto requestDto) {
