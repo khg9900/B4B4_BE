@@ -2,8 +2,11 @@ package com.example.emergencyassistb4b4.domain.volunteer.service;
 
 import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.event.AttendanceEventListener;
 import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.event.AttendanceStateSetEvent;
+import com.example.emergencyassistb4b4.domain.volunteer.domain.VolunteerParticipant;
+import com.example.emergencyassistb4b4.domain.volunteer.dto.Join.CheckinStatusRequest;
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Post.*;
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Post.common.AttendancePolicyProvider;
+import com.example.emergencyassistb4b4.domain.volunteer.enums.CheckinStatus;
 import com.example.emergencyassistb4b4.domain.volunteer.infra.redis.service.TeamParticipationRedisService;
 import com.example.emergencyassistb4b4.domain.volunteer.enums.PostStatus;
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Post.common.AttendancePolicyProvider;
@@ -29,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -129,6 +133,26 @@ public class VolunteerPostService {
         }
 
         postRepository.delete(post);
+    }
+
+
+    @Transactional(readOnly = true)
+    public TeamParticipantsResponse getTeamParticipants(Long postId, Long teamId){
+        // Redis 또는 DB 기반으로 팀 참여자 상태 조회
+        VolunteerTeam volunteerTeam = postRepository.findTeamByPostIdAndTeamId(postId, teamId).
+                orElseThrow(() -> new ApiException(ErrorStatus.POST_NOT_FOUND));
+
+        return TeamParticipantsResponse.fromEntities(volunteerTeam.getId(), volunteerTeam.getTeamNumber(),volunteerTeam.getParticipants());
+    }
+
+    @Transactional
+    public void  updateParticipantAttendance(Long postId, Long teamId, Long participantId, CheckinStatusRequest checkinStatusRequest){
+
+        VolunteerParticipant volunteerParticipant=postRepository.findParticipantInTeam(postId,teamId,participantId)
+                                .orElseThrow(() -> new ApiException(ErrorStatus.POST_NOT_FOUND));;
+
+        volunteerParticipant.updateStatus(checkinStatusRequest.getStatus());
+
     }
 
     // 게시글 별 팀 인원 조회
