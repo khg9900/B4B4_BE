@@ -51,7 +51,7 @@
 - 사용자별 수신 알림 조회 (최대 30건)
 
 
-## ⚒️ 기술 스택
+##  기술 스택
 
 **Backend**
 - Java 17, Spring Boot 3, Gradle
@@ -79,7 +79,7 @@
 - GitHub
 
 
-## 🏗️ 아키텍처
+## 📌 아키텍처
 
 ### Cloud Architecture
 V1  
@@ -89,18 +89,18 @@ V2
 ![img_2.png](docs/img_2.png)
 
 
-## 📊 ERD
+## 📌 ERD
 ![img_3.png](docs/img_3.png)
 
 
-## 🎨 와이어프레임
-- Figma https://embed.figma.com/board/CTz4eGFcktnV4imyqsNnT8/%EC%82%904%EC%82%904?node-id=0-1&t=kxXtaoKOu8ie5Ncs-1&embed-host=notion&footer=false&theme=system
+## 📌 와이어프레임
+- Figma: https://embed.figma.com/board/CTz4eGFcktnV4imyqsNnT8/%EC%82%904%EC%82%904?node-id=0-1&t=kxXtaoKOu8ie5Ncs-1&embed-host=notion&footer=false&theme=system
 
-## 📡 API 명세서
+## 📌 API 명세서
 
 - Notion: https://www.notion.so/1f5859344fa4810f814ed30ee25a0fc9?v=1f5859344fa4814fbea8000c4ab5c5c2
 
-## 🚀 실행 방법
+## 📌 실행 방법
 
 ```bash
 # 프로젝트 클론
