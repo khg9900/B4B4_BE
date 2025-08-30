@@ -94,7 +94,7 @@ V2
 
 
 ## 🎨 와이어프레임
-- Figma https://embed.figma.com/board/CTz4eGFcktnV4imyqsNnT8/%EC%82%904%EC%82%904?node-id=0-1&t=kxXtaoKOu8ie5Ncs-1&embed-host=notion&footer=false&theme=system)
+- Figma https://embed.figma.com/board/CTz4eGFcktnV4imyqsNnT8/%EC%82%904%EC%82%904?node-id=0-1&t=kxXtaoKOu8ie5Ncs-1&embed-host=notion&footer=false&theme=system
 
 ## 📡 API 명세서
 
