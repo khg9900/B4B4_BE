@@ -116,7 +116,8 @@ V2
 
 
 ## 📌 ERD
-![img_3.png](docs/img_3.png)
+<img width="3342" height="3040" alt="image" src="https://github.com/user-attachments/assets/a644f0df-44c7-4273-b515-92ec1a18aa44" />
+
 
 
 ## 📌 와이어프레임
