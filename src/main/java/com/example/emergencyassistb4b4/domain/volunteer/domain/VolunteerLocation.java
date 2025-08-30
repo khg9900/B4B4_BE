@@ -20,6 +20,15 @@ public class VolunteerLocation extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // 행정구역 (시/도)
+    @Column(name = "province", nullable = false, length = 255)
+    private String province;
+
+    // 행정구역 (구/군)
+    @Column(name = "city", length = 255)
+    private String city;
+
+    // 상세 주소
     @Column(name = "place_name", nullable = false)
     private String placeName;
 
@@ -39,7 +48,9 @@ public class VolunteerLocation extends BaseEntity {
         this.post = post;
     }
 
-    public void update(String placeName, Double latitude, Double longitude) {
+    public void update(String province, String city, String placeName, Double latitude, Double longitude) {
+        this.province = province;
+        this.city = city;
         this.placeName = placeName;
         this.locationLat = latitude;
         this.locationLng = longitude;

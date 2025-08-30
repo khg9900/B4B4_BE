@@ -10,8 +10,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -45,9 +43,21 @@ public class VolunteerPostController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<Slice<PostsResponse>>> getPosts(
-            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        @ModelAttribute PostFilterRequest filter,
+        Pageable pageable
+    ) {
+        Slice<PostsResponse> response = volunteerPostService.getPostList(filter, pageable);
+        return ApiResponse.onSuccess(SuccessStatus.VOLUNTEER_SUCCESS, response);
+    }
 
-        Slice<PostsResponse> response = volunteerPostService.getPostList(pageable);
+    @PreAuthorize("hasRole('NGO')")
+    @GetMapping("/my")
+    public ResponseEntity<ApiResponse<Slice<PostsResponse>>> getMyPosts(
+        @AuthenticationPrincipal CustomUserDetails userDetails,
+        @ModelAttribute PostFilterRequest filter,
+        Pageable pageable
+    ) {
+        Slice<PostsResponse> response = volunteerPostService.getMyPostList(userDetails.getUser().getId(), filter, pageable);
         return ApiResponse.onSuccess(SuccessStatus.VOLUNTEER_SUCCESS, response);
     }
 
@@ -61,6 +71,16 @@ public class VolunteerPostController {
     public ResponseEntity<ApiResponse<PostTeamsResponse>> getTeamStatus(@PathVariable Long postId) {
         PostTeamsResponse response = volunteerPostService.getTeamStatus(postId);
         return ApiResponse.onSuccess(SuccessStatus.VOLUNTEER_SUCCESS, response);
+    }
+
+    @PreAuthorize("hasRole('NGO')")
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<ApiResponse<Void>> deleteMyPost(
+        @PathVariable Long postId,
+        @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        volunteerPostService.deleteMyPost(userDetails.getUser().getId(), postId);  // 소유자 검증 + 삭제
+        return ApiResponse.onSuccess(SuccessStatus.VOLUNTEER_SUCCESS, null);
     }
 
 }

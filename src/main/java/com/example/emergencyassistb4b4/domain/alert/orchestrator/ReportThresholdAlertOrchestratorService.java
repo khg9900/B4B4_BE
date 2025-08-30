@@ -1,17 +1,17 @@
 package com.example.emergencyassistb4b4.domain.alert.orchestrator;
 
-import com.example.emergencyassistb4b4.domain.alert.client.location.LocationClient;
-import com.example.emergencyassistb4b4.domain.alert.client.user.UserClient;
-import com.example.emergencyassistb4b4.domain.alert.client.userDevice.UserDeviceClient;
 import com.example.emergencyassistb4b4.domain.alert.dto.fcm.FcmMessageDto;
 import com.example.emergencyassistb4b4.domain.alert.dto.report.ReportThresholdAlertDto;
 import com.example.emergencyassistb4b4.domain.alert.fcm.sender.FcmSender;
 import com.example.emergencyassistb4b4.domain.alert.service.command.AlertCommandService;
 
-import java.util.List;
-
+import com.example.emergencyassistb4b4.domain.user.service.UserService;
+import com.example.emergencyassistb4b4.domain.userDevice.service.UserDeviceService;
 import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
+
+import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,10 +23,9 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ReportThresholdAlertOrchestratorService {
 
+    private final UserService userService;
     private final AlertCommandService alertCommandService;
-    private final LocationClient locationClient;
-    private final UserClient userClient;
-    private final UserDeviceClient userDeviceClient;
+    private final UserDeviceService userDeviceService;
     private final FcmSender fcmSender;
 
     public void process(String notifyKey) {
@@ -38,7 +37,7 @@ public class ReportThresholdAlertOrchestratorService {
         FcmMessageDto message = FcmMessageDto.fromReportThresholdAlert(info);
 
         // 3. FCM 발송 대상 선정 - 사용자 현 위치를 기준으로 (민간단체는 FCM Topic 구독을 통해 처리)
-        List<Long> userIds = locationClient.findUsersByRegion(info.getProvince(), info.getCity());
+        List<Long> userIds = userService.findUsersByRegion(info.getProvince(), info.getCity());
 
         if (userIds == null || userIds.isEmpty()) {
             // 재난 신고는 사용자 현 위치 기준 -> 지역 내 사용자 없을 경우 시스템 오류로 간주
@@ -46,7 +45,7 @@ public class ReportThresholdAlertOrchestratorService {
         }
 
         // 4. FCM Token 조회
-        List<String> tokens = userDeviceClient.findFcmTokensByUserIds(userIds);
+        List<String> tokens = userDeviceService.findFcmTokensByUserIds(userIds);
         if (tokens == null || tokens.isEmpty()) {
            return;
         }

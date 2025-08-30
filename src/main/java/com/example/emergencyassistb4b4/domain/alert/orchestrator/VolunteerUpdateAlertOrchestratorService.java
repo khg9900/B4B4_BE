@@ -1,11 +1,11 @@
 package com.example.emergencyassistb4b4.domain.alert.orchestrator;
 
-import com.example.emergencyassistb4b4.domain.alert.client.userDevice.UserDeviceClient;
-import com.example.emergencyassistb4b4.domain.alert.client.volunteer.VolunteerParticipantClient;
 import com.example.emergencyassistb4b4.domain.alert.dto.volunteer.VolunteerUpdateAlertDto;
 import com.example.emergencyassistb4b4.domain.alert.dto.fcm.FcmMessageDto;
 import com.example.emergencyassistb4b4.domain.alert.fcm.sender.FcmSender;
 import com.example.emergencyassistb4b4.domain.alert.service.command.AlertCommandService;
+import com.example.emergencyassistb4b4.domain.userDevice.service.UserDeviceService;
+import com.example.emergencyassistb4b4.domain.volunteer.service.VolunteerParticipantService;
 import com.example.emergencyassistb4b4.global.kafka.dto.VolunteerUpdatedEvent;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -18,9 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class VolunteerUpdateAlertOrchestratorService {
 
-    private final VolunteerParticipantClient volunteerParticipantClient;
+    private final VolunteerParticipantService volunteerParticipantService;
     private final AlertCommandService alertCommandService;
-    private final UserDeviceClient userDeviceClient;
+    private final UserDeviceService userDeviceService;
     private final FcmSender fcmSender;
 
     @Transactional
@@ -33,14 +33,14 @@ public class VolunteerUpdateAlertOrchestratorService {
         FcmMessageDto message = FcmMessageDto.fromVolunteerUpdateAlert(info);
 
         // 3. 봉사활동 참여자 조회
-        List<Long> participants = volunteerParticipantClient.findParticipantIds(info.getPostId());
+        List<Long> participants = volunteerParticipantService.findParticipants(info.getPostId());
         if (participants == null || participants.isEmpty()) {
             // 참여자 없을 경우 메시지 발송 x
             return;
         }
 
         // 4. FCM token 조회
-        List<String> tokens = userDeviceClient.findFcmTokensByUserIds(participants);
+        List<String> tokens = userDeviceService.findFcmTokensByUserIds(participants);
 
         // 5. FCM 발송
         try {

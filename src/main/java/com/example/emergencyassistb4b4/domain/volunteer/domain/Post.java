@@ -1,9 +1,15 @@
 package com.example.emergencyassistb4b4.domain.volunteer.domain;
 
+import com.example.emergencyassistb4b4.domain.volunteer.dto.Post.UpdatePostRequest;
+import com.example.emergencyassistb4b4.domain.volunteer.dto.Post.common.PostAttendancePolicyDto;
+import com.example.emergencyassistb4b4.domain.volunteer.dto.Post.common.PostLocationDto;
+import com.example.emergencyassistb4b4.domain.volunteer.enums.PostStatus;
 import com.example.emergencyassistb4b4.global.entity.BaseEntity;
 import com.example.emergencyassistb4b4.domain.user.domain.User;
 import com.example.emergencyassistb4b4.domain.volunteer.enums.PostCategory;
 import jakarta.persistence.*;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import lombok.*;
 
 import lombok.AccessLevel;
@@ -32,16 +38,30 @@ public class Post extends BaseEntity {
     @JoinColumn(name="user_id", nullable=false)
     private User user;
 
-    @Enumerated(EnumType.STRING)
-    private PostCategory category;
-
     private String title;
 
     @Column(columnDefinition = "text")
     private String content;
 
+    private LocalDate volunteerDate;
+
+    private LocalTime volunteerStartTime;
+
+    private LocalTime volunteerEndTime;
+
+    private LocalDate recruitmentStartDate;
+
+    private LocalDate recruitmentEndDate;
+
     private int totalCapacity;
+
     private int teamSize;
+
+    @Enumerated(EnumType.STRING)
+    private PostCategory category;
+
+    @Enumerated(EnumType.STRING)
+    private PostStatus status;
 
     @Builder.Default
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -63,11 +83,41 @@ public class Post extends BaseEntity {
         policy.setPost(this);
     }
 
-    public void updateLocation(String placeName, Double latitude, Double longitude) {
+    public void update(UpdatePostRequest request) {
+
+        this.title = request.getTitle();
+        this.content = request.getContent();
+        this.volunteerDate = request.getVolunteerDate();
+        this.volunteerStartTime= request.getVolunteerStartTime();
+        this.volunteerEndTime= request.getVolunteerEndTime();
+        this.recruitmentStartDate = request.getRecruitmentStartDate();
+        this.recruitmentEndDate = request.getRecruitmentEndDate();
+        this.status = request.getStatus();
+
+        // 위치 수정
+        PostLocationDto location = request.getLocation();
+        this.getLocation().update(
+            location.getProvince(),
+            location.getCity(),
+            location.getPlaceName(),
+            location.getLatitude(),
+            location.getLongitude()
+        );
+
+        // 출석 정책 수정
+        PostAttendancePolicyDto policy = request.getAttendancePolicy();
+        this.getAttendancePolicy().update(
+            policy.getCheckinStart(),
+            policy.getCheckinEnd(),
+            policy.getAllowedRadiusM()
+        );
+    }
+
+    public void updateLocation(String province, String city, String placeName, Double latitude, Double longitude) {
         if (this.location == null) {
             this.location = new VolunteerLocation();
         }
-        this.location.update(placeName, latitude, longitude);
+        this.location.update(province, city, placeName, latitude, longitude);
     }
 
     public void updateAttendancePolicy(LocalDateTime start, LocalDateTime end, int radius) {

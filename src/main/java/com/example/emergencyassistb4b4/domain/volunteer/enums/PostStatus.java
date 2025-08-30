@@ -5,11 +5,11 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum PostCategory {
+public enum PostStatus {
 
-    RECRUITMENT("봉사활동 모집"),
-    SUPPORT("구호물품 지원");
+    OPEN("모집 중"),
+    CLOSED("모집 마감"),
+    COMPLETED("봉사 완료");
 
     private final String displayName;
-
 }
