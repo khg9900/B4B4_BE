@@ -51,6 +51,7 @@ public class PostAttendancePolicyDto implements AttendancePolicyProvider {
                 .allowedRadiusM(policy.getAttendanceRadiusMeters())
                 .build();
     }
+
     private static void checkTime(LocalDateTime checkinStart, LocalDateTime checkinEnd) {
         LocalDateTime now = LocalDateTime.now();
 

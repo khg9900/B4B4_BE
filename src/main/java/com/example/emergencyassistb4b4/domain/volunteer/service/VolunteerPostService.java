@@ -2,12 +2,12 @@ package com.example.emergencyassistb4b4.domain.volunteer.service;
 
 import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.event.AttendanceEventListener;
 import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.event.AttendanceStateSetEvent;
+import com.example.emergencyassistb4b4.domain.volunteer.domain.VolunteerParticipant;
+import com.example.emergencyassistb4b4.domain.volunteer.dto.Join.CheckinStatusRequest;
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Post.*;
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Post.common.AttendancePolicyProvider;
 import com.example.emergencyassistb4b4.domain.volunteer.infra.redis.service.TeamParticipationRedisService;
 import com.example.emergencyassistb4b4.domain.volunteer.enums.PostStatus;
-import com.example.emergencyassistb4b4.domain.volunteer.dto.Post.common.AttendancePolicyProvider;
-import com.example.emergencyassistb4b4.domain.volunteer.infra.redis.service.TeamParticipationRedisService;
 import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.global.kafka.dto.VolunteerUpdatedEvent;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
@@ -16,8 +16,6 @@ import com.example.emergencyassistb4b4.domain.user.repository.UserRepository;
 import com.example.emergencyassistb4b4.domain.volunteer.domain.Post;
 import com.example.emergencyassistb4b4.domain.volunteer.domain.VolunteerTeam;
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Join.TeamStatusDto;
-import com.example.emergencyassistb4b4.domain.volunteer.dto.Post.common.PostAttendancePolicyDto;
-import com.example.emergencyassistb4b4.domain.volunteer.dto.Post.common.PostLocationDto;
 import com.example.emergencyassistb4b4.domain.volunteer.kafka.producer.VolunteerUpdatedEventProducer;
 import com.example.emergencyassistb4b4.domain.volunteer.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
@@ -131,6 +129,26 @@ public class VolunteerPostService {
         postRepository.delete(post);
     }
 
+
+    @Transactional(readOnly = true)
+    public TeamParticipantsResponse getTeamParticipants(Long postId, Long teamId){
+        // Redis 또는 DB 기반으로 팀 참여자 상태 조회
+        VolunteerTeam volunteerTeam = postRepository.findTeamByPostIdAndTeamId(postId, teamId).
+                orElseThrow(() -> new ApiException(ErrorStatus.POST_NOT_FOUND));
+
+        return TeamParticipantsResponse.fromEntities(volunteerTeam.getId(), volunteerTeam.getTeamNumber(),volunteerTeam.getParticipants());
+    }
+
+    @Transactional
+    public void  updateParticipantAttendance(Long postId, Long teamId, Long participantId, CheckinStatusRequest checkinStatusRequest){
+
+        VolunteerParticipant volunteerParticipant=postRepository.findParticipantInTeam(postId,teamId,participantId)
+                                .orElseThrow(() -> new ApiException(ErrorStatus.POST_NOT_FOUND));;
+
+        volunteerParticipant.updateStatus(checkinStatusRequest.getStatus());
+
+    }
+
     // 게시글 별 팀 인원 조회
     @Transactional(readOnly = true)
     public PostTeamsResponse getTeamStatus(Long postId) {
@@ -178,5 +196,7 @@ public class VolunteerPostService {
                 .map(team -> new AttendanceStateSetEvent(team.getId(), checkinStart))
                 .forEach(attendanceEventListener::onAttendanceStateSet);
     }
+
+
 
 }
