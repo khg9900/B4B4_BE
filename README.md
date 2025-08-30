@@ -55,11 +55,7 @@
 
 - **Backend**
 
-<img width="95" height="28" alt="image" src="https://github.com/user-attachments/assets/6fd1259e-6773-4ae4-a676-7da25b74b92e"/>
-<img width="172" height="28" alt="image" src="https://github.com/user-attachments/assets/bab60c84-dd9b-4624-8983-52e35fd31b74" />
-<img src="https://img.shields.io/badge/gradle-02303A?style=for-the-badge&logo=gradle&logoColor=white">
-<img width="165" height="28" alt="image" src="https://github.com/user-attachments/assets/67862191-7aa7-4562-a5f5-f63f6877a567" />
-<img width="94" height="28" alt="image" src="https://github.com/user-attachments/assets/dd8c2c1a-0c88-481b-99ff-f17c3b15e380" />
+<img width="95" height="28" alt="image" src="https://github.com/user-attachments/assets/6fd1259e-6773-4ae4-a676-7da25b74b92e"/> <img width="172" height="28" alt="image" src="https://github.com/user-attachments/assets/bab60c84-dd9b-4624-8983-52e35fd31b74"/> <img src="https://img.shields.io/badge/gradle-02303A?style=for-the-badge&logo=gradle&logoColor=white"> <img width="165" height="28" alt="image" src="https://github.com/user-attachments/assets/67862191-7aa7-4562-a5f5-f63f6877a567"/> <img width="94" height="28" alt="image" src="https://github.com/user-attachments/assets/dd8c2c1a-0c88-481b-99ff-f17c3b15e380"/>
 
 
 
