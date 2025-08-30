@@ -1,6 +1,7 @@
 package com.example.emergencyassistb4b4.domain.attendance.socket.handler;
 
 import com.example.emergencyassistb4b4.domain.attendance.redis.RabbitMQRedisService;
+import com.example.emergencyassistb4b4.domain.attendance.socket.service.LocationWebSocketService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,14 +19,13 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 public class TrackingSocketHandler implements WebSocketHandler {
     private final RabbitMQRedisService rabbitMQRedisService;
-    // userId → sessions (1:N)
+    private final LocationWebSocketService locationWebSocketService;
     private final Map<Long, Set<WebSocketSession>> userSessions = new ConcurrentHashMap<>();
     private final ObjectMapper objectMapper;
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
-        Long userId = (Long) session.getAttributes().get("userId"); // attributes에서 userId 꺼내기
-
+        Long userId = (Long) session.getAttributes().get("userId");
         if (userId == null) {
             closeSession(session, CloseStatus.NOT_ACCEPTABLE);
             return;
@@ -73,61 +73,51 @@ public class TrackingSocketHandler implements WebSocketHandler {
         userSessions.entrySet().removeIf(entry -> entry.getValue().isEmpty());
     }
 
-    // ============= Redis 캐싱 (volunteerId → userId) =============
-
+    // ============= Redis 캐싱 =============
     public void cacheVolunteerUserMapping(Long volunteerId, Long userId) {
-
         rabbitMQRedisService.mapVolunteerToUser(volunteerId, userId);
     }
 
     public Long getUserIdByVolunteerId(Long volunteerParticipantId) {
-
         return rabbitMQRedisService.findUserIdByVolunteer(volunteerParticipantId);
     }
 
     public void removeVolunteerUserMapping(Long volunteerParticipantId) {
         rabbitMQRedisService.unmapVolunteerFromUser(volunteerParticipantId);
-
     }
 
     // ============= WebSocket 메시지 전송 =============
-
-
     @Transactional(readOnly = true)
-    public void sendToUser(Long volunteerParticipantId, String event, Object payload) {
-        if (volunteerParticipantId == null) {
-            log.warn("보낼 대상 volunteerParticipantId가 null입니다.");
-            return;
-        }
-
-        String json;
+    public void sendToUser(Long volunteerId, String event, Object payload) {
         try {
-            json = objectMapper.writeValueAsString(Map.of("type", event, "data", payload));
-        } catch (Exception e) {
-            log.error("메시지 직렬화 실패", e);
-            return;
-        }
-
-        Long userId = getUserIdByVolunteerId(volunteerParticipantId);
-        if (userId == null) {
-            log.warn("Redis에서 userId 매핑을 찾을 수 없음: volunteerParticipantId={}", volunteerParticipantId);
-            return;
-        }
-
-        Set<WebSocketSession> sessions = userSessions.get(userId);
-        if (sessions == null || sessions.isEmpty()) {
-            log.warn("WebSocket 세션 없음: userId={}", userId);
-            return;
-        }
-
-        sessions.removeIf(session -> !session.isOpen());
-
-        for (WebSocketSession session : sessions) {
-            try {
-                session.sendMessage(new TextMessage(json));
-            } catch (Exception e) {
-                log.error("WebSocket 메시지 전송 실패: userId={}, volunteerParticipantId={}", userId, volunteerParticipantId, e);
+            Long userId = getUserIdByVolunteerId(volunteerId);
+            if (userId == null) {
+                log.warn("유저 매핑 없음: volunteerId={}", volunteerId);
+                locationWebSocketService.saveAndPublishAttendance(volunteerId, false);
+                return;
             }
+
+            WebSocketSession session = null;
+            Set<WebSocketSession> sessions = userSessions.get(userId);
+            if (sessions != null && !sessions.isEmpty()) {
+                session = sessions.iterator().next(); // 단일 세션 선택
+            }
+
+            if (session == null || !session.isOpen()) {
+                log.warn("웹소켓 세션 없음 또는 닫힘: volunteerId={}, userId={}", volunteerId, userId);
+                locationWebSocketService.saveAndPublishAttendance(volunteerId, false);
+                removeVolunteerUserMapping(volunteerId);
+                return;
+            }
+
+            String json = objectMapper.writeValueAsString(Map.of("type", event, "data", payload));
+            session.sendMessage(new TextMessage(json));
+            log.debug("웹소켓 전송 성공: volunteerId={}, userId={}, event={}", volunteerId, userId, event);
+
+        } catch (Exception e) {
+            log.error("웹소켓 전송 실패: volunteerId={}, event={}", volunteerId, event, e);
+            locationWebSocketService.saveAndPublishAttendance(volunteerId, false);
+            removeVolunteerUserMapping(volunteerId);
         }
     }
 }

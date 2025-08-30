@@ -1,5 +1,6 @@
 package com.example.emergencyassistb4b4.domain.volunteer.controller;
 
+import com.example.emergencyassistb4b4.domain.volunteer.enums.CheckinStatus;
 import com.example.emergencyassistb4b4.global.response.ApiResponse;
 import com.example.emergencyassistb4b4.global.security.auth.CustomUserDetails;
 import com.example.emergencyassistb4b4.global.status.SuccessStatus;
@@ -8,11 +9,13 @@ import com.example.emergencyassistb4b4.domain.volunteer.dto.Join.VolunteerPartic
 import com.example.emergencyassistb4b4.domain.volunteer.service.VolunteerJoinService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -47,9 +50,18 @@ public class VolunteerJoinController {
     @PreAuthorize("hasRole('IND')")
     @GetMapping("/volunteer-participants/my")
     public ResponseEntity<ApiResponse<List<VolunteerParticipationResponse>>> getMyParticipationList(
-            @AuthenticationPrincipal CustomUserDetails userDetails
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTime,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTime
     ) {
-        List<VolunteerParticipationResponse> list = volunteerJoinService.getMyParticipation(userDetails.getUser().getId());
+        CheckinStatus checkinStatus = null;
+        if (status != null && !status.isBlank()) {
+            checkinStatus = CheckinStatus.valueOf(status);
+        }
+
+        List<VolunteerParticipationResponse> list =
+                volunteerJoinService.getMyParticipation(userDetails.getUser().getId(),checkinStatus,startTime,endTime);
         return ApiResponse.onSuccess(SuccessStatus.VOLUNTEER_SUCCESS, list);
     }
 
