@@ -53,7 +53,7 @@
 
 ## 📌 기술 스택
 
-**Backend**
+- **Backend**
 
 <img width="95" height="28" alt="image" src="https://github.com/user-attachments/assets/6fd1259e-6773-4ae4-a676-7da25b74b92e"/>
 <img width="172" height="28" alt="image" src="https://github.com/user-attachments/assets/bab60c84-dd9b-4624-8983-52e35fd31b74" />
@@ -63,14 +63,14 @@
 
 
 
-**Security**
+- **Security**
 
 <img width="167" height="28" alt="image" src="https://github.com/user-attachments/assets/ea27dfa7-e997-4d50-be5a-e648c3d14b1c" />
 <img width="71" height="28" alt="image" src="https://github.com/user-attachments/assets/d86de37a-b193-41e7-9e54-9e1c32647e18" />
 
 
 
-**DB & ORM**
+- **DB & ORM**
 
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
 ![PostGIS](https://img.shields.io/badge/PostGIS-3982CE?style=for-the-badge&logo=postgresql&logoColor=white)
@@ -78,24 +78,24 @@
 <img width="115" height="28" alt="image" src="https://github.com/user-attachments/assets/f7f3778d-c613-4ee6-95b0-06a0d703d872" />
 
 
-**Message Broker**
+- **Message Broker**
 
 ![Kafka](https://img.shields.io/badge/Apache%20Kafka-231F20?style=for-the-badge&logo=apachekafka&logoColor=white)
 ![RabbitMQ](https://img.shields.io/badge/RabbitMQ-FF6600?style=for-the-badge&logo=rabbitmq&logoColor=white)
 
-**Real-Time**
+- **Real-Time**
 
 ![WebSocket](https://img.shields.io/badge/WebSocket-010101?style=for-the-badge&logo=socketdotio&logoColor=white)
 ![FCM](https://img.shields.io/badge/Firebase%20Cloud%20Messaging-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)
 
-**Infra**
+- **Infra**
 
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 ![AWS EC2](https://img.shields.io/badge/AWS%20EC2-FF9900?style=for-the-badge&logo=amazonaws&logoColor=white)
 ![AWS S3](https://img.shields.io/badge/AWS%20S3-569A31?style=for-the-badge&logo=amazons3&logoColor=white)
 
 
-**Collaboration**
+- **Collaboration**
 
 ![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)
 <img width="98" height="28" alt="image" src="https://github.com/user-attachments/assets/aab34b88-cb8a-4399-bb23-3b07539236e9" />
