@@ -3,7 +3,6 @@
 > **재난의 골든타임을 지킨다, 모두가 함께.**  
 > 개인(IND) · 공공기관(GOV) · 민간단체(NGO)를 하나로 연결하는 **실시간 재난 긴급 지원 플랫폼**
 
----
 
 ## 📖 서비스 소개
 
@@ -14,7 +13,6 @@
 
 ![img.png](docs/img_0.png)
 
----
 ## ✨ 주요 기능
 
 ### 🔐 인증 / 인가
@@ -23,13 +21,11 @@
 - Redis 기반 RefreshToken 저장 및 재발급
 - Role 기반 접근 제어 (IND, GOV, NGO)
 
----
 
 ### 📍 위치
 - 사용자 주변 nkm 반경 내 재난 히트맵 표시
 - 사용자 근처 대피소 정보 제공 (카카오 맵 연동)
 
----
 
 ### 🚨 신고
 - 재난 신고 등록 기능
@@ -38,7 +34,6 @@
 - 신고 목록 및 상세 조회
 - Kafka DLQ 기반 실패/예외 처리
 
----
 
 ### ❤️ 봉사
 - 민간단체: 봉사 모집글 생성 / 수정 / 조회
@@ -47,7 +42,6 @@
 - 중복 및 정원 초과 방지
 - Kafka + DLQ 기반 재처리
 
----
 
 ### 🔔 알림
 - FCM 디바이스 토큰 등록
@@ -56,7 +50,6 @@
 - 봉사 모집글 수정 시 신청자 대상 알림
 - 사용자별 수신 알림 조회 (최대 30건)
 
----
 
 ## ⚒️ 기술 스택
 
@@ -85,7 +78,6 @@
 **Collaboration**
 - GitHub
 
----
 
 ## 🏗️ 아키텍처
 
@@ -96,22 +88,18 @@ V1
 V2  
 ![img_2.png](docs/img_2.png)
 
----
 
 ## 📊 ERD
 ![img_3.png](docs/img_3.png)
 
----
 
 ## 🎨 와이어프레임
-[👉 Figma 링크](https://embed.figma.com/board/CTz4eGFcktnV4imyqsNnT8/%EC%82%904%EC%82%904?node-id=0-1&t=kxXtaoKOu8ie5Ncs-1&embed-host=notion&footer=false&theme=system)
+- Figma https://embed.figma.com/board/CTz4eGFcktnV4imyqsNnT8/%EC%82%904%EC%82%904?node-id=0-1&t=kxXtaoKOu8ie5Ncs-1&embed-host=notion&footer=false&theme=system)
 
----
 ## 📡 API 명세서
 
 - Notion: https://www.notion.so/1f5859344fa4810f814ed30ee25a0fc9?v=1f5859344fa4814fbea8000c4ab5c5c2
 
----
 ## 🚀 실행 방법
 
 ```bash
