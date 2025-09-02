@@ -152,4 +152,14 @@ public class ReportController {
         CursorResponse<ReportDto> resp = reportService.getMyReportsByCursor(userId, req);
         return ApiResponse.onSuccess(SuccessStatus.REPORT_GET_SUCCESS, resp);
     }
+
+    @PreAuthorize("hasRole('GOV')")
+    @GetMapping("/today")
+    public ResponseEntity<ApiResponse<TodayReportStatusCounts>> getTodayReports(
+        @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        Long publicId = userDetails.getUser().getId();
+        TodayReportStatusCounts resp = reportService.getTodayReports(publicId);
+        return ApiResponse.onSuccess(SuccessStatus.REPORT_GET_SUCCESS, resp);
+    }
 }

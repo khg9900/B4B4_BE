@@ -12,6 +12,7 @@ import com.example.emergencyassistb4b4.domain.report.repository.ReportRepository
 import com.example.emergencyassistb4b4.domain.user.domain.User;
 import com.example.emergencyassistb4b4.domain.user.domain.UserRole;
 import com.example.emergencyassistb4b4.domain.user.repository.UserRepository;
+import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -201,5 +202,9 @@ public class ReportService {
         );
     }
 
+    @Transactional(readOnly = true)
+    public TodayReportStatusCounts getTodayReports(Long publicId) {
+        return reportRepository.getTodayReports(publicId, LocalDate.now());
+    }
 
 }
