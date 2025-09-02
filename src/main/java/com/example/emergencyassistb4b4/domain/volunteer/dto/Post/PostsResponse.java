@@ -20,7 +20,7 @@ public class PostsResponse {
     private String province;
     private String city;
     private PostCategory category;
-    private int capacity;
+    private int totalCapacity;
     private LocalDate recruitmentStartDate;
     private LocalDate recruitmentEndDate;
     private PostStatus status;
@@ -33,6 +33,7 @@ public class PostsResponse {
                 .province(post.getLocation().getProvince())
                 .city(post.getLocation().getCity())
                 .category(post.getCategory())
+                .totalCapacity(post.getTotalCapacity())
                 .recruitmentStartDate(post.getRecruitmentStartDate())
                 .recruitmentEndDate(post.getRecruitmentEndDate())
                 .status(post.getStatus())

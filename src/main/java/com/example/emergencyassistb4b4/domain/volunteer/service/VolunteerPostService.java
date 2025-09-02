@@ -6,11 +6,8 @@ import com.example.emergencyassistb4b4.domain.volunteer.domain.VolunteerParticip
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Join.CheckinStatusRequest;
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Post.*;
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Post.common.AttendancePolicyProvider;
-import com.example.emergencyassistb4b4.domain.volunteer.enums.CheckinStatus;
 import com.example.emergencyassistb4b4.domain.volunteer.infra.redis.service.TeamParticipationRedisService;
 import com.example.emergencyassistb4b4.domain.volunteer.enums.PostStatus;
-import com.example.emergencyassistb4b4.domain.volunteer.dto.Post.common.AttendancePolicyProvider;
-import com.example.emergencyassistb4b4.domain.volunteer.infra.redis.service.TeamParticipationRedisService;
 import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.global.kafka.dto.VolunteerUpdatedEvent;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
@@ -19,8 +16,6 @@ import com.example.emergencyassistb4b4.domain.user.repository.UserRepository;
 import com.example.emergencyassistb4b4.domain.volunteer.domain.Post;
 import com.example.emergencyassistb4b4.domain.volunteer.domain.VolunteerTeam;
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Join.TeamStatusDto;
-import com.example.emergencyassistb4b4.domain.volunteer.dto.Post.common.PostAttendancePolicyDto;
-import com.example.emergencyassistb4b4.domain.volunteer.dto.Post.common.PostLocationDto;
 import com.example.emergencyassistb4b4.domain.volunteer.kafka.producer.VolunteerUpdatedEventProducer;
 import com.example.emergencyassistb4b4.domain.volunteer.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -202,5 +196,7 @@ public class VolunteerPostService {
                 .map(team -> new AttendanceStateSetEvent(team.getId(), checkinStart))
                 .forEach(attendanceEventListener::onAttendanceStateSet);
     }
+
+
 
 }
