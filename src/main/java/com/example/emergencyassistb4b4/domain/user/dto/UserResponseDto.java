@@ -15,8 +15,14 @@ public class UserResponseDto {
 
     private UserRole userRole;
 
+    private String nickname;
+
+    private String province;
+
+    private String city;
+
     public static UserResponseDto from(User user) {
 
-        return new UserResponseDto(user.getId(), user.getEmail(), user.getUserRole());
+        return new UserResponseDto(user.getId(), user.getEmail(), user.getUserRole(), user.getNickname(), user.getProvince(), user.getCity());
     }
 }
