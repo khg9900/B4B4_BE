@@ -17,7 +17,7 @@ public class TrackingSessionPublisher {
     private final RabbitTemplate rabbitTemplate;
 
     private static final String DELAYED_EXCHANGE_NAME = "tracking.delay.exchange";
-    public static final String DELAYED_ROUTING_KEY = "tracking.delay.routingkey";
+    private static final String DELAYED_ROUTING_KEY = "tracking.delay.routingkey";
 
     /**
      * 지연 메시지 전송

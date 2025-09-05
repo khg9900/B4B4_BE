@@ -6,6 +6,7 @@ import com.example.emergencyassistb4b4.domain.volunteer.domain.VolunteerParticip
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Join.CheckinStatusRequest;
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Post.*;
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Post.common.AttendancePolicyProvider;
+import com.example.emergencyassistb4b4.domain.volunteer.enums.CheckinStatus;
 import com.example.emergencyassistb4b4.domain.volunteer.infra.redis.service.TeamParticipationRedisService;
 import com.example.emergencyassistb4b4.domain.volunteer.enums.PostStatus;
 import com.example.emergencyassistb4b4.global.exception.ApiException;
@@ -27,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -80,15 +82,23 @@ public class VolunteerPostService {
 
     // 모집 게시글 다건 조회
     @Transactional(readOnly = true)
-    public Slice<PostsResponse> getPostList(PostFilterRequest filter, Pageable pageable) {
+    public Slice<PostTotalResponse> getPostList(PostFilterRequest filter, Pageable pageable) {
 
         if (filter.getVolunteerStartDate() != null && filter.getVolunteerEndDate() != null &&
-            filter.getVolunteerStartDate().isAfter(filter.getVolunteerEndDate())) {
+                filter.getVolunteerStartDate().isAfter(filter.getVolunteerEndDate())) {
             throw new ApiException(ErrorStatus.VOLUNTEER_BAD_REQUEST);
         }
 
-        return postRepository.findPosts(null, filter, pageable)
-                .map(PostsResponse::from);
+        Slice<Post> posts = postRepository.findPosts(null, filter, pageable);
+
+        return posts.map(post -> {
+            // 팀별 참여자 수 합산
+            int currentParticipants = post.getTeams().stream()
+                    .mapToInt(team -> teamParticipationRedisService.getCurrentCount(post.getId(), team.getId()))
+                    .sum();
+
+            return PostTotalResponse.from(post, currentParticipants);
+        });
     }
 
     // 모집 게시글 다건 조회 (NGO)
@@ -96,13 +106,14 @@ public class VolunteerPostService {
     public Slice<PostsResponse> getMyPostList(Long userId, PostFilterRequest filter, Pageable pageable) {
 
         if (filter.getVolunteerStartDate() != null && filter.getVolunteerEndDate() != null &&
-            filter.getVolunteerStartDate().isAfter(filter.getVolunteerEndDate())) {
+                filter.getVolunteerStartDate().isAfter(filter.getVolunteerEndDate())) {
             throw new ApiException(ErrorStatus.VOLUNTEER_BAD_REQUEST);
         }
 
         return postRepository.findPosts(userId, filter, pageable)
-            .map(PostsResponse::from);
+                .map(PostsResponse::from);
     }
+
 
     // 모집 게시글 조회
     @Transactional(readOnly = true)

@@ -24,6 +24,7 @@ public class SecurityConfig {
     private final RedisTemplate<String, String> redisTemplate;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    private final JwtTokenAuthenticationFilter jwtTokenAuthenticationFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -59,7 +60,7 @@ public class SecurityConfig {
                 )
                 // JWT 인증 필터 등록
                 .addFilterBefore(
-                        new JwtTokenAuthenticationFilter(jwtUtils, redisTemplate),
+                        jwtTokenAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class
                 );
 
