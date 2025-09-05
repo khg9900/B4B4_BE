@@ -42,11 +42,11 @@ public class VolunteerPostController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<Slice<PostsResponse>>> getPosts(
+    public ResponseEntity<ApiResponse<Slice<PostTotalResponse>>> getPosts(
         @ModelAttribute PostFilterRequest filter,
         Pageable pageable
     ) {
-        Slice<PostsResponse> response = volunteerPostService.getPostList(filter, pageable);
+        Slice<PostTotalResponse> response = volunteerPostService.getPostList(filter, pageable);
         return ApiResponse.onSuccess(SuccessStatus.VOLUNTEER_SUCCESS, response);
     }
 
