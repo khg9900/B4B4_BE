@@ -40,7 +40,6 @@ public class VolunteerPostService {
     private final TeamParticipationRedisService teamParticipationRedisService;
     private final VolunteerUpdatedEventProducer producer;
     private final AttendanceEventListener attendanceEventListener;
-    private final VolunteerParticipantRepository volunteerParticipantRepository;
 
     // 모집 게시글 생성
     @Transactional
