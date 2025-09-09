@@ -6,10 +6,8 @@ import com.example.emergencyassistb4b4.domain.volunteer.domain.VolunteerParticip
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Join.CheckinStatusRequest;
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Post.*;
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Post.common.AttendancePolicyProvider;
-import com.example.emergencyassistb4b4.domain.volunteer.enums.CheckinStatus;
 import com.example.emergencyassistb4b4.domain.volunteer.infra.redis.service.TeamParticipationRedisService;
 import com.example.emergencyassistb4b4.domain.volunteer.enums.PostStatus;
-import com.example.emergencyassistb4b4.domain.volunteer.repository.VolunteerParticipantRepository;
 import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.global.kafka.dto.VolunteerUpdatedEvent;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
@@ -93,11 +91,11 @@ public class VolunteerPostService {
         Slice<Post> posts = postRepository.findPosts(null, filter, pageable);
 
         return posts.map(post -> {
-            // 팀별 참여자 수 합산
-            int currentParticipants = post.getTeams().stream()
-                    .mapToInt(team -> teamParticipationRedisService.getCurrentCount(post.getId(), team.getId()))
-                    .sum();
-
+            int currentParticipants = post.getTeams().stream().mapToInt(team -> {
+                var period = postRepository.findCheckinPeriodByPostId(post.getId()).orElse(null);
+                boolean expired = period != null && LocalDateTime.now().isAfter(period.checkinEnd());
+                return expired ? 0 : teamParticipationRedisService.getCurrentCount(post.getId(), team.getId());
+            }).sum();
             return PostTotalResponse.from(post, currentParticipants);
         });
     }
@@ -113,10 +111,11 @@ public class VolunteerPostService {
         Slice<Post> posts = postRepository.findPosts(userId, filter, pageable);
 
         return posts.map(post -> {
-            int currentParticipants = post.getTeams().stream()
-                    .mapToInt(team -> teamParticipationRedisService.getCurrentCount(post.getId(), team.getId()))
-                    .sum();
-
+            int currentParticipants = post.getTeams().stream().mapToInt(team -> {
+                var period = postRepository.findCheckinPeriodByPostId(post.getId()).orElse(null);
+                boolean expired = period != null && LocalDateTime.now().isAfter(period.checkinEnd());
+                return expired ? 0 : teamParticipationRedisService.getCurrentCount(post.getId(), team.getId());
+            }).sum();
             return PostTotalResponse.from(post, currentParticipants);
         });
     }
@@ -173,16 +172,12 @@ public class VolunteerPostService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new ApiException(ErrorStatus.VOLUNTEER_NOT_FOUND));
 
-        List<TeamStatusDto> teamStatuses = post.getTeams().stream()
-                .map(team -> {
-                    int currentCount = teamParticipationRedisService.getCurrentCount(postId,team.getId());
-                    return new TeamStatusDto(
-                            team.getId(),
-                            team.getTeamNumber(),
-                            team.getMaxCapacity(),
-                            currentCount
-                    );
-                }).toList();
+        List<TeamStatusDto> teamStatuses = post.getTeams().stream().map(team -> {
+            var period = postRepository.findCheckinPeriodByPostId(postId).orElse(null);
+            boolean expired = period != null && LocalDateTime.now().isAfter(period.checkinEnd());
+            int currentCount = expired ? 0 : teamParticipationRedisService.getCurrentCount(postId, team.getId());
+            return new TeamStatusDto(team.getId(), team.getTeamNumber(), team.getMaxCapacity(), currentCount);
+        }).toList();
 
         return new PostTeamsResponse(post.getId(), teamStatuses);
     }

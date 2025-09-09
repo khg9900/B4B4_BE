@@ -67,14 +67,9 @@ public class VolunteerJoinService {
                 () -> teamParticipationRedisService.tryJoinTeam(
                         postId, team.getId(), userId, team.getMaxCapacity(), period.checkinEnd()
                 ),
-                () -> {
-                    // DB 저장 실패 시 Redis 롤백
-                    try {
-                        teamParticipationRedisService.cancelJoin(postId, team.getId(), userId);
-                    } catch (Exception ex) {
-                        log.error("Redis 롤백 실패 postId={}, teamId={}, userId={}", postId, team.getId(), userId, ex);
-                    }
-                }
+                () -> teamParticipationRedisService.cancelJoin(
+                        postId, team.getId(), userId, period.checkinEnd()
+                )
         );
 
         // DB 저장
@@ -99,8 +94,8 @@ public class VolunteerJoinService {
         }
 
         executeWithRetry(
-                () -> teamParticipationRedisService.cancelJoin(postId, teamId, userId),
-                null // 취소는 DB 롤백 필요 없음
+                () -> teamParticipationRedisService.cancelJoin(postId, teamId, userId, period.checkinEnd()),
+                null
         );
 
         participant.updateStatus(request.getStatus());

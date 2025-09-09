@@ -1,12 +1,10 @@
 package com.example.emergencyassistb4b4.domain.volunteer.repository;
 
 import com.example.emergencyassistb4b4.domain.volunteer.domain.VolunteerParticipant;
-import com.example.emergencyassistb4b4.domain.volunteer.enums.CheckinStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -49,4 +47,11 @@ public interface VolunteerParticipantRepository extends JpaRepository<VolunteerP
 """)
     boolean existsActiveParticipation(@Param("userId") Long userId, @Param("postId") Long postId);
 
+    @Query("""
+    select count(vp) 
+    from VolunteerParticipant vp
+    where vp.volunteerTeam.id = :teamId
+      and vp.checkinStatus = 'PARTICIPATED'
+""")
+    long countParticipatedByTeamId(@Param("teamId") Long teamId);
 }

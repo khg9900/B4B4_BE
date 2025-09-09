@@ -11,20 +11,25 @@ public class TeamParticipationRedisScriptConfig {
     public DefaultRedisScript<Long> joinTeamScript() {
         DefaultRedisScript<Long> script = new DefaultRedisScript<>();
         script.setScriptText("""
-            -- 정원 초과 여부 확인
-            if redis.call("SCARD", KEYS[2]) >= tonumber(ARGV[1]) then
-                return 0
+        -- 정원 초과
+        if redis.call("SCARD", KEYS[2]) >= tonumber(ARGV[1]) then return 0 end
+        -- 중복 참가
+        if redis.call("SISMEMBER", KEYS[2], ARGV[2]) == 1 then return -1 end
+
+        -- 추가
+        redis.call("SADD", KEYS[2], ARGV[2])
+        redis.call("INCR", KEYS[1])
+
+        -- 만료(둘 다)
+        if ARGV[3] then
+            local exp = tonumber(ARGV[3])
+            if exp then
+                redis.call("EXPIREAT", KEYS[1], exp)
+                redis.call("EXPIREAT", KEYS[2], exp)
             end
-            -- 중복 참가 여부 확인
-            if redis.call("SISMEMBER", KEYS[2], ARGV[2]) == 1 then
-                return -1
-            end
-            -- 유저 ID를 참가자 Set에 추가
-            redis.call("SADD", KEYS[2], ARGV[2])
-            -- 참가자 수 1 증가
-            redis.call("INCR", KEYS[1])
-            return 1
-        """);
+        end
+        return 1
+    """);
         script.setResultType(Long.class);
         return script;
     }
