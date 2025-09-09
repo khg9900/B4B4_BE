@@ -73,12 +73,10 @@ public class VolunteerPostService {
         // 업데이트
         post.update(request);
 
-        // kafka 메세지 발행
-        VolunteerUpdatedEvent event = VolunteerUpdatedEvent.from(post);
-        producer.sendVolunteerUpdatedEvent(event);
-
         scheduleAttendanceForTeams(post.getTeams(), request.getAttendancePolicy());
 
+        // kafka 메세지 발행
+        producer.sendVolunteerUpdatedEvent(VolunteerUpdatedEvent.from(post));
     }
 
     // 모집 게시글 다건 조회

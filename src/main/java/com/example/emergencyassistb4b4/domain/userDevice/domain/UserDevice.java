@@ -1,5 +1,6 @@
 package com.example.emergencyassistb4b4.domain.userDevice.domain;
 
+import com.example.emergencyassistb4b4.domain.userDevice.dto.UserDeviceRequestDto;
 import com.example.emergencyassistb4b4.global.entity.BaseEntity;
 import com.example.emergencyassistb4b4.domain.user.domain.User;
 import com.example.emergencyassistb4b4.domain.userDevice.enums.DeviceOs;
@@ -61,8 +62,11 @@ public class UserDevice extends BaseEntity {
     @Column(nullable = false)
     private String fcmToken;
 
-    public void updateToken(String token) {
-        this.fcmToken = token;
+    public void update(UserDeviceRequestDto dto) {
+        this.type = DeviceType.from(dto.getType());
+        this.os = DeviceOs.from(dto.getOs());
+        this.osVersion = dto.getOsVersion();
+        this.model = dto.getModel();
+        this.fcmToken = dto.getFcmToken();
     }
 }
-

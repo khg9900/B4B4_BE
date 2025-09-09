@@ -14,15 +14,27 @@ public class FcmMessageDto {
     private String title;
     private String body;
 
+    private static String joinSpace(String province, String city) {
+
+        if (city == null || city.isEmpty()) {
+            return province;
+        }
+
+        return province + " " + city;
+    }
+
     public static FcmMessageDto fromReportThresholdAlert(ReportThresholdAlertDto alert) {
 
+        String place = joinSpace(alert.getProvince(), alert.getCity());
+
         String title = String.format(
-            "[재난 알림] %s %s %s 발생 알림",
-            alert.getProvince(), alert.getCity(), alert.getDisasterType()
+            "[재난 알림] %s %s 발생 알림",
+            place, alert.getDisasterType()
         );
+
         String body = String.format(
-            "%s %s에서 %s 신고가 %s건 이상 접수되었습니다.",
-            alert.getProvince(), alert.getCity(), alert.getDisasterType(), alert.getCount()
+            "%s에서 %s 신고가 %d건 이상 접수되었습니다.",
+            place, alert.getDisasterType(), alert.getCount()
         );
 
         return FcmMessageDto.builder()
@@ -33,21 +45,23 @@ public class FcmMessageDto {
 
     public static FcmMessageDto fromReportImmediateAlert(ReportImmediateAlertDto alert) {
 
+        String place = joinSpace(alert.getProvince(), alert.getCity());
+
         String title = String.format(
-            "[재난 신고 접수] %s %s %s 신고",
-            alert.getProvince(), alert.getCity(), alert.getDisasterType()
+            "[재난 신고 접수] %s %s 신고",
+            place, alert.getDisasterType()
         );
 
         String body = String.format(
             """
-                재난 유형 : %s
-                신고 내용 : %s
-                발생 장소 : %s %s
-                발생 시간 : %s
-                """,
+            재난 유형 : %s
+            신고 내용 : %s
+            발생 장소 : %s
+            발생 시간 : %s
+            """,
             alert.getDisasterType(),
             alert.getDescription(),
-            alert.getProvince(), alert.getCity(),
+            place,
             alert.getReportedAt().format(DateTimeFormatter.ofPattern("MM월 dd일 HH:mm"))
         );
 
