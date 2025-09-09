@@ -44,7 +44,7 @@ public class JwtUtils {
      */
     public String generateAccessToken(UserResponseDto userResponseDto) {
 
-        return createToken(userResponseDto, Duration.ofHours(1));
+        return createToken(userResponseDto, Duration.ofSeconds(jwtProperties.getAccessTokenValidity()));
     }
 
     /**
@@ -54,7 +54,7 @@ public class JwtUtils {
      */
     public String generateRefreshToken(UserResponseDto userResponseDto) {
 
-        return createToken(userResponseDto, Duration.ofHours(14));
+        return createToken(userResponseDto, Duration.ofSeconds(jwtProperties.getRefreshTokenValidity()));
     }
 
     /**

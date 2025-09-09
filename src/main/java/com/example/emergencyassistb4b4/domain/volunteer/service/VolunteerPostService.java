@@ -110,6 +110,7 @@ public class VolunteerPostService {
             throw new ApiException(ErrorStatus.VOLUNTEER_BAD_REQUEST);
         }
 
+
         Slice<Post> posts = postRepository.findPosts(userId, filter, pageable);
 
         return posts.map(post -> {
