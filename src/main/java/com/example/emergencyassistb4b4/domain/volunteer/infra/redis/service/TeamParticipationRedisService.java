@@ -30,7 +30,6 @@ public class TeamParticipationRedisService {
      * 참가 : 현재 인원 증가 + 중복 신청 체크 + TTL 통합 설정
      */
     public void tryJoinTeam(Long postId, Long teamId, Long userId, int maxCapacity, LocalDateTime checkinEnd) {
-
         String countKey = String.format(COUNT_KEY_FORMAT, postId, teamId);
         String usersKey = String.format(USERS_KEY_FORMAT, postId, teamId);
         String duplicateKey = String.format(DUPLICATE_KEY_FORMAT, postId, teamId, userId);
@@ -38,30 +37,25 @@ public class TeamParticipationRedisService {
         if (Boolean.TRUE.equals(redisTemplate.hasKey(duplicateKey))) {
             Boolean inUsers = redisTemplate.opsForSet().isMember(usersKey, String.valueOf(userId));
             if (Boolean.FALSE.equals(inUsers)) {
-                // 레거시 잔재. 키 삭제 후 진행
-                redisTemplate.delete(duplicateKey);
+                redisTemplate.delete(duplicateKey); // 잔재 정리 후 계속 진행
             } else {
                 throw new ApiException(ErrorStatus.VOLUNTEER_CONFLICT);
             }
         }
 
-        long expireAt = checkinEnd.plusMinutes(30).atZone(java.time.ZoneId.systemDefault()).toEpochSecond();
-
         Long result = redisTemplate.execute(
                 joinTeamScript,
                 List.of(countKey, usersKey),
                 String.valueOf(maxCapacity),
-                String.valueOf(userId),
-                String.valueOf(expireAt) // ← 추가
+                String.valueOf(userId)
         );
         if (result == null) throw new ApiException(ErrorStatus.VOLUNTEER_INTERNAL_SERVER_ERROR);
         switch (result.intValue()) {
             case 1 -> {
+                // duplicateKey에만 TTL 부여
                 Duration ttl = Duration.between(LocalDateTime.now(), checkinEnd.plusMinutes(30));
                 ttl = ttl.isNegative() ? Duration.ofSeconds(1) : ttl;
                 redisTemplate.opsForValue().set(duplicateKey, "1", ttl);
-                // (선택) 아래는 백업용. Lua에서 이미 EXPIREAT 했으므로 없어도 됨.
-                ttlRedisService.setTeamKeyTTL(postId, teamId, userId, ttl);
             }
             case 0, -1 -> throw new ApiException(ErrorStatus.VOLUNTEER_CONFLICT);
             default -> throw new ApiException(ErrorStatus.VOLUNTEER_BAD_REQUEST);
@@ -71,7 +65,7 @@ public class TeamParticipationRedisService {
     /**
      * 참가 취소 : 현재 인원 감소 + duplicateKey 삭제
      */
-    // 취소 + 필요시 키 정리만. TTL 보정 제거.
+    // 취소 + 필요시 키 정리만, TTL 보정 제거
     public void cancelJoin(Long postId, Long teamId, Long userId) {
 
         String usersKey = String.format(USERS_KEY_FORMAT, postId, teamId);
@@ -86,8 +80,7 @@ public class TeamParticipationRedisService {
         String countStr = redisTemplate.opsForValue().get(countKey);
         int currentCount = countStr != null ? Integer.parseInt(countStr) : 0;
         if (currentCount == 0) {
-            ttlRedisService.deleteTeamKeys(postId, teamId, null);
-            ttlRedisService.deleteAllDuplicateKeys(postId, teamId);
+            ttlRedisService.deleteWholeTeamKeys(postId, teamId);
         }
     }
 
@@ -120,7 +113,7 @@ public class TeamParticipationRedisService {
         // 2) 불일치 시 Redis를 DB로 맞춤
         if (dbCount != redisCount) {
             if (dbCount == 0) {
-                ttlRedisService.deleteTeamKeys(postId, teamId, null); // 완전 정리
+                ttlRedisService.deleteWholeTeamKeys(postId, teamId); // 완전 정리
             } else {
                 redisTemplate.opsForValue().set(countKey, String.valueOf(dbCount));
             }

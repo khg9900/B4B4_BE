@@ -34,7 +34,7 @@ public class TeamParticipationSweepService {
         // 키에서 teamId 추출: 끝 토큰이 teamId 라고 가정
         Map<String, Long> keyToTeam = new HashMap<>();
         for (String k : keys) {
-            Long id = parseLastNumeric(k);
+            Long id = parseTeamId(k);
             if (id != null) keyToTeam.put(k, id);
         }
         if (keyToTeam.isEmpty()) return;
@@ -81,11 +81,13 @@ public class TeamParticipationSweepService {
 
         return out;
     }
-    private static Long parseLastNumeric(String key) {
+    private static Long parseTeamId(String key) {
 
-        int i = key.lastIndexOf(':'); if (i < 0) return null;
-        String s = key.substring(i+1);
-        for (int j=0;j<s.length();j++) if (!Character.isDigit(s.charAt(j))) return null;
+        // key 형식: team:{postId}:{teamId}(:...) → index 2가 teamId
+        String[] toks = key.split(":");
+        if (toks.length < 3) return null;
+        String s = toks[2];
+        for (int j = 0; j < s.length(); j++) if (!Character.isDigit(s.charAt(j))) return null;
         try { return Long.parseLong(s); } catch (NumberFormatException e) { return null; }
     }
 }

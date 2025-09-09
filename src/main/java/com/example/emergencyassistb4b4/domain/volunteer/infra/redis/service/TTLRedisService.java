@@ -86,4 +86,16 @@ public class TTLRedisService {
 
         return keys.size();
     }
+
+    // 팀 전체 키 삭제(duplicate 전체 + count/users)
+    public long deleteWholeTeamKeys(Long postId, Long teamId) {
+
+        String countKey = String.format("team:%d:%d:count", postId, teamId);
+        String usersKey = String.format("team:%d:%d:users", postId, teamId);
+
+        long dup = deleteAllDuplicateKeys(postId, teamId);
+        redisTemplate.delete(List.of(countKey, usersKey));
+
+        return dup + 2;
+    }
 }

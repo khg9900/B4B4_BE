@@ -6,6 +6,7 @@ import com.example.emergencyassistb4b4.domain.volunteer.dto.Join.CheckinPeriodDt
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Join.CheckinStatusRequest;
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Join.VolunteerParticipationResponse;
 import com.example.emergencyassistb4b4.domain.volunteer.enums.CheckinStatus;
+import com.example.emergencyassistb4b4.domain.volunteer.infra.redis.service.TeamParticipationCleanupScheduler;
 import com.example.emergencyassistb4b4.domain.volunteer.infra.redis.service.TeamParticipationRedisService;
 import com.example.emergencyassistb4b4.domain.volunteer.repository.PostRepository;
 import com.example.emergencyassistb4b4.domain.volunteer.repository.VolunteerParticipantRepository;
@@ -32,6 +33,8 @@ public class VolunteerJoinService {
     private final TeamParticipationRedisService teamParticipationRedisService;
     private final VolunteerParticipantService participantService;
     private final VolunteerParticipantRepositoryCustom volunteerParticipantRepositoryCustom;
+    private final TeamParticipationCleanupScheduler cleanupScheduler;
+
 
     @Transactional
     public void joinTeam(Long postId, int teamNumber, Long userId) {
@@ -74,6 +77,8 @@ public class VolunteerJoinService {
 
         // DB 저장
         participantService.joinSave(userId, team.getId());
+
+        cleanupScheduler.scheduleCleanup(postId, team.getId(), period.checkinEnd());
     }
 
     @Transactional
