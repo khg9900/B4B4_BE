@@ -62,6 +62,7 @@ public class SecurityConfig {
                 .exceptionHandling(exception -> exception // 예외 처리 설정
                         .authenticationEntryPoint(customAuthenticationEntryPoint) // 로그인x 일 경우 발동
                         .accessDeniedHandler(customAccessDeniedHandler) // 로그인o, 권한x 일 경우 발동
+
                 );
 
 

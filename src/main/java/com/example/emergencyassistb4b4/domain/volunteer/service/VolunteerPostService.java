@@ -9,6 +9,7 @@ import com.example.emergencyassistb4b4.domain.volunteer.dto.Post.common.Attendan
 import com.example.emergencyassistb4b4.domain.volunteer.enums.CheckinStatus;
 import com.example.emergencyassistb4b4.domain.volunteer.infra.redis.service.TeamParticipationRedisService;
 import com.example.emergencyassistb4b4.domain.volunteer.enums.PostStatus;
+import com.example.emergencyassistb4b4.domain.volunteer.repository.VolunteerParticipantRepository;
 import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.global.kafka.dto.VolunteerUpdatedEvent;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
@@ -103,15 +104,22 @@ public class VolunteerPostService {
 
     // 모집 게시글 다건 조회 (NGO)
     @Transactional(readOnly = true)
-    public Slice<PostsResponse> getMyPostList(Long userId, PostFilterRequest filter, Pageable pageable) {
-
+    public Slice<PostTotalResponse> getMyPostList(Long userId, PostFilterRequest filter, Pageable pageable) {
         if (filter.getVolunteerStartDate() != null && filter.getVolunteerEndDate() != null &&
                 filter.getVolunteerStartDate().isAfter(filter.getVolunteerEndDate())) {
             throw new ApiException(ErrorStatus.VOLUNTEER_BAD_REQUEST);
         }
 
-        return postRepository.findPosts(userId, filter, pageable)
-                .map(PostsResponse::from);
+
+        Slice<Post> posts = postRepository.findPosts(userId, filter, pageable);
+
+        return posts.map(post -> {
+            int currentParticipants = post.getTeams().stream()
+                    .mapToInt(team -> teamParticipationRedisService.getCurrentCount(post.getId(), team.getId()))
+                    .sum();
+
+            return PostTotalResponse.from(post, currentParticipants);
+        });
     }
 
 
@@ -207,7 +215,5 @@ public class VolunteerPostService {
                 .map(team -> new AttendanceStateSetEvent(team.getId(), checkinStart))
                 .forEach(attendanceEventListener::onAttendanceStateSet);
     }
-
-
 
 }
