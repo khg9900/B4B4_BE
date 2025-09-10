@@ -7,6 +7,9 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.MulticastMessage;
 import com.google.firebase.messaging.Notification;
+import com.google.firebase.messaging.WebpushConfig;
+import com.google.firebase.messaging.WebpushFcmOptions;
+import com.google.firebase.messaging.WebpushNotification;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +26,7 @@ public class FcmSender {
     // FCM Multicast 최대 발송 건수
     private static final int FCM_MAX_TOKEN_BATCH_SIZE = 500;
 
+    /* ---------- Android ----------*/
     private Notification buildNotification(FcmMessageDto dto) {
         return Notification.builder()
             .setTitle(dto.getTitle())
@@ -42,6 +46,19 @@ public class FcmSender {
             .build();
     }
 
+    /* ---------- Web ----------*/
+    private WebpushConfig buildWebpushConfig(FcmMessageDto dto) {
+
+        return WebpushConfig.builder()
+            .setNotification(
+                WebpushNotification.builder()
+                .setTitle(dto.getTitle())
+                .setBody(dto.getBody())
+                .build()
+            )
+            .build();
+    }
+
     private List<List<String>> partition(List<String> tokens) {
         List<List<String>> result = new ArrayList<>();
         for (int i = 0; i < tokens.size(); i += FCM_MAX_TOKEN_BATCH_SIZE) {
@@ -56,8 +73,7 @@ public class FcmSender {
         // 단일 기관
         Message message = Message.builder()
             .setToken(token)
-            .setNotification(buildNotification(dto))
-            .setAndroidConfig(buildAndroidConfig())
+            .setWebpushConfig(buildWebpushConfig(dto))
             .build();
 
         try {
@@ -89,9 +105,8 @@ public class FcmSender {
 
         // 전국 민간단체 (토픽 구독)
         Message topicMessage = Message.builder()
-            .setTopic("Threshold-Alert")
-            .setNotification(buildNotification(dto))
-            .setAndroidConfig(buildAndroidConfig())
+            .setTopic("threshold-alert")
+            .setWebpushConfig(buildWebpushConfig(dto))
             .build();
         try {
             fcm.sendAsync(topicMessage);
