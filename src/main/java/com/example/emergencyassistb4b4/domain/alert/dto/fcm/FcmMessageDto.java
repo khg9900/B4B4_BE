@@ -2,6 +2,7 @@ package com.example.emergencyassistb4b4.domain.alert.dto.fcm;
 
 import com.example.emergencyassistb4b4.domain.alert.dto.report.ReportThresholdAlertDto;
 import com.example.emergencyassistb4b4.domain.alert.dto.report.ReportImmediateAlertDto;
+import com.example.emergencyassistb4b4.domain.alert.dto.volunteer.VolunteerCancelAlertDto;
 import com.example.emergencyassistb4b4.domain.alert.dto.volunteer.VolunteerUpdateAlertDto;
 import java.time.format.DateTimeFormatter;
 import lombok.Builder;
@@ -92,5 +93,27 @@ public class FcmMessageDto {
             .title(title)
             .body(body)
             .build();
+    }
+    public static FcmMessageDto fromVolunteerCancelAlert(VolunteerCancelAlertDto alert) {
+
+        String title = String.format(
+                "[봉사 알림] %s 취소 공지", alert.getTitle()
+        );
+
+        String body = String.format(
+                """
+                    게시글명 : %s
+                    취소 장소 : %s
+                    취소 시간 : %s
+                    """,
+                alert.getTitle(),
+                alert.getPlaceName(),
+                alert.getVolunteerDate().format(DateTimeFormatter.ofPattern("MM월 dd일 HH:mm"))
+        );
+
+        return FcmMessageDto.builder()
+                .title(title)
+                .body(body)
+                .build();
     }
 }

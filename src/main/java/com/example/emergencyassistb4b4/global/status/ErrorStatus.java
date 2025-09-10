@@ -82,6 +82,7 @@ public enum ErrorStatus implements BaseErrorCode {
     KAKAO_API_RESPONSE_PARSE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "LC010", "카카오 API 응답 파싱 실패"),
     KAKAO_API_RESPONSE_STATUS_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "LC010", "카카오 API 비정상 응답"),
 
+    KAFKA_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "RE010", "카프카 서버 오류 발생"),
     ;
 
     private final HttpStatus httpStatus;
