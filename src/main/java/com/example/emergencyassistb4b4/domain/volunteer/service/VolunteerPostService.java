@@ -2,6 +2,7 @@ package com.example.emergencyassistb4b4.domain.volunteer.service;
 
 import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.event.AttendanceEventListener;
 import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.event.AttendanceStateSetEvent;
+import com.example.emergencyassistb4b4.domain.attendance.redis.RabbitMQRedisService;
 import com.example.emergencyassistb4b4.domain.volunteer.domain.VolunteerParticipant;
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Join.CheckinStatusRequest;
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Post.*;
@@ -47,6 +48,7 @@ public class VolunteerPostService {
     private final AttendanceEventListener attendanceEventListener;
     private final VolunteerCancelEventProducer volunteerCancelEventProducer;
     private final TTLRedisService ttlRedisService;
+    private final RabbitMQRedisService rabbitMQRedisService;
 
     // 모집 게시글 생성
     @Transactional
@@ -141,7 +143,7 @@ public class VolunteerPostService {
 
     @Transactional
     public void deleteMyPost(Long userId, Long postId) {
-        Post post = postRepository.findById(postId)
+        Post post = postRepository.findByIdWithTeams(postId)
                 .orElseThrow(() -> new ApiException(ErrorStatus.POST_NOT_FOUND));
 
         if (!post.getUser().getId().equals(userId)) {
@@ -161,6 +163,16 @@ public class VolunteerPostService {
         } catch (Exception e) {
             log.error("Kafka 발행 실패, 롤백 처리: {}", event, e);
             throw new ApiException(ErrorStatus.KAFKA_SEND_FAILED);
+        }
+
+
+        for (VolunteerTeam volunteerTeam: post.getTeams()){
+            try {
+                rabbitMQRedisService.clearTrackingState(volunteerTeam.getId());
+            } catch (Exception e) {
+                log.error("TrackingState 삭제 실패 teamId={} : {}", volunteerTeam.getId(), e.getMessage());
+                // 필요시 재시도 큐나 DLQ로 이동
+            }
         }
 
         ttlRedisService.deleteAllKeysByPostId(postId);
