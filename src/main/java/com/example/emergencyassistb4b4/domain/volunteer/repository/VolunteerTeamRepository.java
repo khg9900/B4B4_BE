@@ -5,9 +5,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 public interface VolunteerTeamRepository extends JpaRepository<VolunteerTeam, Long> {
+
     Optional<VolunteerTeam> findByPost_IdAndTeamNumber(Long postId, int teamNumber);
 
     @Query("""
@@ -19,4 +22,8 @@ public interface VolunteerTeamRepository extends JpaRepository<VolunteerTeam, Lo
     WHERE VT.id = :teamId
 """)
     Optional<VolunteerTeam> findWithPostAndDetailsById(@Param("teamId") Long teamId);
+
+    // 스윕용 추가
+    @Query("select vt.id from VolunteerTeam vt where vt.id in :ids")
+    List<Long> findExistingIdsIn(@Param("ids") Collection<Long> ids);
 }
