@@ -63,5 +63,10 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostQueryRepo
                                                @Param("participantId") Long participantId);
 
 
+    @Query("select p from Post p left join fetch p.teams where p.id = :postId")
+    Optional<Post> findByIdWithTeams(@Param("postId") Long postId);
+
+
+
 
 }

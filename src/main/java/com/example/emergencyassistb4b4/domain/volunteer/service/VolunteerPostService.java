@@ -2,13 +2,19 @@ package com.example.emergencyassistb4b4.domain.volunteer.service;
 
 import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.event.AttendanceEventListener;
 import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.event.AttendanceStateSetEvent;
+import com.example.emergencyassistb4b4.domain.attendance.redis.RabbitMQRedisService;
 import com.example.emergencyassistb4b4.domain.volunteer.domain.VolunteerParticipant;
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Join.CheckinStatusRequest;
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Post.*;
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Post.common.AttendancePolicyProvider;
+import com.example.emergencyassistb4b4.domain.volunteer.enums.CheckinStatus;
+import com.example.emergencyassistb4b4.domain.volunteer.infra.redis.service.TTLRedisService;
 import com.example.emergencyassistb4b4.domain.volunteer.infra.redis.service.TeamParticipationRedisService;
 import com.example.emergencyassistb4b4.domain.volunteer.enums.PostStatus;
+import com.example.emergencyassistb4b4.domain.volunteer.kafka.producer.VolunteerCancelEventProducer;
+import com.example.emergencyassistb4b4.domain.volunteer.repository.VolunteerParticipantRepository;
 import com.example.emergencyassistb4b4.global.exception.ApiException;
+import com.example.emergencyassistb4b4.global.kafka.dto.VolunteerCancelEvent;
 import com.example.emergencyassistb4b4.global.kafka.dto.VolunteerUpdatedEvent;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
 import com.example.emergencyassistb4b4.domain.user.domain.User;
@@ -19,6 +25,7 @@ import com.example.emergencyassistb4b4.domain.volunteer.dto.Join.TeamStatusDto;
 import com.example.emergencyassistb4b4.domain.volunteer.kafka.producer.VolunteerUpdatedEventProducer;
 import com.example.emergencyassistb4b4.domain.volunteer.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -31,6 +38,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class VolunteerPostService {
 
     private final UserRepository userRepository;
@@ -38,6 +46,9 @@ public class VolunteerPostService {
     private final TeamParticipationRedisService teamParticipationRedisService;
     private final VolunteerUpdatedEventProducer producer;
     private final AttendanceEventListener attendanceEventListener;
+    private final VolunteerCancelEventProducer volunteerCancelEventProducer;
+    private final TTLRedisService ttlRedisService;
+    private final RabbitMQRedisService rabbitMQRedisService;
 
     // 모집 게시글 생성
     @Transactional
@@ -71,10 +82,13 @@ public class VolunteerPostService {
         // 업데이트
         post.update(request);
 
+        // kafka 메세지 발행
+        VolunteerUpdatedEvent event = VolunteerUpdatedEvent.from(post);
+
         scheduleAttendanceForTeams(post.getTeams(), request.getAttendancePolicy());
 
-        // kafka 메세지 발행
-        producer.sendVolunteerUpdatedEvent(VolunteerUpdatedEvent.from(post));
+        producer.sendVolunteerUpdatedEvent(event);
+
     }
 
     // 모집 게시글 다건 조회
@@ -128,19 +142,41 @@ public class VolunteerPostService {
         return PostDetailResponse.from(post);
     }
 
+    @Transactional
     public void deleteMyPost(Long userId, Long postId) {
-        Post post = postRepository.findById(postId)
-            .orElseThrow(() -> new ApiException(ErrorStatus.POST_NOT_FOUND));
+        Post post = postRepository.findByIdWithTeams(postId)
+                .orElseThrow(() -> new ApiException(ErrorStatus.POST_NOT_FOUND));
 
         if (!post.getUser().getId().equals(userId)) {
             throw new ApiException(ErrorStatus.FORBIDDEN);
         }
 
-        // 게시글 상태가 모집 중일 경우에만 삭제 가능
         if (post.getStatus() != PostStatus.OPEN) {
             throw new ApiException(ErrorStatus.VOLUNTEER_BAD_REQUEST);
         }
 
+        VolunteerCancelEvent event = VolunteerCancelEvent.from(post);
+
+        try {
+            // Kafka 전송 성공해야 다음으로 진행
+            volunteerCancelEventProducer.sendVolunteerCanceledEvent(event);
+            log.info("Kafka 발행 성공: {}", event);
+        } catch (Exception e) {
+            log.error("Kafka 발행 실패, 롤백 처리: {}", event, e);
+            throw new ApiException(ErrorStatus.KAFKA_SEND_FAILED);
+        }
+
+
+        for (VolunteerTeam volunteerTeam: post.getTeams()){
+            try {
+                rabbitMQRedisService.clearTrackingState(volunteerTeam.getId());
+            } catch (Exception e) {
+                log.error("TrackingState 삭제 실패 teamId={} : {}", volunteerTeam.getId(), e.getMessage());
+                // 필요시 재시도 큐나 DLQ로 이동
+            }
+        }
+
+        ttlRedisService.deleteAllKeysByPostId(postId);
         postRepository.delete(post);
     }
 
