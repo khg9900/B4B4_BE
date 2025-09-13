@@ -7,8 +7,6 @@ import com.example.emergencyassistb4b4.global.status.ErrorStatus;
 import com.example.emergencyassistb4b4.domain.report.domain.Report;
 import com.example.emergencyassistb4b4.domain.report.repository.ReportRepository;
 import com.example.emergencyassistb4b4.domain.user.domain.User;
-import com.example.emergencyassistb4b4.domain.user.domain.UserRole;
-import com.example.emergencyassistb4b4.domain.user.dto.UserRequestDto;
 import com.example.emergencyassistb4b4.domain.user.dto.UserResponseDto;
 import com.example.emergencyassistb4b4.domain.user.repository.UserRepository;
 import java.util.Collections;

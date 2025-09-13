@@ -2,7 +2,6 @@ package com.example.emergencyassistb4b4.domain.alert.kafka.consumer.dlt;
 
 import com.example.emergencyassistb4b4.domain.alert.kafka.service.KafkaDltLogService;
 import com.example.emergencyassistb4b4.global.kafka.dto.VolunteerCancelEvent;
-import com.example.emergencyassistb4b4.global.kafka.dto.VolunteerUpdatedEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -2,9 +2,6 @@ package com.example.emergencyassistb4b4.domain.volunteer.dto.Post.common;
 
 import com.example.emergencyassistb4b4.domain.volunteer.domain.AttendancePolicy;
 import com.example.emergencyassistb4b4.domain.volunteer.dto.validator.ValidAttendancePolicy;
-import com.example.emergencyassistb4b4.global.exception.ApiException;
-import com.example.emergencyassistb4b4.global.status.ErrorStatus;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

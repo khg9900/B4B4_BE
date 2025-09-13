@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import static com.example.emergencyassistb4b4.global.status.SuccessStatus.LOCATION_SAVE_SUCCESS;
 
-
 // 백그라운드 존재, 입력받을 창구로써 역할 -> return 값이 Void로 변경가능성 존재
 // 일단 JWT에서 userId 가져올 예정
 @RestController

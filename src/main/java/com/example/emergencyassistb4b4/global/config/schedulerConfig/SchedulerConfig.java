@@ -2,19 +2,33 @@ package com.example.emergencyassistb4b4.global.config.schedulerConfig;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 
 @Configuration
-public class SchedulerConfig {
+@EnableScheduling
+public class SchedulerConfig implements SchedulingConfigurer {
 
-    @Bean
-    public ThreadPoolTaskScheduler taskScheduler() {
+    @Bean(name = "customTaskScheduler")
+    @Primary
+    public ThreadPoolTaskScheduler customTaskScheduler() {
 
-        ThreadPoolTaskScheduler t = new ThreadPoolTaskScheduler();
-        t.setPoolSize(2);
-        t.setThreadNamePrefix("cleanup-");
+        ThreadPoolTaskScheduler s = new ThreadPoolTaskScheduler();
+        s.setPoolSize(4);
+        s.setThreadNamePrefix("sched-");
+        s.setWaitForTasksToCompleteOnShutdown(true);
 
-        return t;
+        return s;
+    }
+
+    @Override
+    public void configureTasks(ScheduledTaskRegistrar reg) {
+
+        reg.setTaskScheduler(customTaskScheduler());
     }
 }
+
 

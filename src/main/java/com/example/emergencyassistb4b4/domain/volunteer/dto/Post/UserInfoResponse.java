@@ -11,9 +11,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserInfoResponse {
+
     private Long id;
+
     private String name;
+
     private String email;
+
     private String phone;
 
     public static UserInfoResponse from(User user) {
