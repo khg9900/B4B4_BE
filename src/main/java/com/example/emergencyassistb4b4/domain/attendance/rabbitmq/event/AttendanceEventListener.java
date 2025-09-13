@@ -3,6 +3,7 @@ package com.example.emergencyassistb4b4.domain.attendance.rabbitmq.event;
 import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.dto.RabbitMQ;
 import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.service.TrackingService;
 import com.example.emergencyassistb4b4.domain.attendance.redis.RabbitMQRedisService;
+import io.lettuce.core.RedisException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.retry.annotation.Backoff;
@@ -10,6 +11,7 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
+
 
 import java.time.LocalDateTime;
 
@@ -26,31 +28,29 @@ public class AttendanceEventListener {
     @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 5000))
     public void onAttendanceStateSet(AttendanceStateSetEvent event) {
         try {
-            rabbitMQRedisService.scheduleTrackingStart(event.getTeamId(), event.getJoinedAt()); // state = false, joinedAt 저장
-            log.info("[예약 등록] 출석 예약 저장 완료 - teamId: {}, joinedAt: {}", event.getTeamId(), event.getJoinedAt());
+            rabbitMQRedisService.scheduleTrackingStart(event.getTeamId(), event.getJoinedAt());
         } catch (Exception e) {
             log.error("[예약 등록 실패] teamId: {}", event.getTeamId(), e);
         }
     }
 
-    // 2. 출석 시작 처리 (예약 시간 5분 전)
+    // 2. 출석 시작 처리
     public void onAttendanceStateChanged(Long teamId) {
         try {
             RabbitMQ state = rabbitMQRedisService.getTrackingState(teamId);
 
-            boolean isTimeToTrigger = LocalDateTime.now().isAfter(state.getJoinedAt().minusMinutes(5));
-            boolean isNotStarted = !state.isState();
-
-            if (isTimeToTrigger && isNotStarted) {
+            if (shouldStart(state.getJoinedAt()) && !state.isState()) {
                 trackingService.scheduleTrackingForTeam(teamId);
                 rabbitMQRedisService.updateTrackingState(teamId, state.getJoinedAt()); // state = true
                 log.info("[출석 시작] 출석 상태 변경 완료 - teamId: {}", teamId);
             } else {
-                log.debug("[조건 미충족] 출석 시작 안함 - teamId: {}, isTimeToTrigger: {}, isNotStarted: {}",
-                        teamId, isTimeToTrigger, isNotStarted);
+                log.debug("[조건 미충족] 출석 시작 안함 - teamId: {}, shouldStart: {}, isNotStarted: {}",
+                        teamId, shouldStart(state.getJoinedAt()), !state.isState());
             }
+        } catch (RedisException e) {
+            log.error("[출석 시작 실패 - Redis 문제] teamId: {}", teamId, e);
         } catch (Exception e) {
-            log.error("[출석 시작 실패] teamId: {}", teamId, e);
+            log.error("[출석 시작 실패 - 알 수 없는 오류] teamId: {}", teamId, e);
         }
     }
 
@@ -60,16 +60,32 @@ public class AttendanceEventListener {
             RabbitMQ state = rabbitMQRedisService.getTrackingState(teamId);
 
             if (state.isState()) {
-                rabbitMQRedisService.clearTrackingState(teamId);
-                log.info("[출석 종료] 출석 상태 삭제 완료 - teamId: {}", teamId);
-            } else if (LocalDateTime.now().isAfter(state.getJoinedAt())) {
-                rabbitMQRedisService.clearTrackingState(teamId);
-                log.warn("[출석 종료 비정상] 출석이 시작되지 않은 상태에서 종료 요청 - teamId: {}", teamId);
+                clearTrackingStateWithLog(teamId, "[출석 종료] 출석 상태 삭제 완료", false);
+            } else if (shouldEnd(state.getJoinedAt())) {
+                clearTrackingStateWithLog(teamId, "[출석 종료 비정상] 출석 시작 안됨", true);
             } else {
                 log.debug("[출석 종료 스킵] 아직 출석 시간 전 - teamId: {}, joinedAt: {}", teamId, state.getJoinedAt());
             }
+
+        } catch (RedisException e) {
+            log.error("[출석 종료 실패 - Redis 문제] teamId: {}", teamId, e);
         } catch (Exception e) {
-            log.error("[출석 종료 실패] teamId: {}", teamId, e);
+            log.error("[출석 종료 실패 - 알 수 없는 오류] teamId: {}", teamId, e);
         }
+    }
+
+    // ---------------- 유틸 메서드 ----------------
+
+    private void clearTrackingStateWithLog(Long teamId, String message, boolean warn) {
+        rabbitMQRedisService.clearTrackingState(teamId);
+        if (warn) log.warn(message, teamId);
+    }
+
+    private boolean shouldStart(LocalDateTime joinedAt) {
+        return LocalDateTime.now().isAfter(joinedAt.minusMinutes(5));
+    }
+
+    private boolean shouldEnd(LocalDateTime joinedAt) {
+        return LocalDateTime.now().isAfter(joinedAt);
     }
 }
