@@ -37,6 +37,12 @@ public class KafkaErrorHandlerConfig { // CommonErrorHandler 빈 제공 (DLT 라
     @Value("${spring.kafka.topic.dlt.volunteer}")
     private String volunteerDltTopic;
 
+    @Value("${spring.kafka.topic.volunteerCancel}")
+    private String volunteerCancelTopic;
+
+    @Value("${spring.kafka.topic.dlt.volunteerCancel}")
+    private String volunteerCancelDltTopic;
+
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Bean
@@ -46,6 +52,7 @@ public class KafkaErrorHandlerConfig { // CommonErrorHandler 빈 제공 (DLT 라
         bizDltMap.put(immediateTopic, immediateDltTopic);
         bizDltMap.put(thresholdTopic, thresholdDltTopic);
         bizDltMap.put(volunteerTopic, volunteerDltTopic);
+        bizDltMap.put(volunteerCancelTopic, volunteerCancelDltTopic);
 
         DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(
                 kafkaTemplate,

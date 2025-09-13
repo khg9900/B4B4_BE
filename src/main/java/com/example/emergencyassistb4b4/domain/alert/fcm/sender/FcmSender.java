@@ -131,4 +131,19 @@ public class FcmSender {
             log.error("FCM 메시지 전송 실패", e);
         }
     }
+    public void sendVolunteerCancelAlert(FcmMessageDto dto, List<String> tokens) {
+
+        // 봉사 참여자
+        MulticastMessage message = MulticastMessage.builder()
+                .addAllTokens(tokens)
+                .setNotification(buildNotification(dto))
+                .setAndroidConfig(buildAndroidConfig())
+                .build();
+
+        try {
+            fcm.sendEachForMulticastAsync(message);
+        } catch (Exception e) {
+            log.error("FCM 메시지 전송 실패", e);
+        }
+    }
 }
