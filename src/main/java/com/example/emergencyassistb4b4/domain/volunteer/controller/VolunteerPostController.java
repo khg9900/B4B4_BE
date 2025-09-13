@@ -52,12 +52,13 @@ public class VolunteerPostController {
 
     @PreAuthorize("hasRole('NGO')")
     @GetMapping("/my")
-    public ResponseEntity<ApiResponse<Slice<PostsResponse>>> getMyPosts(
+    public ResponseEntity<ApiResponse<Slice<PostTotalResponse>>> getMyPosts(
         @AuthenticationPrincipal CustomUserDetails userDetails,
         @ModelAttribute PostFilterRequest filter,
         Pageable pageable
     ) {
-        Slice<PostsResponse> response = volunteerPostService.getMyPostList(userDetails.getUser().getId(), filter, pageable);
+        Slice<PostTotalResponse> response =
+                volunteerPostService.getMyPostList(userDetails.getUser().getId(), filter, pageable);
         return ApiResponse.onSuccess(SuccessStatus.VOLUNTEER_SUCCESS, response);
     }
 

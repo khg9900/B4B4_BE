@@ -21,7 +21,8 @@ public enum ErrorStatus implements BaseErrorCode {
     INVAlID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "AU004","유효하지 않은 리프레시 토큰입니다."),
     REFRESH_TOKEN_NOT_FOUND(HttpStatus.UNAUTHORIZED, "AU005","리프레시 토큰을 찾을 수 없습니다."),
     TOKEN_USER_MISMATCH(HttpStatus.UNAUTHORIZED, "AU006","토큰의 사용자 정보가 일치하지 않습니다."),
-
+    INVALID_SIGNATURE(HttpStatus.UNAUTHORIZED, "AU006","토큰의 사용자 정보가 일치하지 않습니다."),
+    UNSUPPORTED_JWT(HttpStatus.UNAUTHORIZED, "AU006","토큰의 사용자 정보가 일치하지 않습니다."),
     //회원가입 및 로그인
     DUPLICATED_EMAIL(HttpStatus.CONFLICT, "AU007", "이미 존재하는 이메일입니다."),
     INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "AU008", "비밀번호가 일치하지 않습니다."),
@@ -36,6 +37,7 @@ public enum ErrorStatus implements BaseErrorCode {
     COOKIE_NOT_FOUND(HttpStatus.BAD_REQUEST, "AU021", "쿠키가 존재하지 않습니다."),
     INVALID_OBJECT_TYPE(HttpStatus.BAD_REQUEST, "AU022", "역직렬화된 객체 타입이 일치하지 않음."),
     DESERIALIZATION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "AU023", "역직렬화 중 오류 발생"),
+    LOGOUT_TOKEN(HttpStatus.INTERNAL_SERVER_ERROR, "AU023", "로그아웃 토큰입니다."),
 
     // 로그아웃
     LOGOUT_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "AU001", "로그아웃 처리에 실패했습니다."),
@@ -80,6 +82,7 @@ public enum ErrorStatus implements BaseErrorCode {
     KAKAO_API_RESPONSE_PARSE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "LC010", "카카오 API 응답 파싱 실패"),
     KAKAO_API_RESPONSE_STATUS_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "LC010", "카카오 API 비정상 응답"),
 
+    KAFKA_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "RE010", "카프카 서버 오류 발생"),
     ;
 
     private final HttpStatus httpStatus;

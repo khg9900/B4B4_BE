@@ -1,6 +1,10 @@
 package com.example.emergencyassistb4b4.global.security.jwt;
 
 import com.example.emergencyassistb4b4.global.security.handler.JwtAuthenticationException;
+import com.example.emergencyassistb4b4.global.status.ErrorStatus;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,11 +16,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-import org.springframework.util.PathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Set;
 
 // 1. /api/auth, /oauth2 등 경로는 필터 제외
 // 2. Authorization 헤더의 Bearer 토큰 추출
@@ -64,20 +66,29 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
     // 유효성 검사 및 SecurityContext 설정 메서드 (기존 로직 그대로 분리)
     private void validateAndAuthenticateToken(String token) {
         if (Boolean.TRUE.equals(redisTemplate.hasKey(token))) {
-            log.warn("Token is blacklisted (logged out).");
-            throw new JwtAuthenticationException("로그아웃 된 토큰입니다.");
+            throw new JwtAuthenticationException(ErrorStatus.LOGOUT_TOKEN); // 새 ErrorStatus 필요
         }
 
-        if (!jwtUtils.validateToken(token)) {
-            log.warn("Invalid JWT token.");
-            throw new JwtAuthenticationException("유효하지 않은 JWT 토큰입니다.");
-        }
+        try {
+            jwtUtils.validateToken(token);
 
-        Authentication authentication = jwtUtils.getAuthentication(token);
-        SecurityContext context = SecurityContextHolder.createEmptyContext();
-        context.setAuthentication(authentication);
-        SecurityContextHolder.setContext(context);
-        log.debug("Authentication successful, user: {}", authentication.getName());
+            Authentication authentication = jwtUtils.getAuthentication(token);
+            SecurityContext context = SecurityContextHolder.createEmptyContext();
+            context.setAuthentication(authentication);
+            SecurityContextHolder.setContext(context);
+
+        } catch (ExpiredJwtException e) {
+            throw new JwtAuthenticationException(ErrorStatus.EXPIRED_ACCESS_TOKEN);
+
+        } catch (MalformedJwtException | UnsupportedJwtException e) {
+            throw new JwtAuthenticationException(ErrorStatus.INVALID_ACCESS_TOKEN);
+
+        } catch (IllegalArgumentException e) {
+            throw new JwtAuthenticationException(ErrorStatus.INVALID_ACCESS_TOKEN);
+
+        } catch (Exception e) {
+            throw new JwtAuthenticationException(ErrorStatus.CUSTOM_ERROR_STATUS);
+        }
     }
 
     private String getAccessToken(String authorizationHeader) {

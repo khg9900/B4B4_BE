@@ -44,4 +44,6 @@ public class VolunteerAlert extends BaseEntity {
     @Column(nullable = false)
     private LocalDateTime volunteerDate;
 
+    private String subtype;
+
 }
