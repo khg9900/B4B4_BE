@@ -6,6 +6,8 @@ import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.dto.TrackingSe
 import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.dto.IndividualTrackingSessionDto;
 import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.service.TrackingDataService;
 import com.example.emergencyassistb4b4.domain.attendance.socket.handler.TrackingSocketHandler;
+
+import static com.example.emergencyassistb4b4.domain.attendance.rabbitmq.dto.IndividualTrackingSessionDto.buildIndividualDto;
 import static com.example.emergencyassistb4b4.domain.attendance.rabbitmq.util.RabbitMqUtils.isValidMessage;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -48,10 +50,9 @@ public class TrackingListener {
             List<Long> participantIds = dto.getParticipantUserIds();
 
             switch (state) {
-                case READY -> sendTypedMessageToVolunteers(participantIds, "READY", dto);
-                case STARTED -> sendTypedMessageToVolunteers(participantIds, "STARTED", dto);
+                case READY, STARTED -> sendTypedMessageToVolunteers(participantIds, state, dto);
                 case ENDED -> {
-                    sendTypedMessageToVolunteers(participantIds, "ENDED", dto);
+                    sendTypedMessageToVolunteers(participantIds, state, dto);
                     trackingService.saveSessionAttendanceData(participantIds, dto.getTeamId());
                     participantIds.forEach(socketHandler::removeVolunteerUserMapping);
                 }
@@ -68,20 +69,10 @@ public class TrackingListener {
         }
     }
 
-    private void sendTypedMessageToVolunteers(List<Long> volunteerIds, String type, TrackingSessionDto dto) {
+    private void sendTypedMessageToVolunteers(List<Long> volunteerIds, SessionState state, TrackingSessionDto dto) {
         for (Long volunteerId : volunteerIds) {
-            IndividualTrackingSessionDto individualDto = IndividualTrackingSessionDto.builder()
-                    .teamId(dto.getTeamId())
-                    .startTime(dto.getStartTime())
-                    .endTime(dto.getEndTime())
-                    .targetLat(dto.getTargetLat())
-                    .targetLng(dto.getTargetLng())
-                    .meter(dto.getMeter())
-                    .intervalSeconds(dto.getIntervalSeconds())
-                    .participantUserId(volunteerId)
-                    .build();
-
-            socketHandler.sendToUser(volunteerId, type, individualDto);
+            socketHandler.sendToUser(volunteerId, state.name(), buildIndividualDto(dto, volunteerId));
         }
     }
+
 }
