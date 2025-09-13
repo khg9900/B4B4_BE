@@ -1,6 +1,7 @@
 package com.example.emergencyassistb4b4.domain.volunteer.dto.Post.common;
 
 import com.example.emergencyassistb4b4.domain.volunteer.domain.AttendancePolicy;
+import com.example.emergencyassistb4b4.domain.volunteer.dto.validator.ValidAttendancePolicy;
 import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -17,6 +18,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ValidAttendancePolicy
 public class PostAttendancePolicyDto implements AttendancePolicyProvider {
 
     @NotNull(message = "출석 시작 시간은 필수입니다.")
@@ -29,13 +31,11 @@ public class PostAttendancePolicyDto implements AttendancePolicyProvider {
     private int allowedRadiusM;
 
     @Override
-    @JsonIgnore
     public AttendancePolicy getAttendancePolicy() {
         return toEntity();
     }
 
     public AttendancePolicy toEntity() {
-        checkTime(checkinStart, checkinEnd);
         return AttendancePolicy.builder()
                 .checkinStart(checkinStart)
                 .checkinEnd(checkinEnd)
@@ -52,15 +52,4 @@ public class PostAttendancePolicyDto implements AttendancePolicyProvider {
                 .build();
     }
 
-    private static void checkTime(LocalDateTime checkinStart, LocalDateTime checkinEnd) {
-        LocalDateTime now = LocalDateTime.now();
-
-        if (checkinStart.isAfter(checkinEnd)) {
-            throw new ApiException(ErrorStatus.VOLUNTEER_BAD_REQUEST);
-        }
-
-        if (checkinEnd.isBefore(now)) {
-            throw new ApiException(ErrorStatus.VOLUNTEER_BAD_REQUEST);
-        }
-    }
 }
