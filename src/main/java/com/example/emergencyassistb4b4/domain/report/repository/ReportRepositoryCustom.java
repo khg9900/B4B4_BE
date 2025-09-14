@@ -1,6 +1,5 @@
 package com.example.emergencyassistb4b4.domain.report.repository;
 
-
 import com.example.emergencyassistb4b4.domain.report.domain.Report;
 import com.example.emergencyassistb4b4.domain.report.enums.ReportStatus;
 import org.springframework.data.domain.Pageable;
@@ -10,6 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ReportRepositoryCustom {
+
     /**
      * 주변 신고 목록 조회 공공기관용 (거리순 + 최신순 페이징)
      * @param si        시(지역)

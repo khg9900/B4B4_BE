@@ -16,7 +16,6 @@ import java.util.List;
 
 import static com.example.emergencyassistb4b4.domain.report.domain.QReport.report;
 
-
 @Repository
 @RequiredArgsConstructor
 public class ReportRepositoryImpl implements ReportRepositoryCustom {

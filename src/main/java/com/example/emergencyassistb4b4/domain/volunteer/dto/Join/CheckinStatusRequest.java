@@ -12,6 +12,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CheckinStatusRequest {
+
     @NotNull(message = "상태는 필수입니다.")
     private CheckinStatus status;
+
 }

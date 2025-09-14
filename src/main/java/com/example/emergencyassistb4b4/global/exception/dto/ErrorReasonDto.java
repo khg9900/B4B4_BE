@@ -1,7 +1,6 @@
 package com.example.emergencyassistb4b4.global.exception.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;

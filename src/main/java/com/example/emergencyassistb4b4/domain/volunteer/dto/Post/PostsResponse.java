@@ -3,18 +3,17 @@ package com.example.emergencyassistb4b4.domain.volunteer.dto.Post;
 import com.example.emergencyassistb4b4.domain.volunteer.domain.Post;
 import com.example.emergencyassistb4b4.domain.volunteer.enums.PostCategory;
 import com.example.emergencyassistb4b4.domain.volunteer.enums.PostStatus;
+import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PostTotalResponse {
+public class PostsResponse {
 
     private Long id;
 
@@ -30,16 +29,14 @@ public class PostTotalResponse {
 
     private int totalCapacity;
 
-    private int currentParticipants;
-
     private LocalDate recruitmentStartDate;
 
     private LocalDate recruitmentEndDate;
 
     private PostStatus status;
 
-    public static PostTotalResponse from(Post post, int currentParticipants) {
-        return PostTotalResponse.builder()
+    public static PostsResponse from(Post post) {
+        return PostsResponse.builder()
                 .id(post.getId())
                 .title(post.getTitle())
                 .volunteerDate(post.getVolunteerDate())
@@ -47,11 +44,9 @@ public class PostTotalResponse {
                 .city(post.getLocation().getCity())
                 .category(post.getCategory())
                 .totalCapacity(post.getTotalCapacity())
-                .currentParticipants(currentParticipants)
                 .recruitmentStartDate(post.getRecruitmentStartDate())
                 .recruitmentEndDate(post.getRecruitmentEndDate())
                 .status(post.getStatus())
                 .build();
     }
 }
-

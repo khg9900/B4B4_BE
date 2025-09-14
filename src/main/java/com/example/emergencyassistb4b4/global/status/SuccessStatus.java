@@ -27,9 +27,6 @@ public enum SuccessStatus implements BaseCode {
     VOLUNTEER_STATUS_SUCCESS(HttpStatus.OK, "VO002", "자원봉사 봉사 변경 되었습니다.."),
     VOLUNTEER_INFORMATION_SUCCESS(HttpStatus.OK, "VO002", "자원봉사 정보조회가 완료되었습니다."),
 
-
-
-
     // Location
     SHELTER_SEARCH_SUCCESS(HttpStatus.OK, "LC001", "Shelter search completed successfully"),
     DISASTER_SEARCH_SUCCESS(HttpStatus.OK, "LC001", "Disaster summary search completed successfully"),

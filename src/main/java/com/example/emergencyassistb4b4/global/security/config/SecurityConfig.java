@@ -1,11 +1,9 @@
 package com.example.emergencyassistb4b4.global.security.config;
 
-import com.example.emergencyassistb4b4.global.security.jwt.JwtUtils;
 import com.example.emergencyassistb4b4.global.security.jwt.JwtTokenAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -14,14 +12,11 @@ import org.springframework.security.web.access.ExceptionTranslationFilter;
 import com.example.emergencyassistb4b4.global.security.handler.CustomAccessDeniedHandler;
 import com.example.emergencyassistb4b4.global.security.handler.CustomAuthenticationEntryPoint;
 
-
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtUtils jwtUtils;
-    private final RedisTemplate<String, String> redisTemplate;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     private final JwtTokenAuthenticationFilter jwtTokenAuthenticationFilter;
@@ -62,10 +57,7 @@ public class SecurityConfig {
                 .exceptionHandling(exception -> exception // 예외 처리 설정
                         .authenticationEntryPoint(customAuthenticationEntryPoint) // 로그인x 일 경우 발동
                         .accessDeniedHandler(customAccessDeniedHandler) // 로그인o, 권한x 일 경우 발동
-
                 );
-
-
 
         return http.build();
     }

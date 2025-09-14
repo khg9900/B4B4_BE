@@ -8,8 +8,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TeamStatusDto {
+
     private Long teamId;
+
     private int teamNumber;
+
     private int maxCapacity;
+
     private int currentCount;
+
 }

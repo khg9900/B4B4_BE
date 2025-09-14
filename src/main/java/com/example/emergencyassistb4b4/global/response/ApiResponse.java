@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 @Getter
 @RequiredArgsConstructor
 public class ApiResponse<T> {
+
     private final Boolean isSuccess;        // 성공 여부
     private final String code;              // 응답 코드
     private final String message;           // 응답 메시지

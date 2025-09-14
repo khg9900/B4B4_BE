@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface VolunteerParticipantRepository extends JpaRepository<VolunteerParticipant, Long> {
+
     Optional<VolunteerParticipant> findByIdAndUserId(Long participantId, Long userId);
 
     @Query("""

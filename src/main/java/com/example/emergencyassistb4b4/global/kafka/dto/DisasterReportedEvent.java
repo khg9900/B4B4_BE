@@ -14,12 +14,19 @@ import lombok.NoArgsConstructor;
 public class DisasterReportedEvent {
 
     private Long reportId;
+
     private Long reporterId;
+
     private Long governmentId;
+
     private String disasterType;
+
     private String description;
+
     private String province;
+
     private String city;
+
     private LocalDateTime reportedAt;
 
     public static DisasterReportedEvent from(Report report) {
