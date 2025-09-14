@@ -14,6 +14,7 @@ import com.example.emergencyassistb4b4.domain.volunteer.enums.PostStatus;
 import com.example.emergencyassistb4b4.domain.volunteer.kafka.producer.VolunteerCancelEventProducer;
 import com.example.emergencyassistb4b4.domain.volunteer.kafka.producer.VolunteerUpdatedEventProducer;
 import com.example.emergencyassistb4b4.domain.volunteer.repository.PostRepository;
+import com.example.emergencyassistb4b4.domain.volunteer.repository.VolunteerParticipantRepository;
 import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.global.kafka.dto.VolunteerCancelEvent;
 import com.example.emergencyassistb4b4.global.kafka.dto.VolunteerUpdatedEvent;
@@ -44,12 +45,14 @@ public class VolunteerPostService {
     private final VolunteerCancelEventProducer volunteerCancelEventProducer;
     private final TTLRedisService ttlRedisService;
     private final RabbitMQRedisService rabbitMQRedisService;
+    private final VolunteerParticipantRepository participantRepository;
 
     @Transactional
     public void createPost(User user, CreatePostRequest request) {
         Post post = request.toEntity(user);
         List<VolunteerTeam> teams = generateTeams(post, request.getTotalCapacity(), request.getTeamSize());
         post.addTeams(teams);
+
         postRepository.save(post);
         scheduleAttendanceForTeams(teams, request.getAttendancePolicy());
     }
@@ -61,7 +64,7 @@ public class VolunteerPostService {
 
         post.update(request);
 
-        // kafka 메세지 발행
+        // Kafka 발행
         VolunteerUpdatedEvent event = VolunteerUpdatedEvent.from(post);
         scheduleAttendanceForTeams(post.getTeams(), request.getAttendancePolicy());
         producer.sendVolunteerUpdatedEvent(event);
@@ -85,7 +88,6 @@ public class VolunteerPostService {
     public PostDetailResponse getPost(Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new ApiException(ErrorStatus.POST_NOT_FOUND));
-
         return PostDetailResponse.from(post);
     }
 
@@ -97,7 +99,7 @@ public class VolunteerPostService {
         if (!post.getUser().getId().equals(userId)) {
             throw new ApiException(ErrorStatus.FORBIDDEN);
         }
-        if (post.getStatus() != PostStatus.OPEN) {
+        if (!post.isOpen()) {
             throw new ApiException(ErrorStatus.VOLUNTEER_BAD_REQUEST);
         }
 
@@ -127,13 +129,16 @@ public class VolunteerPostService {
         VolunteerTeam volunteerTeam = postRepository.findTeamByPostIdAndTeamId(postId, teamId)
                 .orElseThrow(() -> new ApiException(ErrorStatus.POST_NOT_FOUND));
 
-        return TeamParticipantsResponse.fromEntities(volunteerTeam.getId(),
+        return TeamParticipantsResponse.fromEntities(
+                volunteerTeam.getId(),
                 volunteerTeam.getTeamNumber(),
-                volunteerTeam.getParticipants());
+                volunteerTeam.getParticipants()
+        );
     }
 
     @Transactional
-    public void updateParticipantAttendance(Long postId, Long teamId, Long participantId, CheckinStatusRequest checkinStatusRequest) {
+    public void updateParticipantAttendance(Long postId, Long teamId, Long participantId,
+                                            CheckinStatusRequest checkinStatusRequest) {
         VolunteerParticipant volunteerParticipant = postRepository.findParticipantInTeam(postId, teamId, participantId)
                 .orElseThrow(() -> new ApiException(ErrorStatus.POST_NOT_FOUND));
 
@@ -147,16 +152,25 @@ public class VolunteerPostService {
 
         var periodOpt = postRepository.findCheckinPeriodByPostId(postId);
         LocalDateTime now = LocalDateTime.now();
-        boolean expired = periodOpt.map(p -> now.isAfter(p.checkinEnd())).orElse(false);
+        boolean checkinExpired = periodOpt.map(p -> now.isAfter(p.checkinEnd())).orElse(false);
 
         List<TeamStatusDto> teamStatuses = post.getTeams().stream()
-                .map(team -> new TeamStatusDto(team.getId(),
+                .map(team -> new TeamStatusDto(
+                        team.getId(),
                         team.getTeamNumber(),
                         team.getMaxCapacity(),
-                        expired ? 0 : teamParticipationRedisService.getCurrentCount(postId, team.getId())))
+                        resolveCurrentCount(post, team, checkinExpired)
+                ))
                 .toList();
 
         return new PostTeamsResponse(post.getId(), teamStatuses);
+    }
+
+    private int resolveCurrentCount(Post post, VolunteerTeam team, boolean checkinExpired) {
+        if (checkinExpired || post.isNotOpen()) {
+            return (int) participantRepository.countValidParticipatedByTeamId(team.getId());
+        }
+        return teamParticipationRedisService.getCurrentCount(post.getId(), team.getId());
     }
 
     private Slice<PostTotalResponse> getPostTotalResponses(Slice<Post> posts) {
@@ -164,10 +178,10 @@ public class VolunteerPostService {
 
         return posts.map(post -> {
             var periodOpt = postRepository.findCheckinPeriodByPostId(post.getId());
-            boolean expired = periodOpt.map(p -> now.isAfter(p.checkinEnd())).orElse(false);
+            boolean checkinExpired = periodOpt.map(p -> now.isAfter(p.checkinEnd())).orElse(false);
 
             int currentParticipants = post.getTeams().stream()
-                    .mapToInt(team -> expired ? 0 : teamParticipationRedisService.getCurrentCount(post.getId(), team.getId()))
+                    .mapToInt(team -> resolveCurrentCount(post, team, checkinExpired))
                     .sum();
 
             return PostTotalResponse.from(post, currentParticipants);

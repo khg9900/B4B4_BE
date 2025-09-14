@@ -79,6 +79,18 @@ public class Post extends BaseEntity {
         policy.setPost(this);
     }
 
+    public void setStatus(PostStatus postStatus){
+        this.status=postStatus;
+    }
+
+    public boolean isOpen() {
+        return PostStatus.OPEN.equals(this.status);
+    }
+
+    public boolean isNotOpen() {
+        return !isOpen();
+    }
+
     public void update(UpdatePostRequest request) {
 
         this.title = request.getTitle();
