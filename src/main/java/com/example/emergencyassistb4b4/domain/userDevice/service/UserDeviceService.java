@@ -1,6 +1,5 @@
 package com.example.emergencyassistb4b4.domain.userDevice.service;
 
-
 import static com.example.emergencyassistb4b4.domain.user.domain.UserRole.NGO;
 
 import com.example.emergencyassistb4b4.domain.alert.fcm.subscribe.FcmSubService;

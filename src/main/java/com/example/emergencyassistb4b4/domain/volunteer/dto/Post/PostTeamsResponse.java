@@ -14,5 +14,7 @@ import java.util.List;
 public class PostTeamsResponse {
 
     private Long postId;
+
     private List<TeamStatusDto> teams;
+
 }

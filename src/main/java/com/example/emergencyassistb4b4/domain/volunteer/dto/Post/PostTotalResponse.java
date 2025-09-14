@@ -15,16 +15,27 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PostTotalResponse {
+
     private Long id;
+
     private String title;
+
     private LocalDate volunteerDate;
+
     private String province;
+
     private String city;
+
     private PostCategory category;
+
     private int totalCapacity;
+
     private int currentParticipants;
+
     private LocalDate recruitmentStartDate;
+
     private LocalDate recruitmentEndDate;
+
     private PostStatus status;
 
     public static PostTotalResponse from(Post post, int currentParticipants) {

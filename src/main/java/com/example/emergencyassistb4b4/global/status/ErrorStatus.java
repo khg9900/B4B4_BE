@@ -23,6 +23,7 @@ public enum ErrorStatus implements BaseErrorCode {
     TOKEN_USER_MISMATCH(HttpStatus.UNAUTHORIZED, "AU006","토큰의 사용자 정보가 일치하지 않습니다."),
     INVALID_SIGNATURE(HttpStatus.UNAUTHORIZED, "AU006","토큰의 사용자 정보가 일치하지 않습니다."),
     UNSUPPORTED_JWT(HttpStatus.UNAUTHORIZED, "AU006","토큰의 사용자 정보가 일치하지 않습니다."),
+
     //회원가입 및 로그인
     DUPLICATED_EMAIL(HttpStatus.CONFLICT, "AU007", "이미 존재하는 이메일입니다."),
     INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "AU008", "비밀번호가 일치하지 않습니다."),
@@ -82,8 +83,7 @@ public enum ErrorStatus implements BaseErrorCode {
     KAKAO_API_RESPONSE_PARSE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "LC010", "카카오 API 응답 파싱 실패"),
     KAKAO_API_RESPONSE_STATUS_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "LC010", "카카오 API 비정상 응답"),
 
-    KAFKA_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "RE010", "카프카 서버 오류 발생"),
-    ;
+    KAFKA_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "RE010", "카프카 서버 오류 발생");
 
     private final HttpStatus httpStatus;
     private final String code;

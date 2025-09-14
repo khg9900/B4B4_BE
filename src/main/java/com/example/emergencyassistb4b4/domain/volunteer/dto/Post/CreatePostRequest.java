@@ -7,8 +7,6 @@ import com.example.emergencyassistb4b4.domain.volunteer.dto.Post.common.PostLoca
 import com.example.emergencyassistb4b4.domain.volunteer.dto.validator.ValidAttendancePolicy;
 import com.example.emergencyassistb4b4.domain.volunteer.enums.PostCategory;
 import com.example.emergencyassistb4b4.domain.volunteer.enums.PostStatus;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;

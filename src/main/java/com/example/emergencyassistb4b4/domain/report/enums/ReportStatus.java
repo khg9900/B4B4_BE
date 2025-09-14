@@ -4,6 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum ReportStatus {
+
     PENDING("대기"),   //대기
     RECEIVED("확인"),  //확인
     CLOSED("종료");     //종료
