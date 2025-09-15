@@ -9,6 +9,7 @@ import com.example.emergencyassistb4b4.domain.volunteer.dto.Join.CheckinStatusRe
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Join.VolunteerParticipationResponse;
 import com.example.emergencyassistb4b4.domain.volunteer.enums.CheckinStatus;
 import com.example.emergencyassistb4b4.domain.volunteer.infra.redis.service.TeamParticipationCleanupScheduler;
+import com.example.emergencyassistb4b4.domain.volunteer.enums.PostStatus;
 import com.example.emergencyassistb4b4.domain.volunteer.infra.redis.service.TeamParticipationRedisService;
 import com.example.emergencyassistb4b4.domain.volunteer.repository.PostRepository;
 import com.example.emergencyassistb4b4.domain.volunteer.repository.VolunteerParticipantRepository;
