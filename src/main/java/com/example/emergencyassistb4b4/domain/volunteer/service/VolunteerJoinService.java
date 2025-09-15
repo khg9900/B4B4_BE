@@ -2,7 +2,6 @@ package com.example.emergencyassistb4b4.domain.volunteer.service;
 
 import com.example.emergencyassistb4b4.domain.user.domain.User;
 import com.example.emergencyassistb4b4.domain.volunteer.domain.Post;
-import com.example.emergencyassistb4b4.domain.volunteer.domain.Post;
 import com.example.emergencyassistb4b4.domain.volunteer.domain.VolunteerParticipant;
 import com.example.emergencyassistb4b4.domain.volunteer.domain.VolunteerTeam;
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Join.CheckinPeriodDto;
@@ -10,7 +9,6 @@ import com.example.emergencyassistb4b4.domain.volunteer.dto.Join.CheckinStatusRe
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Join.VolunteerParticipationResponse;
 import com.example.emergencyassistb4b4.domain.volunteer.enums.CheckinStatus;
 import com.example.emergencyassistb4b4.domain.volunteer.infra.redis.service.TeamParticipationCleanupScheduler;
-import com.example.emergencyassistb4b4.domain.volunteer.enums.PostStatus;
 import com.example.emergencyassistb4b4.domain.volunteer.infra.redis.service.TeamParticipationRedisService;
 import com.example.emergencyassistb4b4.domain.volunteer.repository.PostRepository;
 import com.example.emergencyassistb4b4.domain.volunteer.repository.VolunteerParticipantRepository;
@@ -144,7 +142,6 @@ public class VolunteerJoinService {
                 log.error("Redis 작업 실패, 재시도 중: {}", attempt, e);
                 attempt++;
                 if (attempt >= maxAttempts) {
-                    // 재시도 최대치 도달
                     if (rollbackAction != null) {
                         try {
                             rollbackAction.run();

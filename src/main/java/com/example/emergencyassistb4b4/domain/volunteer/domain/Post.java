@@ -16,9 +16,11 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
 
 @Entity
 @Getter
@@ -79,6 +81,18 @@ public class Post extends BaseEntity {
     public void setAttendancePolicy(AttendancePolicy policy) {
         this.attendancePolicy = policy;
         policy.setPost(this);
+    }
+
+    public void setStatus(PostStatus postStatus){
+        this.status=postStatus;
+    }
+
+    public boolean isOpen() {
+        return PostStatus.OPEN.equals(this.status);
+    }
+
+    public boolean isNotOpen() {
+        return !isOpen();
     }
 
     public void update(UpdatePostRequest request) {
