@@ -7,14 +7,19 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+
 @Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class VolunteerCancelEvent {
+
     private Long postId;
+
     private String title;
+
     private String placeName;
+
     private LocalDateTime volunteerDate;
 
     public static VolunteerCancelEvent from(Post post) {

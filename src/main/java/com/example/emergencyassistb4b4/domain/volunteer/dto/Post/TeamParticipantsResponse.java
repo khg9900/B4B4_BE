@@ -11,8 +11,11 @@ import java.util.stream.Collectors;
 @Builder
 @AllArgsConstructor
 public class TeamParticipantsResponse {
+
     private Long teamId;
+
     private int teamNumber;
+
     private List<ParticipantDto> participants;
 
     public static TeamParticipantsResponse from(Long teamId, int teamNumber, List<ParticipantDto> participants) {

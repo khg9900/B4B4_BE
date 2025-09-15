@@ -1,6 +1,5 @@
 package com.example.emergencyassistb4b4.domain.auth.service;
 
-
 import com.example.emergencyassistb4b4.domain.auth.dto.request.LoginRequestDto;
 import com.example.emergencyassistb4b4.domain.auth.dto.request.SignUpRequestDto;
 import com.example.emergencyassistb4b4.domain.auth.dto.response.TokenResponseDto;
@@ -20,7 +19,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 
 @Service
 @RequiredArgsConstructor

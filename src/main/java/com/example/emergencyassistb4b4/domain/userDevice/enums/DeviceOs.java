@@ -1,6 +1,7 @@
 package com.example.emergencyassistb4b4.domain.userDevice.enums;
 
 public enum DeviceOs {
+
     ANDROID,
     IOS,
     WEB;

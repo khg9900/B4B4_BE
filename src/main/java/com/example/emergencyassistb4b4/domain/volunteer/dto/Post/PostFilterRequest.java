@@ -15,9 +15,15 @@ import lombok.Setter;
 public class PostFilterRequest {
 
     private String province;
+
     private String city;
+
     private PostStatus status;
+
     private PostCategory category;
+
     private LocalDate volunteerStartDate;
+
     private LocalDate volunteerEndDate;
+
 }

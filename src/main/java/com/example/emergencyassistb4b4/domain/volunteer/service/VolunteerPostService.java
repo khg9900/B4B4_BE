@@ -7,12 +7,10 @@ import com.example.emergencyassistb4b4.domain.volunteer.domain.VolunteerParticip
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Join.CheckinStatusRequest;
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Post.*;
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Post.common.AttendancePolicyProvider;
-import com.example.emergencyassistb4b4.domain.volunteer.enums.CheckinStatus;
 import com.example.emergencyassistb4b4.domain.volunteer.infra.redis.service.TTLRedisService;
 import com.example.emergencyassistb4b4.domain.volunteer.infra.redis.service.TeamParticipationRedisService;
 import com.example.emergencyassistb4b4.domain.volunteer.enums.PostStatus;
 import com.example.emergencyassistb4b4.domain.volunteer.kafka.producer.VolunteerCancelEventProducer;
-import com.example.emergencyassistb4b4.domain.volunteer.repository.VolunteerParticipantRepository;
 import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.global.kafka.dto.VolunteerCancelEvent;
 import com.example.emergencyassistb4b4.global.kafka.dto.VolunteerUpdatedEvent;
@@ -34,7 +32,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -69,7 +66,6 @@ public class VolunteerPostService {
         postRepository.save(post);
 
         scheduleAttendanceForTeams(teams, request.getAttendancePolicy());
-
     }
 
     // 모집 게시글 수정
@@ -88,7 +84,6 @@ public class VolunteerPostService {
         scheduleAttendanceForTeams(post.getTeams(), request.getAttendancePolicy());
 
         producer.sendVolunteerUpdatedEvent(event);
-
     }
 
     // 모집 게시글 다건 조회
@@ -115,6 +110,7 @@ public class VolunteerPostService {
     // 모집 게시글 다건 조회 (NGO)
     @Transactional(readOnly = true)
     public Slice<PostTotalResponse> getMyPostList(Long userId, PostFilterRequest filter, Pageable pageable) {
+
         if (filter.getVolunteerStartDate() != null && filter.getVolunteerEndDate() != null &&
                 filter.getVolunteerStartDate().isAfter(filter.getVolunteerEndDate())) {
             throw new ApiException(ErrorStatus.VOLUNTEER_BAD_REQUEST);
@@ -135,6 +131,7 @@ public class VolunteerPostService {
     // 모집 게시글 조회
     @Transactional(readOnly = true)
     public PostDetailResponse getPost(Long postId) {
+
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new ApiException(ErrorStatus.POST_NOT_FOUND));
 
@@ -143,6 +140,7 @@ public class VolunteerPostService {
 
     @Transactional
     public void deleteMyPost(Long userId, Long postId) {
+
         Post post = postRepository.findByIdWithTeams(postId)
                 .orElseThrow(() -> new ApiException(ErrorStatus.POST_NOT_FOUND));
 
@@ -182,6 +180,7 @@ public class VolunteerPostService {
 
     @Transactional(readOnly = true)
     public TeamParticipantsResponse getTeamParticipants(Long postId, Long teamId){
+
         // Redis 또는 DB 기반으로 팀 참여자 상태 조회
         VolunteerTeam volunteerTeam = postRepository.findTeamByPostIdAndTeamId(postId, teamId).
                 orElseThrow(() -> new ApiException(ErrorStatus.POST_NOT_FOUND));
@@ -202,6 +201,7 @@ public class VolunteerPostService {
     // 게시글 별 팀 인원 조회
     @Transactional(readOnly = true)
     public PostTeamsResponse getTeamStatus(Long postId) {
+
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new ApiException(ErrorStatus.VOLUNTEER_NOT_FOUND));
 
@@ -217,6 +217,7 @@ public class VolunteerPostService {
 
     // 팀 생성
     private List<VolunteerTeam> generateTeams(Post post, int totalCapacity, int teamSize) {
+
         List<VolunteerTeam> volunteerTeams = new ArrayList<>();
         int teamCount = totalCapacity / teamSize;
 
@@ -228,6 +229,7 @@ public class VolunteerPostService {
                     .build();
             volunteerTeams.add(team);
         }
+
         return volunteerTeams;
     }
 
@@ -236,11 +238,11 @@ public class VolunteerPostService {
             List<VolunteerTeam> teams,
             T request
     ) {
+
         LocalDateTime checkinStart = request.getAttendancePolicy().getCheckinStart();
 
         teams.stream()
                 .map(team -> new AttendanceStateSetEvent(team.getId(), checkinStart))
                 .forEach(attendanceEventListener::onAttendanceStateSet);
     }
-
 }

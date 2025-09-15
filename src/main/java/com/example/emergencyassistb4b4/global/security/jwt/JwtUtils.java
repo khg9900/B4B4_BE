@@ -108,23 +108,6 @@ public class JwtUtils {
         }
     }
 
-    // 2. 예외 던지는 검증용
-    public void validateTokenOrThrow(String token) {
-
-        try {
-            Jwts.parserBuilder()
-                    .setSigningKey(getSigningKey())
-                    .build()
-                    .parseClaimsJws(token);
-        } catch (ExpiredJwtException e) {
-            throw new ApiException(ErrorStatus.EXPIRED_ACCESS_TOKEN);
-        } catch (UnsupportedJwtException | MalformedJwtException | SignatureException | IllegalArgumentException e) {
-            throw new ApiException(ErrorStatus.INVALID_ACCESS_TOKEN);
-        } catch (Exception e) {
-            throw new ApiException(ErrorStatus.CUSTOM_ERROR_STATUS);
-        }
-    }
-
     /**
      * 토큰 기반으로 인증 정보를 가져오는 메서드
      * @param token
