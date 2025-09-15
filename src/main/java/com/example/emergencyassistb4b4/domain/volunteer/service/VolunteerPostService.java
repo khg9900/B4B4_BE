@@ -90,7 +90,6 @@ public class VolunteerPostService {
         return getPostTotalResponses(posts);
     }
 
-
     // 모집 게시글 조회
     @Transactional(readOnly = true)
     public PostDetailResponse getPost(Long postId) {

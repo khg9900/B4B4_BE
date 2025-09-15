@@ -1,7 +1,7 @@
 package com.example.emergencyassistb4b4.domain.alert.kafka.consumer.listener;
 
 
-import com.example.emergencyassistb4b4.domain.alert.orchestrator.VolunteerCancelAlertOrchestratorService;
+import com.example.emergencyassistb4b4.domain.alert.orchestrator.VolunteerPostAlertOrchestratorService;
 import com.example.emergencyassistb4b4.global.kafka.dto.VolunteerCancelEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 @Component
 public class VolunteerCanceledEventListener {
-    private final VolunteerCancelAlertOrchestratorService orchestratorService;
+    private final VolunteerPostAlertOrchestratorService orchestratorService;
 
     @KafkaListener(
             topics = "${spring.kafka.topic.volunteerCancel}",
