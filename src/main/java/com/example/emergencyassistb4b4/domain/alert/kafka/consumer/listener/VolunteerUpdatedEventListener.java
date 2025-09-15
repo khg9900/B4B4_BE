@@ -1,6 +1,6 @@
 package com.example.emergencyassistb4b4.domain.alert.kafka.consumer.listener;
 
-import com.example.emergencyassistb4b4.domain.alert.orchestrator.VolunteerUpdateAlertOrchestratorService;
+import com.example.emergencyassistb4b4.domain.alert.orchestrator.VolunteerPostAlertOrchestratorService;
 import com.example.emergencyassistb4b4.global.kafka.dto.VolunteerUpdatedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class VolunteerUpdatedEventListener {
 
-    private final VolunteerUpdateAlertOrchestratorService orchestratorService;
+    private final VolunteerPostAlertOrchestratorService orchestratorService;
 
     @KafkaListener(
             topics = "${spring.kafka.topic.volunteer}",

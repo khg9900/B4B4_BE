@@ -5,8 +5,7 @@ import com.example.emergencyassistb4b4.domain.alert.domain.report.UserReportAler
 import com.example.emergencyassistb4b4.domain.alert.domain.volunteer.UserVolunteerAlert;
 import com.example.emergencyassistb4b4.domain.alert.domain.volunteer.VolunteerAlert;
 import com.example.emergencyassistb4b4.domain.alert.dto.report.ReportThresholdAlertDto;
-import com.example.emergencyassistb4b4.domain.alert.dto.volunteer.VolunteerCancelAlertDto;
-import com.example.emergencyassistb4b4.domain.alert.dto.volunteer.VolunteerUpdateAlertDto;
+import com.example.emergencyassistb4b4.domain.alert.dto.volunteer.VolunteerPostAlertDto;
 import com.example.emergencyassistb4b4.domain.alert.repository.report.ReportAlertRepository;
 import com.example.emergencyassistb4b4.domain.alert.repository.volunteer.UserVolunteerAlertRepository;
 import com.example.emergencyassistb4b4.domain.alert.repository.volunteer.VolunteerAlertRepository;
@@ -35,21 +34,12 @@ public class AlertCommandService {
         userReportAlertBulkService.saveAllInBatches(userReportAlerts, 1000);
     }
 
-    public void saveVolunteerUpdateAlert(VolunteerUpdateAlertDto dto, List<Long> participants) {
+    public void saveVolunteerPostAlert(VolunteerPostAlertDto dto, List<Long> participants) {
 
-        // 1. ReportAlert 생성 및 저장
+        // 1. VolunteerAlert 생성 및 저장
         VolunteerAlert alert = volunteerAlertRepository.save(dto.toEntity());
 
-        // 2. UserReportAlert 생성 및 일괄 저장
-        userVolunteerAlertRepository.saveAll(UserVolunteerAlert.from(alert, participants));
-    }
-
-    public void saveVolunteerCancelAlert(VolunteerCancelAlertDto dto, List<Long> participants) {
-
-        // 1. ReportAlert 생성 및 저장
-        VolunteerAlert alert = volunteerAlertRepository.save(dto.toEntity());
-
-        // 2. UserReportAlert 생성 및 일괄 저장
+        // 2. UserVolunteerAlert 생성 및 일괄 저장
         userVolunteerAlertRepository.saveAll(UserVolunteerAlert.from(alert, participants));
     }
 }

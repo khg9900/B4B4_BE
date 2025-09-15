@@ -2,8 +2,7 @@ package com.example.emergencyassistb4b4.domain.alert.dto.fcm;
 
 import com.example.emergencyassistb4b4.domain.alert.dto.report.ReportThresholdAlertDto;
 import com.example.emergencyassistb4b4.domain.alert.dto.report.ReportImmediateAlertDto;
-import com.example.emergencyassistb4b4.domain.alert.dto.volunteer.VolunteerCancelAlertDto;
-import com.example.emergencyassistb4b4.domain.alert.dto.volunteer.VolunteerUpdateAlertDto;
+import com.example.emergencyassistb4b4.domain.alert.dto.volunteer.VolunteerPostAlertDto;
 import java.time.format.DateTimeFormatter;
 import lombok.Builder;
 import lombok.Getter;
@@ -72,7 +71,7 @@ public class FcmMessageDto {
             .build();
     }
 
-    public static FcmMessageDto fromVolunteerUpdateAlert(VolunteerUpdateAlertDto alert) {
+    public static FcmMessageDto fromVolunteerUpdateAlert(VolunteerPostAlertDto alert) {
 
         String title = String.format(
             "[봉사 알림] %s 변경 공지", alert.getTitle()
@@ -94,7 +93,8 @@ public class FcmMessageDto {
             .body(body)
             .build();
     }
-    public static FcmMessageDto fromVolunteerCancelAlert(VolunteerCancelAlertDto alert) {
+
+    public static FcmMessageDto fromVolunteerCancelAlert(VolunteerPostAlertDto alert) {
 
         String title = String.format(
                 "[봉사 알림] %s 취소 공지", alert.getTitle()
