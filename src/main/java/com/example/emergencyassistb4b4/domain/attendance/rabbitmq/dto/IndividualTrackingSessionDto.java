@@ -29,4 +29,19 @@ public class IndividualTrackingSessionDto {
     private long intervalSeconds;
 
     private Long participantUserId;
+
+    public static IndividualTrackingSessionDto buildIndividualDto(TrackingSessionDto dto, Long volunteerId) {
+        return IndividualTrackingSessionDto.builder()
+                .teamId(dto.getTeamId())
+                .startTime(dto.getStartTime())
+                .endTime(dto.getEndTime())
+                .targetLat(dto.getTargetLat())
+                .targetLng(dto.getTargetLng())
+                .meter(dto.getMeter())
+                .intervalSeconds(dto.getIntervalSeconds())
+                .participantUserId(volunteerId)
+                .build();
+    }
+
+
 }

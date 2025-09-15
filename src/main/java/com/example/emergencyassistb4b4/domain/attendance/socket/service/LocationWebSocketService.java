@@ -19,15 +19,17 @@ import static com.example.emergencyassistb4b4.global.status.ErrorStatus.VOLUNTEE
 @RequiredArgsConstructor
 public class LocationWebSocketService {
 
-    private final VolunteerParticipantRepository volunteerParticipantRepository;
+    private final VolunteerParticipantRepository participantRepository;
     private final RabbitMQRedisService rabbitMQRedisService;
 
     private static final int DEFAULT_RADIUS_METERS = 50;
-    private static final int DEFAULT_TTL_MINUTES = 3; // 여유 시간
+    private static final int DEFAULT_TTL_MINUTES = 3;
 
+    /**
+     * 해당 자원봉사자가 팀 위치 반경 내에 있는지 체크
+     */
     public boolean checkAttendanceForVolunteer(Long volunteerId, double lat, double lon) {
-        // 1 팀 ID 조회/캐싱
-        VolunteerParticipant participant = volunteerParticipantRepository
+        VolunteerParticipant participant = participantRepository
                 .findWithTeamAndPolicyById(volunteerId)
                 .orElseThrow(() -> new ApiException(VOLUNTEER_NOT_FOUND));
 
@@ -37,58 +39,58 @@ public class LocationWebSocketService {
             rabbitMQRedisService.mapVolunteerToTeam(volunteerId, teamId);
             log.debug("Cached teamId={} for volunteerId={}", teamId, volunteerId);
         }
-        // 2 팀 위치 확인/캐싱
-        if (!rabbitMQRedisService.locationExists(teamId)) {
-            VolunteerTeam team = participant.getVolunteerTeam();
-            Post post = team.getPost();
-            VolunteerLocation location = post.getLocation();
-            AttendancePolicy policy = post.getAttendancePolicy();
 
-            if (location == null || policy == null) {
-                throw new ApiException(ATTENDANCE_LOCATION_OR_POLICY_MISSING);
-            }
+        cacheTeamLocationIfAbsent(participant, teamId);
 
-            // TTL = 세션 종료 시간까지 + 여유 3분
-            Duration ttl = Duration.between(LocalDateTime.now(), policy.getCheckinEnd()).plusMinutes(DEFAULT_TTL_MINUTES);
-            if (ttl.isNegative() || ttl.isZero()) ttl = Duration.ofMinutes(DEFAULT_TTL_MINUTES);
-
-            rabbitMQRedisService.updateTeamLocation(teamId, location.getLocationLat(), location.getLocationLng(), ttl);
-            log.debug("Cached geo center for teamId={} at lat={}, lon={}, ttl={}s", teamId, location.getLocationLat(), location.getLocationLng(), ttl.getSeconds());
-        }
-
-        // 3 반경 체크
         int radius = participant.getVolunteerTeam().getPost().getAttendancePolicy() != null
                 ? participant.getVolunteerTeam().getPost().getAttendancePolicy().getAttendanceRadiusMeters()
                 : DEFAULT_RADIUS_METERS;
 
         boolean withinRadius = rabbitMQRedisService.isWithinRadius(teamId, lat, lon, radius);
-        log.debug("Geo check for teamId={} with lat={}, lon={}, radius={}m: {}", teamId, lat, lon, radius, withinRadius);
+        log.debug("Geo check for teamId={} lat={}, lon={}, radius={}m: {}", teamId, lat, lon, radius, withinRadius);
 
         return withinRadius;
     }
 
+    private void cacheTeamLocationIfAbsent(VolunteerParticipant participant, Long teamId) {
+        if (rabbitMQRedisService.locationExists(teamId)) return;
+
+        VolunteerTeam team = participant.getVolunteerTeam();
+        Post post = team.getPost();
+        VolunteerLocation location = post.getLocation();
+        AttendancePolicy policy = post.getAttendancePolicy();
+
+        if (location == null || policy == null) {
+            throw new ApiException(ATTENDANCE_LOCATION_OR_POLICY_MISSING);
+        }
+
+        Duration ttl = Duration.between(LocalDateTime.now(), policy.getCheckinEnd())
+                .plusMinutes(DEFAULT_TTL_MINUTES);
+        if (ttl.isNegative() || ttl.isZero()) ttl = Duration.ofMinutes(DEFAULT_TTL_MINUTES);
+
+        rabbitMQRedisService.updateTeamLocation(teamId, location.getLocationLat(), location.getLocationLng(), ttl);
+        log.debug("Cached geo center for teamId={} at lat={}, lon={}, ttl={}s", teamId, location.getLocationLat(), location.getLocationLng(), ttl.getSeconds());
+    }
+
+    /**
+     * Redis에 출석 기록 저장 및 publish
+     */
     public void saveAndPublishAttendance(Long volunteerId, boolean isPresent) {
-        VolunteerParticipant participant = volunteerParticipantRepository
+        VolunteerParticipant participant = participantRepository
                 .findWithTeamAndPolicyById(volunteerId)
                 .orElseThrow(() -> new ApiException(VOLUNTEER_NOT_FOUND));
 
         AttendancePolicy policy = participant.getVolunteerTeam().getPost().getAttendancePolicy();
-
-        // ENDED 이벤트 처리 시, 현재 시점과 sessionEnd 중 더 늦은 시간을 기준
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime sessionEnd = (policy != null && policy.getCheckinEnd() != null)
                 ? policy.getCheckinEnd()
                 : now;
 
-        // TTL 계산: sessionEnd 이후 DEFAULT_TTL_MINUTES까지
-        LocalDateTime effectiveEnd = sessionEnd.isAfter(now) ? sessionEnd : now;
-        Duration ttl = Duration.between(now, effectiveEnd).plusMinutes(DEFAULT_TTL_MINUTES);
-
-        // 음수 방어
+        Duration ttl = Duration.between(now, sessionEnd.isAfter(now) ? sessionEnd : now)
+                .plusMinutes(DEFAULT_TTL_MINUTES);
         if (ttl.isNegative() || ttl.isZero()) ttl = Duration.ofMinutes(DEFAULT_TTL_MINUTES);
 
         rabbitMQRedisService.recordAttendance(volunteerId, isPresent, ttl);
-        log.info("Saved attendance for volunteerId={}, isPresent={}, ttl={}s", volunteerId, isPresent, ttl.getSeconds());
-
+        log.info("Saved attendance: volunteerId={}, isPresent={}, ttl={}s", volunteerId, isPresent, ttl.getSeconds());
     }
 }
