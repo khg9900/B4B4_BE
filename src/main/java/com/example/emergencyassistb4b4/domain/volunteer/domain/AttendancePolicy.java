@@ -27,7 +27,7 @@ public class AttendancePolicy extends BaseEntity {
     private int attendanceRadiusMeters;
 
     @OneToOne
-    @JoinColumn(name = "post_id", nullable = false)
+    @JoinColumn(name = "post_id", nullable = false, unique = true)
     private Post post;
 
     public void setPost(Post post) {

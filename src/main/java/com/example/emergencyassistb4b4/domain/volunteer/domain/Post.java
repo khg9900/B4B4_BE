@@ -111,20 +111,6 @@ public class Post extends BaseEntity {
         );
     }
 
-    public void updateLocation(String province, String city, String placeName, Double latitude, Double longitude) {
-        if (this.location == null) {
-            this.location = new VolunteerLocation();
-        }
-        this.location.update(province, city, placeName, latitude, longitude);
-    }
-
-    public void updateAttendancePolicy(LocalDateTime start, LocalDateTime end, int radius) {
-        if (this.attendancePolicy == null) {
-            this.attendancePolicy = new AttendancePolicy();
-        }
-        this.attendancePolicy.update(start, end, radius);
-    }
-
     public void addTeams(List<VolunteerTeam> teamList) {
         this.teams = teamList;
         for (VolunteerTeam team : teamList) {

@@ -47,8 +47,6 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostQueryRepo
                                            @Param("checkinStart") LocalDateTime checkinStart,
                                            @Param("checkinEnd") LocalDateTime checkinEnd);
 
-    Optional<Post> findByIdAndUserId(Long postId, Long userId);
-
     @Query("SELECT t FROM Post p JOIN p.teams t WHERE p.id = :postId AND t.id = :teamId")
     Optional<VolunteerTeam> findTeamByPostIdAndTeamId(@Param("postId") Long postId, @Param("teamId") Long teamId);
 

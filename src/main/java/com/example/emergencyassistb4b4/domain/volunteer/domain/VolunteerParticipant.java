@@ -49,7 +49,6 @@ public class VolunteerParticipant {
     public void updateStatus(CheckinStatus newStatus) {
         if (this.checkinStatus == CheckinStatus.BLACKLISTED) {
             throw new ApiException(ErrorStatus.VOLUNTEER_BAD_REQUEST);
-            //IllegalStateException("블랙리스트는 상태 변경이 불가능합니다.");
         }
         this.checkinStatus = newStatus;
     }

@@ -1,3 +1,6 @@
+// ==============================
+// VolunteerJoinController
+// ==============================
 package com.example.emergencyassistb4b4.domain.volunteer.controller;
 
 import com.example.emergencyassistb4b4.domain.volunteer.enums.CheckinStatus;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@PreAuthorize("hasRole('IND')")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping
@@ -25,29 +29,26 @@ public class VolunteerJoinController {
 
     private final VolunteerJoinService volunteerJoinService;
 
-    @PreAuthorize("hasRole('IND')")
     @PostMapping("/posts/{postId}/teams/{teamNumber}/apply")
     public ResponseEntity<ApiResponse<Void>> joinTeam(
             @PathVariable Long postId,
             @PathVariable int teamNumber,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        volunteerJoinService.joinTeam(postId, teamNumber, userDetails.getUser().getId());
+        volunteerJoinService.joinTeam(postId, teamNumber, userDetails.getUser());
         return ApiResponse.onSuccess(SuccessStatus.VOLUNTEER_CREATE_SUCCESS, null);
     }
 
-    @PreAuthorize("hasRole('IND')")
     @PatchMapping("/volunteer-participants/{participantId}")
-    public  ResponseEntity<ApiResponse<Void>> cancelJoin(
+    public ResponseEntity<ApiResponse<Void>> cancelJoin(
             @PathVariable Long participantId,
             @Valid @RequestBody CheckinStatusRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        volunteerJoinService.cancelJoin(participantId, request, userDetails.getUser().getId());
+        volunteerJoinService.cancelJoin(participantId, request, userDetails.getUser());
         return ApiResponse.onSuccess(SuccessStatus.VOLUNTEER_SUCCESS, null);
     }
 
-    @PreAuthorize("hasRole('IND')")
     @GetMapping("/volunteer-participants/my")
     public ResponseEntity<ApiResponse<List<VolunteerParticipationResponse>>> getMyParticipationList(
             @AuthenticationPrincipal CustomUserDetails userDetails,
@@ -61,8 +62,7 @@ public class VolunteerJoinController {
         }
 
         List<VolunteerParticipationResponse> list =
-                volunteerJoinService.getMyParticipation(userDetails.getUser().getId(),checkinStatus,startTime,endTime);
+                volunteerJoinService.getMyParticipation(userDetails.getUser().getId(), checkinStatus, startTime, endTime);
         return ApiResponse.onSuccess(SuccessStatus.VOLUNTEER_SUCCESS, list);
     }
-
 }
