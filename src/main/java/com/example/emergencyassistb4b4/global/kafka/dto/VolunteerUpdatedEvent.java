@@ -1,9 +1,7 @@
 package com.example.emergencyassistb4b4.global.kafka.dto;
 
 import com.example.emergencyassistb4b4.domain.volunteer.domain.Post;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,8 +14,11 @@ import lombok.NoArgsConstructor;
 public class VolunteerUpdatedEvent {
 
     private Long postId;
+
     private String title;
+
     private String placeName;
+
     private LocalDateTime volunteerDate;
 
     public static VolunteerUpdatedEvent from(Post post) {

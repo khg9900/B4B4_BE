@@ -3,7 +3,6 @@ package com.example.emergencyassistb4b4.domain.auth.dto.request;
 import com.example.emergencyassistb4b4.domain.user.domain.UserRole;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

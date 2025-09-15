@@ -81,8 +81,11 @@ public class VolunteerPostService {
         return getPostTotalResponses(posts);
     }
 
+
+    // 모집 게시글 조회
     @Transactional(readOnly = true)
     public PostDetailResponse getPost(Long postId) {
+
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new ApiException(ErrorStatus.POST_NOT_FOUND));
 
@@ -91,18 +94,22 @@ public class VolunteerPostService {
 
     @Transactional
     public void deleteMyPost(Long userId, Long postId) {
+
         Post post = postRepository.findByIdWithTeams(postId)
                 .orElseThrow(() -> new ApiException(ErrorStatus.POST_NOT_FOUND));
 
         if (!post.getUser().getId().equals(userId)) {
             throw new ApiException(ErrorStatus.FORBIDDEN);
         }
+
         if (post.getStatus() != PostStatus.OPEN) {
             throw new ApiException(ErrorStatus.VOLUNTEER_BAD_REQUEST);
         }
 
         VolunteerCancelEvent event = VolunteerCancelEvent.from(post);
+
         try {
+            // Kafka 전송 성공해야 다음으로 진행
             volunteerCancelEventProducer.sendVolunteerCanceledEvent(event);
             log.info("Kafka 발행 성공: {}", event);
         } catch (Exception e) {
@@ -122,6 +129,7 @@ public class VolunteerPostService {
         postRepository.delete(post);
     }
 
+
     @Transactional(readOnly = true)
     public TeamParticipantsResponse getTeamParticipants(Long postId, Long teamId) {
         VolunteerTeam volunteerTeam = postRepository.findTeamByPostIdAndTeamId(postId, teamId)
@@ -138,10 +146,13 @@ public class VolunteerPostService {
                 .orElseThrow(() -> new ApiException(ErrorStatus.POST_NOT_FOUND));
 
         volunteerParticipant.updateStatus(checkinStatusRequest.getStatus());
+
     }
 
+    // 게시글 별 팀 인원 조회
     @Transactional(readOnly = true)
     public PostTeamsResponse getTeamStatus(Long postId) {
+
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new ApiException(ErrorStatus.VOLUNTEER_NOT_FOUND));
 
@@ -183,6 +194,7 @@ public class VolunteerPostService {
     }
 
     private List<VolunteerTeam> generateTeams(Post post, int totalCapacity, int teamSize) {
+
         List<VolunteerTeam> volunteerTeams = new ArrayList<>();
         int teamCount = totalCapacity / teamSize;
 
@@ -193,6 +205,7 @@ public class VolunteerPostService {
                     .maxCapacity(teamSize)
                     .build());
         }
+
         return volunteerTeams;
     }
 
@@ -202,4 +215,5 @@ public class VolunteerPostService {
                 .map(team -> new AttendanceStateSetEvent(team.getId(), checkinStart))
                 .forEach(attendanceEventListener::onAttendanceStateSet);
     }
+
 }

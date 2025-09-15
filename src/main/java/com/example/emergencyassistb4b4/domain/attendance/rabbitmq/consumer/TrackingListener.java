@@ -3,7 +3,6 @@ package com.example.emergencyassistb4b4.domain.attendance.rabbitmq.consumer;
 import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.dto.MessageWrapper;
 import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.dto.SessionState;
 import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.dto.TrackingSessionDto;
-import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.dto.IndividualTrackingSessionDto;
 import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.service.TrackingDataService;
 import com.example.emergencyassistb4b4.domain.attendance.socket.handler.TrackingSocketHandler;
 
@@ -18,8 +17,11 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 import com.rabbitmq.client.Channel;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
@@ -29,6 +31,7 @@ public class TrackingListener {
     private final TrackingSocketHandler socketHandler;
     private final TrackingDataService trackingService;
     private final ObjectMapper objectMapper;
+    private final ScheduledExecutorService scheduler= Executors.newSingleThreadScheduledExecutor();
 
     @RabbitListener(queues = "tracking-delay-queue",
             containerFactory = "rabbitListenerContainerFactory")
@@ -53,8 +56,10 @@ public class TrackingListener {
                 case READY, STARTED -> sendTypedMessageToVolunteers(participantIds, state, dto);
                 case ENDED -> {
                     sendTypedMessageToVolunteers(participantIds, state, dto);
-                    trackingService.saveSessionAttendanceData(participantIds, dto.getTeamId());
-                    participantIds.forEach(socketHandler::removeVolunteerUserMapping);
+                    scheduler.schedule(() -> {
+                        trackingService.saveSessionAttendanceData(participantIds, dto.getTeamId());
+                        participantIds.forEach(socketHandler::removeVolunteerUserMapping);
+                    }, 1, TimeUnit.MINUTES);
                 }
                 default -> log.warn("알 수 없는 세션 상태 수신: {}", state);
             }
