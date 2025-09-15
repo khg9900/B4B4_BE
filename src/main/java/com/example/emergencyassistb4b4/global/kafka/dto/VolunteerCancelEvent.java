@@ -1,5 +1,6 @@
 package com.example.emergencyassistb4b4.global.kafka.dto;
 
+import com.example.emergencyassistb4b4.domain.alert.enums.VolunteerAlertSubtype;
 import com.example.emergencyassistb4b4.domain.volunteer.domain.Post;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,7 +13,9 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class VolunteerCancelEvent {
+public class VolunteerCancelEvent implements VolunteerEvent {
+
+    private VolunteerAlertSubtype subtype;
 
     private Long postId;
 
@@ -25,6 +28,7 @@ public class VolunteerCancelEvent {
     public static VolunteerCancelEvent from(Post post) {
 
         return VolunteerCancelEvent.builder()
+                .subtype(VolunteerAlertSubtype.CANCEL)
                 .postId(post.getId())
                 .title(post.getTitle())
                 .placeName(post.getLocation().getPlaceName())

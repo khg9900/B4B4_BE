@@ -1,5 +1,6 @@
 package com.example.emergencyassistb4b4.domain.alert.domain.volunteer;
 
+import com.example.emergencyassistb4b4.domain.alert.enums.VolunteerAlertSubtype;
 import com.example.emergencyassistb4b4.global.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -44,6 +45,6 @@ public class VolunteerAlert extends BaseEntity {
     @Column(nullable = false)
     private LocalDateTime volunteerDate;
 
-    private String subtype;
+    private VolunteerAlertSubtype subtype;
 
 }
