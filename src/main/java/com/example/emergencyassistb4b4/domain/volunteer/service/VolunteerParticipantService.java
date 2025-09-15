@@ -25,16 +25,7 @@ public class VolunteerParticipantService {
     private final VolunteerParticipantRepository participantRepository;
 
     @Transactional
-    public VolunteerParticipant joinSave(Long userId, Long teamId) {
-        // 유저 검증
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ApiException(ErrorStatus.USER_NOT_FOUND));
-
-        // 팀 검증
-        VolunteerTeam team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new ApiException(ErrorStatus.VOLUNTEER_NOT_FOUND));
-
-        // 팀 - 유저 정보 생성
+    public VolunteerParticipant joinSave(User user, VolunteerTeam team) {
         VolunteerParticipant participant = VolunteerParticipant.builder()
                 .user(user)
                 .volunteerTeam(team)

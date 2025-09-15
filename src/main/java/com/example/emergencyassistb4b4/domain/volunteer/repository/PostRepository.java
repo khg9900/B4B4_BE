@@ -8,7 +8,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 public interface PostRepository extends JpaRepository<Post, Long>, PostQueryRepository {
@@ -47,8 +49,6 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostQueryRepo
                                            @Param("checkinStart") LocalDateTime checkinStart,
                                            @Param("checkinEnd") LocalDateTime checkinEnd);
 
-    Optional<Post> findByIdAndUserId(Long postId, Long userId);
-
     @Query("SELECT t FROM Post p JOIN p.teams t WHERE p.id = :postId AND t.id = :teamId")
     Optional<VolunteerTeam> findTeamByPostIdAndTeamId(@Param("postId") Long postId, @Param("teamId") Long teamId);
 
@@ -66,6 +66,8 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostQueryRepo
     Optional<Post> findByIdWithTeams(@Param("postId") Long postId);
 
 
+    @Query("SELECT p FROM Post p WHERE p.recruitmentEndDate <= :today")
+    List<Post> findAllExpiredPosts(@Param("today") LocalDate today);
 
 
 }

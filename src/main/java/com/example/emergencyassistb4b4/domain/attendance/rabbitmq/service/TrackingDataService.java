@@ -32,8 +32,7 @@ public class TrackingDataService {
 
             long presentCount = records.stream()
                     .map(this::parseRecordToBoolean)
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
+                    .flatMap(Optional::stream)
                     .filter(Boolean::booleanValue)
                     .count();
 
@@ -48,11 +47,9 @@ public class TrackingDataService {
         if (!updateList.isEmpty()) participantRepository.saveAll(updateList);
 
         // DB 저장 후 Redis 삭제
-        for (Long volunteerId : volunteerIds) {
-            rabbitMQRedisService.clearAttendanceHistory(volunteerId);
-        }
+        volunteerIds.forEach(rabbitMQRedisService::clearAttendanceHistory);
 
-        log.info("참여자 출석 상태 {}건 저장 완료 (teamId={})", updateList.size(), teamId);
+        log.debug("참여자 출석 상태 {}건 저장 완료 (teamId={})", updateList.size(), teamId);
     }
 
     private Optional<Boolean> parseRecordToBoolean(String record) {
@@ -62,7 +59,10 @@ public class TrackingDataService {
         return switch (record) {
             case "1" -> Optional.of(true);
             case "0" -> Optional.of(false);
-            default -> Optional.empty();
+            default -> {
+                log.warn("Unknown attendance record value: {}", record);
+                yield Optional.empty();
+            }
         };
     }
 }

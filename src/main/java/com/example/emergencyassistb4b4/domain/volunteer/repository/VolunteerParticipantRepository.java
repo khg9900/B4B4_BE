@@ -21,14 +21,6 @@ public interface VolunteerParticipantRepository extends JpaRepository<VolunteerP
     List<Long> findUserIdsByPostId(@Param("postId") Long postId);
 
     @Query("""
-        SELECT t.post.id
-        FROM VolunteerParticipant vp
-        JOIN vp.volunteerTeam t
-        WHERE vp.id = :participantId
-    """)
-    Optional<Long> findPostIdByParticipantId(@Param("participantId") Long participantId);
-
-    @Query("""
         SELECT vp
         FROM VolunteerParticipant vp
         JOIN FETCH vp.volunteerTeam t
@@ -49,10 +41,20 @@ public interface VolunteerParticipantRepository extends JpaRepository<VolunteerP
     boolean existsActiveParticipation(@Param("userId") Long userId, @Param("postId") Long postId);
 
     @Query("""
-    select count(vp) 
+    select count(vp)
     from VolunteerParticipant vp
     where vp.volunteerTeam.id = :teamId
       and vp.checkinStatus = 'PARTICIPATED'
 """)
     long countParticipatedByTeamId(@Param("teamId") Long teamId);
+
+    @Query("""
+    select count(vp)
+    from VolunteerParticipant vp
+    where vp.volunteerTeam.id = :teamId
+      and vp.checkinStatus not in ('CANCELLED', 'BLACKLISTED')
+""")
+    long countValidParticipatedByTeamId(@Param("teamId") Long teamId);
+
+
 }

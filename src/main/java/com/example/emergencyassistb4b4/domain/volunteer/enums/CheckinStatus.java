@@ -6,5 +6,9 @@ public enum CheckinStatus {
     CANCELLED,
     BLACKLISTED,
     PRESENT,   // 출석
-    ABSENT
+    ABSENT;
+
+    public boolean isParticipated() {
+        return this != CANCELLED && this != BLACKLISTED;
+    }
 }

@@ -46,8 +46,6 @@ public class RabbitMQRedisService {
                 .toList();
     }
 
-
-
     public void clearTrackingState(Long teamId) {
         rabbitMQRedisRepository.deleteRabbitMQState(teamId);
     }

@@ -16,9 +16,11 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
 
 @Entity
 @Getter
@@ -81,6 +83,18 @@ public class Post extends BaseEntity {
         policy.setPost(this);
     }
 
+    public void setStatus(PostStatus postStatus){
+        this.status=postStatus;
+    }
+
+    public boolean isOpen() {
+        return PostStatus.OPEN.equals(this.status);
+    }
+
+    public boolean isNotOpen() {
+        return !isOpen();
+    }
+
     public void update(UpdatePostRequest request) {
 
         this.title = request.getTitle();
@@ -109,20 +123,6 @@ public class Post extends BaseEntity {
             policy.getCheckinEnd(),
             policy.getAllowedRadiusM()
         );
-    }
-
-    public void updateLocation(String province, String city, String placeName, Double latitude, Double longitude) {
-        if (this.location == null) {
-            this.location = new VolunteerLocation();
-        }
-        this.location.update(province, city, placeName, latitude, longitude);
-    }
-
-    public void updateAttendancePolicy(LocalDateTime start, LocalDateTime end, int radius) {
-        if (this.attendancePolicy == null) {
-            this.attendancePolicy = new AttendancePolicy();
-        }
-        this.attendancePolicy.update(start, end, radius);
     }
 
     public void addTeams(List<VolunteerTeam> teamList) {

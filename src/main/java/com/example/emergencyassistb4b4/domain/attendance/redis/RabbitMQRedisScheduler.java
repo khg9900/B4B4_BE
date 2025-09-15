@@ -16,14 +16,11 @@ public class RabbitMQRedisScheduler {
     @Scheduled(cron = "0 * * * * *")
     public void ScheduledRun(){
         rabbitMQRedisService.getAllTrackingStates().forEach(attendanceEventListener::onAttendanceStateChanged);
-
-
     }
 
     @Scheduled(cron = "0 */5 * * * *")
     public void ScheduledRunDown(){
         rabbitMQRedisService.getAllTrackingStates().forEach(attendanceEventListener::onAttendanceEnded);
-
     }
 
 
