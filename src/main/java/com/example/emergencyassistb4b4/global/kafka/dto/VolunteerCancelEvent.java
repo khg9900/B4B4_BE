@@ -28,7 +28,7 @@ public class VolunteerCancelEvent implements VolunteerEvent {
     public static VolunteerCancelEvent from(Post post) {
 
         return VolunteerCancelEvent.builder()
-                .subtype(VolunteerAlertSubtype.CANCEL)
+                .subtype(VolunteerAlertSubtype.CANCELED)
                 .postId(post.getId())
                 .title(post.getTitle())
                 .placeName(post.getLocation().getPlaceName())

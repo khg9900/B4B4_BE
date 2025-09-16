@@ -44,14 +44,6 @@ public interface VolunteerParticipantRepository extends JpaRepository<VolunteerP
     select count(vp)
     from VolunteerParticipant vp
     where vp.volunteerTeam.id = :teamId
-      and vp.checkinStatus = 'PARTICIPATED'
-""")
-    long countParticipatedByTeamId(@Param("teamId") Long teamId);
-
-    @Query("""
-    select count(vp)
-    from VolunteerParticipant vp
-    where vp.volunteerTeam.id = :teamId
       and vp.checkinStatus not in ('CANCELLED', 'BLACKLISTED')
 """)
     long countValidParticipatedByTeamId(@Param("teamId") Long teamId);
