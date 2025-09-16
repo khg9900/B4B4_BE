@@ -62,6 +62,7 @@ public enum ErrorStatus implements BaseErrorCode {
     GOV_NOT_FOUND(HttpStatus.NOT_FOUND, "RP007", "해당 지역 공공기관을 찾을 수 없습니다."),
     S3_UPLOAD_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "RP010", "S3 파일 업로드 중 오류가 발생했습니다."),
     UNSUPPORTED_MEDIA_TYPE(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "RP011", "지원하지 않는 미디어 타입입니다."),
+    INVALID_PARAMETER(HttpStatus.BAD_REQUEST, "RP004", "시 정보가 누락되었습니다."),
 
     // Alert
     ALERT_BAD_REQUEST(HttpStatus.BAD_REQUEST, "AL004", "유효하지 않은 값입니다"),
