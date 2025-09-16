@@ -37,7 +37,7 @@ public class VolunteerPostAlertOrchestratorService {
             message = FcmMessageDto.fromVolunteerUpdateAlert(info);
         }
 
-        if (info.getSubtype() == VolunteerAlertSubtype.CANCEL) {
+        if (info.getSubtype() == VolunteerAlertSubtype.CANCELED) {
             message = FcmMessageDto.fromVolunteerCancelAlert(info);
         }
 

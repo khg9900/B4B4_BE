@@ -99,12 +99,12 @@ public class TeamParticipationRedisService {
     }
 
     /**
-     * 현재 인원 조회
+     현재 인원 조회
      */
     public int getCurrentCount(Long postId, Long teamId) {
 
         // 1) DB 카운트가 정답
-        long dbCount = participantRepository.countParticipatedByTeamId(teamId);
+        long dbCount = participantRepository.countValidParticipatedByTeamId(teamId);
 
         String countKey = String.format(COUNT_KEY_FORMAT, postId, teamId);
         String c = redisTemplate.opsForValue().get(countKey);

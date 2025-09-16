@@ -2,6 +2,7 @@ package com.example.emergencyassistb4b4.domain.report.repository;
 
 import com.example.emergencyassistb4b4.domain.report.domain.Report;
 import com.example.emergencyassistb4b4.domain.report.enums.ReportStatus;
+import java.time.LocalDate;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 
@@ -37,9 +38,9 @@ public interface ReportRepositoryCustom {
                                     int limitPlusOne);
 
     List<Report> findByReporterByCursor(Long userId, ReportStatus status,
-                                        LocalDateTime start, LocalDateTime end,
+                                        LocalDate start, LocalDate end,
                                         LocalDateTime lastCreatedAt, Long lastId,
-                                        int limitPlusOne);
+                                        int limitPlusOne, boolean desc);
 
 }
 
