@@ -182,12 +182,19 @@ public class ReportService {
     }
 
     @Transactional(readOnly = true)
-    public CursorResponse<ReportDto> getMyReportsByCursor(Long userId, ReportCursorRequest req) {
+    public CursorResponse<ReportDto> getMyReportsByCursor(Long userId, String sortOrder, ReportCursorRequest req) {
         int size = req.effectivePageSize();
+        boolean isDesc = !"ASC".equalsIgnoreCase(sortOrder);
+
         List<Report> rows = reportRepository.findByReporterByCursor(
-                userId, req.status(), null, null,   // 기간 필터 필요 시 req에 추가 확장
-                req.lastCreatedAt(), req.lastId(),
-                size + 1
+                userId,
+                req.status(),
+                req.startDate(),
+                req.endDate(),
+                req.lastCreatedAt(),
+                req.lastId(),
+                size + 1,
+                isDesc
         );
 
         List<ReportDto> content = rows.stream()
