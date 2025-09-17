@@ -67,13 +67,11 @@ public class KakaoMapService {
     public List<DisasterSummaryDto> getDisasterSummary(
             double latitude,
             double longitude,
-            int radiusMeter,
-            long secondsAgo
+            int radiusMeter
     ) {
-        LocalDateTime fromTime = LocalDateTime.now().minusSeconds(secondsAgo);
 
         List<Object[]> rawReports = reportRepository.findNearbyDisasterReportsRaw(
-                longitude, latitude, radiusMeter, fromTime
+                longitude, latitude, radiusMeter
         );
 
         // ✅ 매핑 책임을 DisasterReportMapper로 위임

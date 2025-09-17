@@ -6,7 +6,9 @@ import com.example.emergencyassistb4b4.domain.volunteer.domain.VolunteerParticip
 import com.example.emergencyassistb4b4.domain.volunteer.domain.VolunteerTeam;
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Join.CheckinPeriodDto;
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Join.CheckinStatusRequest;
+import com.example.emergencyassistb4b4.domain.volunteer.dto.Join.VolunteerParticipationFilter;
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Join.VolunteerParticipationResponse;
+import com.example.emergencyassistb4b4.domain.volunteer.dto.Post.PostFilterRequest;
 import com.example.emergencyassistb4b4.domain.volunteer.enums.CheckinStatus;
 import com.example.emergencyassistb4b4.domain.volunteer.infra.redis.service.TeamParticipationCleanupScheduler;
 import com.example.emergencyassistb4b4.domain.volunteer.infra.redis.service.TeamParticipationRedisService;
@@ -110,9 +112,13 @@ public class VolunteerJoinService {
     }
 
     @Transactional(readOnly = true)
-    public List<VolunteerParticipationResponse> getMyParticipation(Long userId, CheckinStatus status, LocalDateTime startTime, LocalDateTime endTime) {
+    public List<VolunteerParticipationResponse> getMyParticipation(Long userId, VolunteerParticipationFilter filter) {
+
+        validateFilterDates(filter);
+
         List<VolunteerParticipant> participants = volunteerParticipantRepositoryCustom
-                .findAllByUserIdWithPostAndTeam(userId, status, startTime, endTime);
+                .getMyParticipation(userId, filter);
+
         return participants.stream()
                 .map(VolunteerParticipationResponse::from)
                 .toList();
@@ -157,6 +163,14 @@ public class VolunteerJoinService {
                     Thread.currentThread().interrupt();
                 }
             }
+        }
+    }
+
+    private void validateFilterDates(VolunteerParticipationFilter filter) {
+        if (filter.getVolunteerStartDate() != null &&
+            filter.getVolunteerEndDate() != null &&
+            filter.getVolunteerStartDate().isAfter(filter.getVolunteerEndDate())) {
+            throw new ApiException(ErrorStatus.VOLUNTEER_BAD_REQUEST);
         }
     }
 }
