@@ -157,11 +157,11 @@ public class ReportController {
 
     @PreAuthorize("hasRole('GOV')")
     @GetMapping("/today")
-    public ResponseEntity<ApiResponse<TodayReportStatusCounts>> getTodayReports(
+    public ResponseEntity<ApiResponse<TodayReportStatusCounts>> getReportsSummary(
         @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         Long publicId = userDetails.getUser().getId();
-        TodayReportStatusCounts resp = reportService.getTodayReports(publicId);
+        TodayReportStatusCounts resp = reportService.getReportsSummary(publicId);
         return ApiResponse.onSuccess(SuccessStatus.REPORT_GET_SUCCESS, resp);
     }
 }

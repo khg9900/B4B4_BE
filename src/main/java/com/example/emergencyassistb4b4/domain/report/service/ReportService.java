@@ -210,8 +210,8 @@ public class ReportService {
     }
 
     @Transactional(readOnly = true)
-    public TodayReportStatusCounts getTodayReports(Long publicId) {
-        return reportRepository.getTodayReports(publicId, LocalDate.now());
+    public TodayReportStatusCounts getReportsSummary(Long publicId) {
+        return reportRepository.getReportsSummary(publicId);
     }
 
 }
