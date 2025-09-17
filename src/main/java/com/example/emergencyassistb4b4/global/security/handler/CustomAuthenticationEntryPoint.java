@@ -3,7 +3,6 @@ package com.example.emergencyassistb4b4.global.security.handler;
 import com.example.emergencyassistb4b4.global.response.ApiResponse;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.AuthenticationException;
@@ -26,7 +25,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
     public void commence(HttpServletRequest request,
                          HttpServletResponse response,
                          AuthenticationException authException)
-            throws IOException, ServletException {
+            throws IOException {
 
         Object ex = request.getAttribute("exception");
 
@@ -36,16 +35,17 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         String message = errorStatus.getReasonHttpStatus().getMessage(); // 기본 메시지
 
         if (ex instanceof JwtAuthenticationException jwtEx) {
-            message = jwtEx.getMessage(); // 예외에 담긴 메시지로 대체
+            errorStatus = jwtEx.getErrorStatus(); // 예외에 담긴 메시지로 대체
         }
 
         // ErrorReasonDto → ApiResponse 변환
         ApiResponse<Object> errorResponse = new ApiResponse<>(
                 false,
                 errorStatus.getReasonHttpStatus().getCode(),
-                message, // 커스텀 메시지 적용
+                errorStatus.getReasonHttpStatus().getMessage(),
                 null
         );
+
 
         response.setStatus(errorStatus.getReasonHttpStatus().getHttpStatus().value());
         response.setContentType("application/json");

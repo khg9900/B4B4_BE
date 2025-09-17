@@ -141,25 +141,27 @@ public class ReportController {
         CursorResponse<ReportDto> resp = reportService.getNearbyReportsByCursor(req);
         return ApiResponse.onSuccess(SuccessStatus.REPORT_GET_SUCCESS, resp);
     }
+
     /** 내 신고 목록 (Cursor) */
-// @PreAuthorize("hasRole('IND')")
     @GetMapping("/my/cursor")
+    @PreAuthorize("hasRole('IND')")
     public ResponseEntity<ApiResponse<CursorResponse<ReportDto>>> getMyReportsByCursor(
             @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam(defaultValue = "DESC") String sortOrder,
             ReportCursorRequest req
     ) {
         Long userId = userDetails.getUser().getId();
-        CursorResponse<ReportDto> resp = reportService.getMyReportsByCursor(userId, req);
+        CursorResponse<ReportDto> resp = reportService.getMyReportsByCursor(userId, sortOrder, req);
         return ApiResponse.onSuccess(SuccessStatus.REPORT_GET_SUCCESS, resp);
     }
 
     @PreAuthorize("hasRole('GOV')")
     @GetMapping("/today")
-    public ResponseEntity<ApiResponse<TodayReportStatusCounts>> getTodayReports(
+    public ResponseEntity<ApiResponse<TodayReportStatusCounts>> getReportsSummary(
         @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         Long publicId = userDetails.getUser().getId();
-        TodayReportStatusCounts resp = reportService.getTodayReports(publicId);
+        TodayReportStatusCounts resp = reportService.getReportsSummary(publicId);
         return ApiResponse.onSuccess(SuccessStatus.REPORT_GET_SUCCESS, resp);
     }
 }

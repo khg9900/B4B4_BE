@@ -8,7 +8,6 @@ import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.MulticastMessage;
 import com.google.firebase.messaging.Notification;
 import com.google.firebase.messaging.WebpushConfig;
-import com.google.firebase.messaging.WebpushFcmOptions;
 import com.google.firebase.messaging.WebpushNotification;
 import java.util.ArrayList;
 import java.util.List;
@@ -115,8 +114,8 @@ public class FcmSender {
         }
     }
 
-    // 봉사 게시글 수정 알림
-    public void sendVolunteerUpdateAlert(FcmMessageDto dto, List<String> tokens) {
+    // 봉사 게시글 수정/삭제 알림
+    public void sendVolunteerPostAlert(FcmMessageDto dto, List<String> tokens) {
 
         // 봉사 참여자
         MulticastMessage message = MulticastMessage.builder()
@@ -131,4 +130,5 @@ public class FcmSender {
             log.error("FCM 메시지 전송 실패", e);
         }
     }
+
 }

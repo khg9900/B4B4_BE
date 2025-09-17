@@ -1,8 +1,8 @@
 package com.example.emergencyassistb4b4.domain.report.repository;
 
-
 import com.example.emergencyassistb4b4.domain.report.domain.Report;
 import com.example.emergencyassistb4b4.domain.report.enums.ReportStatus;
+import java.time.LocalDate;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 
@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ReportRepositoryCustom {
+
     /**
      * 주변 신고 목록 조회 공공기관용 (거리순 + 최신순 페이징)
      * @param si        시(지역)
@@ -37,9 +38,9 @@ public interface ReportRepositoryCustom {
                                     int limitPlusOne);
 
     List<Report> findByReporterByCursor(Long userId, ReportStatus status,
-                                        LocalDateTime start, LocalDateTime end,
+                                        LocalDate start, LocalDate end,
                                         LocalDateTime lastCreatedAt, Long lastId,
-                                        int limitPlusOne);
+                                        int limitPlusOne, boolean desc);
 
 }
 

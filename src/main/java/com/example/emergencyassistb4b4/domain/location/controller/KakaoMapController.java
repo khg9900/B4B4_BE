@@ -39,13 +39,10 @@ public class KakaoMapController {
     public ResponseEntity<ApiResponse<List<DisasterSummaryDto>>> getDisasterSummary(
             @RequestParam double latitude,
             @RequestParam double longitude,
-            @RequestParam(defaultValue = "1000") int radiusMeter,
-            @RequestParam(defaultValue = "3600") long secondsAgo) {
-
-
+            @RequestParam(defaultValue = "1000") int radiusMeter) {
 
         List<DisasterSummaryDto> summary = kakaoMapService.getDisasterSummary(
-                latitude, longitude, radiusMeter, secondsAgo
+                latitude, longitude, radiusMeter
         );
 
         return ApiResponse.onSuccess(DISASTER_SEARCH_SUCCESS, summary);

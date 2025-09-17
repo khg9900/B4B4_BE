@@ -9,6 +9,7 @@ import com.example.emergencyassistb4b4.domain.volunteer.domain.*;
 import com.example.emergencyassistb4b4.domain.volunteer.enums.CheckinStatus;
 import com.example.emergencyassistb4b4.domain.volunteer.repository.VolunteerTeamRepository;
 import com.example.emergencyassistb4b4.global.exception.ApiException;
+import com.example.emergencyassistb4b4.global.status.ErrorStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -32,7 +33,7 @@ public class TrackingService {
      */
     public void scheduleTrackingForTeam(Long teamId) {
         VolunteerTeam team = volunteerTeamRepository.findWithPostAndDetailsById(teamId)
-                .orElseThrow();
+                .orElseThrow(()->new ApiException(ErrorStatus.TEAM_NOT_FOUND));
 
         Post post = team.getPost();
         VolunteerLocation location = post.getLocation();
@@ -50,12 +51,8 @@ public class TrackingService {
                 .map(VolunteerParticipant::getId)
                 .toList();
 
-        for (VolunteerParticipant participant : participants) {
-            trackingSocketHandler.cacheVolunteerUserMapping(
-                    participant.getId(),                     // 자원봉사자 ID
-                    participant.getUser().getId()            // 유저 ID
-            );
-        }
+        participants.forEach(p -> trackingSocketHandler.cacheVolunteerUserMapping(p.getId(), p.getUser().getId()));
+
 
         TrackingSessionDto sessionDto = TrackingSessionDto.from(team, location, policy, participantUserIds);
 

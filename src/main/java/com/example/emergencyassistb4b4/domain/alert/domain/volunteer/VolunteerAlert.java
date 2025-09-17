@@ -1,8 +1,11 @@
 package com.example.emergencyassistb4b4.domain.alert.domain.volunteer;
 
+import com.example.emergencyassistb4b4.domain.alert.enums.VolunteerAlertSubtype;
 import com.example.emergencyassistb4b4.global.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -43,5 +46,9 @@ public class VolunteerAlert extends BaseEntity {
 
     @Column(nullable = false)
     private LocalDateTime volunteerDate;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private VolunteerAlertSubtype subtype;
 
 }

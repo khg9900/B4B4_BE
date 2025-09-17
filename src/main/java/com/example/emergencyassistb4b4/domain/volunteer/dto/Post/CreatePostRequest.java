@@ -4,10 +4,9 @@ import com.example.emergencyassistb4b4.domain.user.domain.User;
 import com.example.emergencyassistb4b4.domain.volunteer.domain.Post;
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Post.common.PostAttendancePolicyDto;
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Post.common.PostLocationDto;
+import com.example.emergencyassistb4b4.domain.volunteer.dto.validator.ValidAttendancePolicy;
 import com.example.emergencyassistb4b4.domain.volunteer.enums.PostCategory;
 import com.example.emergencyassistb4b4.domain.volunteer.enums.PostStatus;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -21,6 +20,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ValidAttendancePolicy
 public class CreatePostRequest {
 
     @NotBlank(message = "제목은 필수입니다.")

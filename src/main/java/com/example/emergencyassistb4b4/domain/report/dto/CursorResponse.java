@@ -7,7 +7,7 @@ import java.util.function.Function;
 public record CursorResponse<T>(
     List<T> content,
     boolean hasNext,
-    LocalDateTime nextCreatedAt,
+    LocalDateTime lastCreatedAt,
     Long nextId
 ) {
     public static <T> CursorResponse<T> of(

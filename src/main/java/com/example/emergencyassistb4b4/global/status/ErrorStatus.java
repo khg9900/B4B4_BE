@@ -21,6 +21,8 @@ public enum ErrorStatus implements BaseErrorCode {
     INVAlID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "AU004","유효하지 않은 리프레시 토큰입니다."),
     REFRESH_TOKEN_NOT_FOUND(HttpStatus.UNAUTHORIZED, "AU005","리프레시 토큰을 찾을 수 없습니다."),
     TOKEN_USER_MISMATCH(HttpStatus.UNAUTHORIZED, "AU006","토큰의 사용자 정보가 일치하지 않습니다."),
+    INVALID_SIGNATURE(HttpStatus.UNAUTHORIZED, "AU006","토큰의 사용자 정보가 일치하지 않습니다."),
+    UNSUPPORTED_JWT(HttpStatus.UNAUTHORIZED, "AU006","토큰의 사용자 정보가 일치하지 않습니다."),
 
     //회원가입 및 로그인
     DUPLICATED_EMAIL(HttpStatus.CONFLICT, "AU007", "이미 존재하는 이메일입니다."),
@@ -36,6 +38,7 @@ public enum ErrorStatus implements BaseErrorCode {
     COOKIE_NOT_FOUND(HttpStatus.BAD_REQUEST, "AU021", "쿠키가 존재하지 않습니다."),
     INVALID_OBJECT_TYPE(HttpStatus.BAD_REQUEST, "AU022", "역직렬화된 객체 타입이 일치하지 않음."),
     DESERIALIZATION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "AU023", "역직렬화 중 오류 발생"),
+    LOGOUT_TOKEN(HttpStatus.INTERNAL_SERVER_ERROR, "AU023", "로그아웃 토큰입니다."),
 
     // 로그아웃
     LOGOUT_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "AU001", "로그아웃 처리에 실패했습니다."),
@@ -46,11 +49,21 @@ public enum ErrorStatus implements BaseErrorCode {
     INVALID_TTL(HttpStatus.BAD_REQUEST, "AU024", "TTL 값은 0보다 커야 합니다."),
 
     // 자원봉사
-    VOLUNTEER_INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "VO010", "VOLUNTEER_INTERNAL_SERVER_ERROR"),
-    VOLUNTEER_CONFLICT(HttpStatus.CONFLICT, "VO008", "VOLUNTEER_CONFLICT"),
-    VOLUNTEER_BAD_REQUEST(HttpStatus.BAD_REQUEST, "VO000", "VOLUNTEER_BAD_REQUEST"),
-    VOLUNTEER_NOT_FOUND(HttpStatus.NOT_FOUND, "VO004", "VOLUNTEER_NOT_FOUND"),
-    VOLUNTEER_FORBIDDEN(HttpStatus.FORBIDDEN, "VO0003", "VOLUNTEER_FORBIDDEN"),
+// 자원봉사
+    VOLUNTEER_INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "VO010", "서버 오류로 인해 봉사 참여 처리에 실패했습니다."),
+    VOLUNTEER_ALREADY_PARTICIPATED(HttpStatus.BAD_REQUEST, "VO011", "이미 참여 중인 봉사입니다."),
+    VOLUNTEER_POST_CLOSED(HttpStatus.CONFLICT, "VO012", "모집이 마감된 게시글입니다."),
+    VOLUNTEER_CHECKIN_TOO_LATE(HttpStatus.BAD_REQUEST, "VO013", "체크인 시작 5분 전 이후에는 참여할 수 없습니다."),
+    VOLUNTEER_CHECKIN_CONFLICT(HttpStatus.CONFLICT, "VO014", "다른 봉사 활동과 체크인 시간이 겹칩니다."),
+    VOLUNTEER_CAPACITY_EXCEEDED(HttpStatus.CONFLICT, "VO015", "팀 정원이 초과되어 참여할 수 없습니다."),
+    VOLUNTEER_NOT_FOUND(HttpStatus.NOT_FOUND, "VO004", "존재하지 않는 봉사 게시글/참여자입니다."),
+    VOLUNTEER_FORBIDDEN(HttpStatus.FORBIDDEN, "VO003", "봉사 참여 권한이 없습니다."),
+    VOLUNTEER_PARTICIPANT_BLACKLISTED(HttpStatus.FORBIDDEN, "VO016", "블랙리스트 처리된 참여자입니다."),
+    TEAM_NOT_FOUND(HttpStatus.NOT_FOUND, "VO005", "존재하지 않는 팀입니다."),
+    VOLUNTEER_CANCEL_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "VO017", "체크인 시작 이후에는 참여 취소가 불가능합니다."),
+    VOLUNTEER_INVALID_DATE_RANGE(HttpStatus.BAD_REQUEST, "VO018", "봉사 시작일이 종료일보다 늦습니다."),
+
+
 
     // 신고
     REPORT_BAD_REQUEST(HttpStatus.BAD_REQUEST, "RP004", "유효하지 않은 값입니다"),
@@ -58,6 +71,7 @@ public enum ErrorStatus implements BaseErrorCode {
     GOV_NOT_FOUND(HttpStatus.NOT_FOUND, "RP007", "해당 지역 공공기관을 찾을 수 없습니다."),
     S3_UPLOAD_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "RP010", "S3 파일 업로드 중 오류가 발생했습니다."),
     UNSUPPORTED_MEDIA_TYPE(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "RP011", "지원하지 않는 미디어 타입입니다."),
+    INVALID_PARAMETER(HttpStatus.BAD_REQUEST, "RP004", "시 정보가 누락되었습니다."),
 
     // Alert
     ALERT_BAD_REQUEST(HttpStatus.BAD_REQUEST, "AL004", "유효하지 않은 값입니다"),
@@ -80,7 +94,7 @@ public enum ErrorStatus implements BaseErrorCode {
     KAKAO_API_RESPONSE_PARSE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "LC010", "카카오 API 응답 파싱 실패"),
     KAKAO_API_RESPONSE_STATUS_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "LC010", "카카오 API 비정상 응답"),
 
-    ;
+    KAFKA_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "RE010", "카프카 서버 오류 발생");
 
     private final HttpStatus httpStatus;
     private final String code;

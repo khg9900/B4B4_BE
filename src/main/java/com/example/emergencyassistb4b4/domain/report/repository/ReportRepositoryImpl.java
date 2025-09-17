@@ -5,6 +5,7 @@ import com.example.emergencyassistb4b4.domain.report.domain.Report;
 import com.example.emergencyassistb4b4.domain.report.enums.ReportStatus;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -15,7 +16,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.example.emergencyassistb4b4.domain.report.domain.QReport.report;
-
 
 @Repository
 @RequiredArgsConstructor
@@ -90,20 +90,30 @@ public class ReportRepositoryImpl implements ReportRepositoryCustom {
 
     @Override
     public List<Report> findByReporterByCursor(Long userId, ReportStatus status,
-                                               LocalDateTime start, LocalDateTime end,
+                                               LocalDate start, LocalDate end,
                                                LocalDateTime lastCreatedAt, Long lastId,
-                                               int limitPlusOne) {
+                                               int limitPlusOne, boolean desc) {
         BooleanBuilder where = new BooleanBuilder().and(r.reporter.id.eq(userId));
         if (status != null) where.and(r.status.eq(status));
-        if (start != null) where.and(r.createdAt.goe(start));
-        if (end != null) where.and(r.createdAt.loe(end));
+        if (start != null) where.and(r.createdAt.goe(start.atStartOfDay()));
+        if (end != null) where.and(r.createdAt.loe(end.atTime(23, 59, 59)));
 
-        BooleanBuilder cursor = buildCursorWhere(lastCreatedAt, lastId);
+        BooleanBuilder cursor = new BooleanBuilder();
+        if (lastCreatedAt != null && lastId != null) {
+            if (desc) {
+                cursor.and(r.createdAt.lt(lastCreatedAt)
+                    .or(r.createdAt.eq(lastCreatedAt).and(r.id.lt(lastId))));
+            } else {
+                cursor.and(r.createdAt.gt(lastCreatedAt)
+                    .or(r.createdAt.eq(lastCreatedAt).and(r.id.gt(lastId))));
+            }
+        }
 
         return queryFactory
                 .selectFrom(r)
                 .where(where.and(cursor))
-                .orderBy(r.createdAt.desc(), r.id.desc())
+                .orderBy(desc ? r.createdAt.desc() : r.createdAt.asc(),
+                         desc ? r.id.desc() : r.id.asc())
                 .limit(limitPlusOne)
                 .fetch();
     }

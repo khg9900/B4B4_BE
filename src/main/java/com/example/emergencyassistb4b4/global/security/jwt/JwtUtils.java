@@ -44,7 +44,7 @@ public class JwtUtils {
      */
     public String generateAccessToken(UserResponseDto userResponseDto) {
 
-        return createToken(userResponseDto, Duration.ofHours(1));
+        return createToken(userResponseDto, Duration.ofSeconds(jwtProperties.getAccessTokenValidity()));
     }
 
     /**
@@ -54,7 +54,7 @@ public class JwtUtils {
      */
     public String generateRefreshToken(UserResponseDto userResponseDto) {
 
-        return createToken(userResponseDto, Duration.ofHours(14));
+        return createToken(userResponseDto, Duration.ofSeconds(jwtProperties.getRefreshTokenValidity()));
     }
 
     /**
@@ -105,23 +105,6 @@ public class JwtUtils {
         } catch (Exception e) {
 
             return false;
-        }
-    }
-
-    // 2. 예외 던지는 검증용
-    public void validateTokenOrThrow(String token) {
-
-        try {
-            Jwts.parserBuilder()
-                    .setSigningKey(getSigningKey())
-                    .build()
-                    .parseClaimsJws(token);
-        } catch (ExpiredJwtException e) {
-            throw new ApiException(ErrorStatus.EXPIRED_ACCESS_TOKEN);
-        } catch (UnsupportedJwtException | MalformedJwtException | SignatureException | IllegalArgumentException e) {
-            throw new ApiException(ErrorStatus.INVALID_ACCESS_TOKEN);
-        } catch (Exception e) {
-            throw new ApiException(ErrorStatus.CUSTOM_ERROR_STATUS);
         }
     }
 

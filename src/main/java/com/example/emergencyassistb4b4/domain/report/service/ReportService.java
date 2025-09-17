@@ -68,18 +68,23 @@ public class ReportService {
         double latitude = requestDto.getLatitude();
         double longitude = requestDto.getLongitude();
         String province = requestDto.getProvince();
-        String city = requestDto.getCity();
+        String rawCity = requestDto.getCity();
+
+// 빈문자/공백 → null
+        String normCity = (rawCity != null && !rawCity.isBlank()) ? rawCity.trim() : null;
 
         // 위도, 경도 -> point
         GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
         Point location = geometryFactory.createPoint(new Coordinate(longitude, latitude));
 
         User responder;
-        if (province.equals("세종특별자치시")) {
+        boolean provinceOnly = "세종특별자치시".equals(province) || normCity == null;
+
+        if (provinceOnly) {
             responder = userRepository.findFirstByProvinceAndUserRole(province, UserRole.GOV)
                     .orElseThrow(() -> new ApiException(ErrorStatus.GOV_NOT_FOUND));
         } else {
-            responder = userRepository.findFirstByProvinceAndCityAndUserRole(province, city, UserRole.GOV)
+            responder = userRepository.findFirstByProvinceAndCityAndUserRole(province, normCity, UserRole.GOV)
                     .orElseThrow(() -> new ApiException(ErrorStatus.GOV_NOT_FOUND));
         }
 
@@ -92,7 +97,7 @@ public class ReportService {
                 .videoUrl(videoUrl)
                 .status(ReportStatus.PENDING)
                 .province(province) // 예시: 위치 서비스로 가져온 값
-                .city(city)
+                .city(normCity)
                 .location(location)
                 .responder(responder)
                 .build();
@@ -182,12 +187,19 @@ public class ReportService {
     }
 
     @Transactional(readOnly = true)
-    public CursorResponse<ReportDto> getMyReportsByCursor(Long userId, ReportCursorRequest req) {
+    public CursorResponse<ReportDto> getMyReportsByCursor(Long userId, String sortOrder, ReportCursorRequest req) {
         int size = req.effectivePageSize();
+        boolean isDesc = !"ASC".equalsIgnoreCase(sortOrder);
+
         List<Report> rows = reportRepository.findByReporterByCursor(
-                userId, req.status(), null, null,   // 기간 필터 필요 시 req에 추가 확장
-                req.lastCreatedAt(), req.lastId(),
-                size + 1
+                userId,
+                req.status(),
+                req.startDate(),
+                req.endDate(),
+                req.lastCreatedAt(),
+                req.lastId(),
+                size + 1,
+                isDesc
         );
 
         List<ReportDto> content = rows.stream()
@@ -203,8 +215,8 @@ public class ReportService {
     }
 
     @Transactional(readOnly = true)
-    public TodayReportStatusCounts getTodayReports(Long publicId) {
-        return reportRepository.getTodayReports(publicId, LocalDate.now());
+    public TodayReportStatusCounts getReportsSummary(Long publicId) {
+        return reportRepository.getReportsSummary(publicId);
     }
 
 }

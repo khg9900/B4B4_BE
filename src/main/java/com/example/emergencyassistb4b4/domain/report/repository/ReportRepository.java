@@ -26,30 +26,26 @@ public interface ReportRepository extends JpaRepository<Report, Long>, ReportRep
                 ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326)::geography,
                 :radiusMeter
             )
-            AND r.created_at >= :fromTime
+            AND r.status IN ('PENDING', 'RECEIVED')
         """, nativeQuery = true)
     List<Object[]> findNearbyDisasterReportsRaw(
         @Param("latitude") double latitude,
         @Param("longitude") double longitude,
-        @Param("radiusMeter") int radiusMeter,
-        @Param("fromTime") LocalDateTime fromTime
+        @Param("radiusMeter") int radiusMeter
     );
 
     @Query("""
-        select new com.example.emergencyassistb4b4.domain.report.dto.TodayReportStatusCounts(
-          coalesce(sum(case when r.status = com.example.emergencyassistb4b4.domain.report.enums.ReportStatus.PENDING
-                            and function('date', r.createdAt) = :day then 1 else 0 end), 0),
-          coalesce(sum(case when r.status = com.example.emergencyassistb4b4.domain.report.enums.ReportStatus.RECEIVED
-                            and function('date', r.createdAt) = :day then 1 else 0 end), 0),
-          coalesce(sum(case when r.status = com.example.emergencyassistb4b4.domain.report.enums.ReportStatus.CLOSED
-                            and function('date', r.createdAt) = :day then 1 else 0 end), 0)
-        )
-        from Report r
-        where r.responder.id = :responderId
-        """)
-    TodayReportStatusCounts getTodayReports(
-        @Param("responderId") Long responderId,
-        @Param("day") java.time.LocalDate day
-    );
+    select new com.example.emergencyassistb4b4.domain.report.dto.TodayReportStatusCounts(
+      coalesce(sum(case when r.status = com.example.emergencyassistb4b4.domain.report.enums.ReportStatus.PENDING
+                        then 1 else 0 end), 0),
+      coalesce(sum(case when r.status = com.example.emergencyassistb4b4.domain.report.enums.ReportStatus.RECEIVED
+                        then 1 else 0 end), 0),
+      coalesce(sum(case when r.status = com.example.emergencyassistb4b4.domain.report.enums.ReportStatus.CLOSED
+                        then 1 else 0 end), 0)
+    )
+    from Report r
+    where r.responder.id = :responderId
+    """)
+    TodayReportStatusCounts getReportsSummary(@Param("responderId") Long responderId);
 
 }

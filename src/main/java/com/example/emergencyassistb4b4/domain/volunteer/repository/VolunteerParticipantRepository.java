@@ -1,33 +1,23 @@
 package com.example.emergencyassistb4b4.domain.volunteer.repository;
 
 import com.example.emergencyassistb4b4.domain.volunteer.domain.VolunteerParticipant;
-import com.example.emergencyassistb4b4.domain.volunteer.enums.CheckinStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 public interface VolunteerParticipantRepository extends JpaRepository<VolunteerParticipant, Long> {
-    Optional<VolunteerParticipant> findByIdAndUserId(Long participantId, Long userId);
 
     @Query("""
         SELECT vp.user.id
         FROM VolunteerParticipant vp
         JOIN vp.volunteerTeam t
         WHERE t.post.id = :postId
+        and vp.checkinStatus = 'PARTICIPATED'
     """)
     List<Long> findUserIdsByPostId(@Param("postId") Long postId);
-
-    @Query("""
-        SELECT t.post.id
-        FROM VolunteerParticipant vp
-        JOIN vp.volunteerTeam t
-        WHERE vp.id = :participantId
-    """)
-    Optional<Long> findPostIdByParticipantId(@Param("participantId") Long participantId);
 
     @Query("""
         SELECT vp
@@ -48,5 +38,21 @@ public interface VolunteerParticipantRepository extends JpaRepository<VolunteerP
       AND vp.checkinStatus = 'PARTICIPATED'
 """)
     boolean existsActiveParticipation(@Param("userId") Long userId, @Param("postId") Long postId);
+
+    @Query("""
+    select count(vp)
+    from VolunteerParticipant vp
+    where vp.volunteerTeam.id = :teamId
+      and vp.checkinStatus not in ('CANCELLED', 'BLACKLISTED')
+""")
+    long countValidParticipatedByTeamId(@Param("teamId") Long teamId);
+
+    @Query("SELECT vp " +
+            "FROM VolunteerParticipant vp " +
+            "JOIN vp.volunteerTeam vt " +
+            "WHERE vp.user.id = :userId " +
+            "AND vt.post.id = :postId")
+    Optional<VolunteerParticipant> findByUserIdAndPostId(@Param("userId") Long userId,
+                                                         @Param("postId") Long postId);
 
 }

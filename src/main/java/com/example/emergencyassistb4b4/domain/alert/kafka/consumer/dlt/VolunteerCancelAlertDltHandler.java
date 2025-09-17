@@ -1,0 +1,63 @@
+package com.example.emergencyassistb4b4.domain.alert.kafka.consumer.dlt;
+
+import com.example.emergencyassistb4b4.domain.alert.kafka.service.KafkaDltLogService;
+import com.example.emergencyassistb4b4.global.kafka.dto.VolunteerCancelEvent;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.stereotype.Component;
+
+import java.time.LocalDateTime;
+
+@Slf4j
+@RequiredArgsConstructor
+@Component
+public class VolunteerCancelAlertDltHandler {
+
+    private final ObjectMapper objectMapper;
+    private final KafkaDltLogService kafkaDltLogService;
+
+    // 원본(정상) 토픽/그룹 – 실패 로그 기록용
+    @Value("${spring.kafka.topic.volunteerCancel}")
+    private String volunteerTopic;
+
+    @Value("${spring.kafka.group.volunteerCancel")
+    private String volunteerGroup;
+
+    // DLT 토픽 – 리스너 구독용(주석용으로도 사용 가능)
+    @Value("${spring.kafka.topic.dlt.volunteerCancel}")
+    private String volunteerDltTopic;
+
+    @KafkaListener(
+            topics = "${spring.kafka.topic.dlt.volunteerCancel}",
+            groupId = "${spring.kafka.group.dlt.volunteerCancel}",
+            containerFactory = "dltListenerFactory"
+    )
+    public void handle(String rawMessage) {
+
+        final String listener = "volunteerCanceledEventListener";
+
+        VolunteerCancelEvent parsedEvent = null;
+        try {
+            parsedEvent = objectMapper.readValue(rawMessage, VolunteerCancelEvent.class);
+        } catch (Exception e) {
+            log.error("[DLT:봉사글] 역직렬화 실패 - 리스너: {}, 이유: {}", listener, e.getMessage());
+
+            kafkaDltLogService.logFailure(
+                    volunteerTopic,
+                    volunteerGroup,
+                    rawMessage,
+                    "역직렬화 실패로 인해 DLQ 메시지 파싱 불가",
+                    listener,
+                    e.getClass().getSimpleName() + ": " + e.getMessage(),
+                    LocalDateTime.now()
+            );
+
+            return;
+        }
+
+        log.warn("[DLT:봉사글 취소] 역직렬화 성공 - 비즈니스 로직 처리 중 예외 가능성: {}", parsedEvent);
+    }
+}

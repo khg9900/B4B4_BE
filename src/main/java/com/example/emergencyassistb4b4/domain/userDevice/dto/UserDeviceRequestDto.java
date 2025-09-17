@@ -12,8 +12,13 @@ import lombok.NoArgsConstructor;
 public class UserDeviceRequestDto {
 
     private String type;
+
     private String os;
+
     private String osVersion;
+
     private String model;
+
     private String fcmToken;
+
 }

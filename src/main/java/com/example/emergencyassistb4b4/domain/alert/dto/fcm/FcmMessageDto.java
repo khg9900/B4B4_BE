@@ -2,10 +2,12 @@ package com.example.emergencyassistb4b4.domain.alert.dto.fcm;
 
 import com.example.emergencyassistb4b4.domain.alert.dto.report.ReportThresholdAlertDto;
 import com.example.emergencyassistb4b4.domain.alert.dto.report.ReportImmediateAlertDto;
-import com.example.emergencyassistb4b4.domain.alert.dto.volunteer.VolunteerUpdateAlertDto;
+import com.example.emergencyassistb4b4.domain.alert.dto.volunteer.VolunteerPostAlertDto;
 import java.time.format.DateTimeFormatter;
 import lombok.Builder;
 import lombok.Getter;
+
+import static org.apache.kafka.common.utils.Sanitizer.sanitize;
 
 @Getter
 @Builder
@@ -16,11 +18,19 @@ public class FcmMessageDto {
 
     private static String joinSpace(String province, String city) {
 
-        if (city == null || city.isEmpty()) {
-            return province;
-        }
+        String p = sanitize(province);
+        String c = sanitize(city);
 
-        return province + " " + city;
+        return c.isEmpty() ? p : p + " " + c;
+    }
+
+    private static String sanitize(String s) {
+
+        if (s == null) return "";
+
+        String t = s.trim();
+
+        return t.isEmpty() || "null".equalsIgnoreCase(t) ? "" : t;
     }
 
     public static FcmMessageDto fromReportThresholdAlert(ReportThresholdAlertDto alert) {
@@ -71,7 +81,7 @@ public class FcmMessageDto {
             .build();
     }
 
-    public static FcmMessageDto fromVolunteerUpdateAlert(VolunteerUpdateAlertDto alert) {
+    public static FcmMessageDto fromVolunteerUpdateAlert(VolunteerPostAlertDto alert) {
 
         String title = String.format(
             "[봉사 알림] %s 변경 공지", alert.getTitle()
@@ -92,5 +102,28 @@ public class FcmMessageDto {
             .title(title)
             .body(body)
             .build();
+    }
+
+    public static FcmMessageDto fromVolunteerCancelAlert(VolunteerPostAlertDto alert) {
+
+        String title = String.format(
+                "[봉사 알림] %s 취소 공지", alert.getTitle()
+        );
+
+        String body = String.format(
+                """
+                    게시글명 : %s
+                    취소 장소 : %s
+                    취소 시간 : %s
+                    """,
+                alert.getTitle(),
+                alert.getPlaceName(),
+                alert.getVolunteerDate().format(DateTimeFormatter.ofPattern("MM월 dd일 HH:mm"))
+        );
+
+        return FcmMessageDto.builder()
+                .title(title)
+                .body(body)
+                .build();
     }
 }
