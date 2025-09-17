@@ -10,6 +10,7 @@ import com.example.emergencyassistb4b4.domain.volunteer.dto.Join.VolunteerPartic
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Join.VolunteerParticipationResponse;
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Post.PostFilterRequest;
 import com.example.emergencyassistb4b4.domain.volunteer.enums.CheckinStatus;
+import com.example.emergencyassistb4b4.domain.volunteer.enums.PostStatus;
 import com.example.emergencyassistb4b4.domain.volunteer.infra.redis.service.TeamParticipationCleanupScheduler;
 import com.example.emergencyassistb4b4.domain.volunteer.infra.redis.service.TeamParticipationRedisService;
 import com.example.emergencyassistb4b4.domain.volunteer.repository.PostRepository;
@@ -42,35 +43,50 @@ public class VolunteerJoinService {
     @Transactional
     public void joinTeam(Long postId, int teamNumber, User user) {
         LocalDateTime now = LocalDateTime.now();
-        Long userId= user.getId();
-
-        // 이미 참여 중인지 체크
-        ensureNotAlreadyParticipating(userId, postId);
+        Long userId = user.getId();
 
         // 팀 + post 조회
         VolunteerTeam team = teamRepository.findByPost_IdAndTeamNumber(postId, teamNumber)
                 .orElseThrow(() -> new ApiException(ErrorStatus.VOLUNTEER_NOT_FOUND));
-
         Post post = team.getPost();
 
-        // 체크인 기간 가져오기
-        CheckinPeriodDto period = new CheckinPeriodDto(post.getAttendancePolicy().getCheckinStart(),
-                post.getAttendancePolicy().getCheckinEnd());
-
-        if (now.isAfter(period.checkinStart().minusMinutes(5))) {
-            throw new ApiException(ErrorStatus.VOLUNTEER_BAD_REQUEST);
+        if (!PostStatus.OPEN.equals(post.getStatus())) {
+            throw new ApiException(ErrorStatus.VOLUNTEER_POST_CLOSED);
         }
 
-        // 다른 활동과 겹치는지 확인
+        CheckinPeriodDto period = new CheckinPeriodDto(
+                post.getAttendancePolicy().getCheckinStart(),
+                post.getAttendancePolicy().getCheckinEnd()
+        );
+
+        if (now.isAfter(period.checkinStart().minusMinutes(5))) {
+            throw new ApiException(ErrorStatus.VOLUNTEER_CHECKIN_TOO_LATE);
+        }
+
         boolean isOverlapping = postRepository.existsOverlappingCheckinPeriod(
                 userId, postId, period.checkinStart(), period.checkinEnd()
         );
-
         if (isOverlapping) {
-            throw new ApiException(ErrorStatus.VOLUNTEER_CONFLICT);
+            throw new ApiException(ErrorStatus.VOLUNTEER_CHECKIN_CONFLICT);
         }
 
-        // Redis + DB 저장 처리
+        // DB에서 기존 참가 정보 조회
+        VolunteerParticipant participant = participantRepository
+                .findByUserIdAndPostId(userId, postId)
+                .orElse(null);
+
+        if (participant != null) {
+            if (CheckinStatus.PARTICIPATED.equals(participant.getCheckinStatus())) {
+                throw new ApiException(ErrorStatus.VOLUNTEER_ALREADY_PARTICIPATED);
+            }
+            // 취소 상태 -> 재참가
+            participant.updateStatus(CheckinStatus.PARTICIPATED);
+        } else {
+            // 새 참가 row 생성
+            participantService.joinSave(user, team);
+        }
+
+        // Redis 처리
         executeWithRetry(
                 () -> teamParticipationRedisService.tryJoinTeam(
                         postId, team.getId(), userId, team.getMaxCapacity(), period.checkinEnd()
@@ -80,31 +96,32 @@ public class VolunteerJoinService {
                 )
         );
 
-        // DB 저장
-        participantService.joinSave(user, team);
-
         cleanupScheduler.scheduleCleanup(postId, team.getId(), period.checkinEnd());
     }
 
     @Transactional
     public void cancelJoin(Long participantId, CheckinStatusRequest request, User user) {
         LocalDateTime now = LocalDateTime.now();
-        Long userId= user.getId();
+        Long userId = user.getId();
 
-        VolunteerParticipant participant = participantRepository.findByIdAndUserId(participantId, userId)
+        VolunteerParticipant participant = participantRepository.findById(participantId)
                 .orElseThrow(() -> new ApiException(ErrorStatus.VOLUNTEER_FORBIDDEN));
 
         VolunteerTeam team = participant.getVolunteerTeam();
         Post post = team.getPost();
-        CheckinPeriodDto period = new CheckinPeriodDto(post.getAttendancePolicy().getCheckinStart(),
-                post.getAttendancePolicy().getCheckinEnd());
+        CheckinPeriodDto period = new CheckinPeriodDto(
+                post.getAttendancePolicy().getCheckinStart(),
+                post.getAttendancePolicy().getCheckinEnd()
+        );
 
         if (now.isAfter(period.checkinStart())) {
-            throw new ApiException(ErrorStatus.VOLUNTEER_BAD_REQUEST);
+            throw new ApiException(ErrorStatus.VOLUNTEER_CANCEL_NOT_ALLOWED);
         }
 
         executeWithRetry(
-                () -> teamParticipationRedisService.cancelJoin(post.getId(), team.getId(), userId, period.checkinEnd()),
+                () -> teamParticipationRedisService.cancelJoin(
+                        post.getId(), team.getId(), userId, period.checkinEnd()
+                ),
                 null
         );
 
@@ -124,18 +141,6 @@ public class VolunteerJoinService {
                 .toList();
     }
 
-    /**
-     * 이미 참여 중인지 확인
-     */
-    private void ensureNotAlreadyParticipating(Long userId, Long postId) {
-        if (participantRepository.existsActiveParticipation(userId, postId)) {
-            throw new ApiException(ErrorStatus.VOLUNTEER_BAD_REQUEST);
-        }
-    }
-
-    /**
-     * Redis 작업 재시도 + 필요 시 롤백 처리
-     */
     private void executeWithRetry(Runnable action, Runnable rollbackAction) {
         int maxAttempts = 5;
         int attempt = 0;
@@ -143,7 +148,7 @@ public class VolunteerJoinService {
         while (attempt < maxAttempts) {
             try {
                 action.run();
-                return; // 성공하면 종료
+                return;
             } catch (Exception e) {
                 log.error("Redis 작업 실패, 재시도 중: {}", attempt, e);
                 attempt++;
@@ -170,7 +175,7 @@ public class VolunteerJoinService {
         if (filter.getVolunteerStartDate() != null &&
             filter.getVolunteerEndDate() != null &&
             filter.getVolunteerStartDate().isAfter(filter.getVolunteerEndDate())) {
-            throw new ApiException(ErrorStatus.VOLUNTEER_BAD_REQUEST);
+            throw new ApiException(ErrorStatus.VOLUNTEER_INVALID_DATE_RANGE);
         }
     }
 }

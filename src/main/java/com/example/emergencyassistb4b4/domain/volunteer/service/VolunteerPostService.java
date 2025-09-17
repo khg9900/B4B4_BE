@@ -110,7 +110,7 @@ public class VolunteerPostService {
             throw new ApiException(ErrorStatus.FORBIDDEN);
         }
         if (!post.isOpen()) {
-            throw new ApiException(ErrorStatus.VOLUNTEER_BAD_REQUEST);
+            throw new ApiException(ErrorStatus.VOLUNTEER_POST_CLOSED);
         }
 
         VolunteerCancelEvent event = VolunteerCancelEvent.from(post);
@@ -208,7 +208,7 @@ public class VolunteerPostService {
         if (filter.getVolunteerStartDate() != null &&
                 filter.getVolunteerEndDate() != null &&
                 filter.getVolunteerStartDate().isAfter(filter.getVolunteerEndDate())) {
-            throw new ApiException(ErrorStatus.VOLUNTEER_BAD_REQUEST);
+            throw new ApiException(ErrorStatus.VOLUNTEER_INVALID_DATE_RANGE);
         }
     }
 

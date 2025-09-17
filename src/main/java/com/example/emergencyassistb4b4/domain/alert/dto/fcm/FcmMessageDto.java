@@ -7,6 +7,8 @@ import java.time.format.DateTimeFormatter;
 import lombok.Builder;
 import lombok.Getter;
 
+import static org.apache.kafka.common.utils.Sanitizer.sanitize;
+
 @Getter
 @Builder
 public class FcmMessageDto {
@@ -16,11 +18,19 @@ public class FcmMessageDto {
 
     private static String joinSpace(String province, String city) {
 
-        if (city == null || city.isEmpty()) {
-            return province;
-        }
+        String p = sanitize(province);
+        String c = sanitize(city);
 
-        return province + " " + city;
+        return c.isEmpty() ? p : p + " " + c;
+    }
+
+    private static String sanitize(String s) {
+
+        if (s == null) return "";
+
+        String t = s.trim();
+
+        return t.isEmpty() || "null".equalsIgnoreCase(t) ? "" : t;
     }
 
     public static FcmMessageDto fromReportThresholdAlert(ReportThresholdAlertDto alert) {
