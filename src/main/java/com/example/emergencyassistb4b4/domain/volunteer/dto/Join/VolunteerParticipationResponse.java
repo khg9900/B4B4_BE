@@ -1,6 +1,8 @@
 package com.example.emergencyassistb4b4.domain.volunteer.dto.Join;
 
 import com.example.emergencyassistb4b4.domain.volunteer.domain.VolunteerParticipant;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -15,10 +17,12 @@ public class VolunteerParticipationResponse {
     private String postTitle;
     private int teamNumber;
     private String status;
-    private LocalDateTime joinedAt;
-    private LocalDateTime checkinStart;
-    private LocalDateTime checkinEnd;
+    private String province;
+    private String city;
     private String placeName;
+    private LocalDate volunteerDate;
+    private LocalTime volunteerStartTime;
+    private LocalTime volunteerEndTime;
 
     public static VolunteerParticipationResponse from(VolunteerParticipant vp) {
         return VolunteerParticipationResponse.builder()
@@ -27,9 +31,11 @@ public class VolunteerParticipationResponse {
                 .postTitle(vp.getVolunteerTeam().getPost().getTitle())
                 .teamNumber(vp.getVolunteerTeam().getTeamNumber())
                 .status(vp.getCheckinStatus().name())
-                .joinedAt(vp.getJoinedAt())
-                .checkinStart(vp.getVolunteerTeam().getPost().getAttendancePolicy().getCheckinStart())
-                .checkinEnd(vp.getVolunteerTeam().getPost().getAttendancePolicy().getCheckinEnd())
+                .volunteerDate(vp.getVolunteerTeam().getPost().getVolunteerDate())
+                .volunteerStartTime(vp.getVolunteerTeam().getPost().getVolunteerStartTime())
+                .volunteerEndTime(vp.getVolunteerTeam().getPost().getVolunteerEndTime())
+                .province(vp.getVolunteerTeam().getPost().getLocation().getProvince())
+                .city(vp.getVolunteerTeam().getPost().getLocation().getCity())
                 .placeName(vp.getVolunteerTeam().getPost().getLocation().getPlaceName())
                 .build();
     }
