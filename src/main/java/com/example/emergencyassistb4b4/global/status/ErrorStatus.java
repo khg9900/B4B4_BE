@@ -49,12 +49,21 @@ public enum ErrorStatus implements BaseErrorCode {
     INVALID_TTL(HttpStatus.BAD_REQUEST, "AU024", "TTL 값은 0보다 커야 합니다."),
 
     // 자원봉사
-    VOLUNTEER_INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "VO010", "VOLUNTEER_INTERNAL_SERVER_ERROR"),
-    VOLUNTEER_CONFLICT(HttpStatus.CONFLICT, "VO008", "VOLUNTEER_CONFLICT"),
-    VOLUNTEER_BAD_REQUEST(HttpStatus.BAD_REQUEST, "VO000", "VOLUNTEER_BAD_REQUEST"),
-    VOLUNTEER_NOT_FOUND(HttpStatus.NOT_FOUND, "VO004", "VOLUNTEER_NOT_FOUND"),
-    VOLUNTEER_FORBIDDEN(HttpStatus.FORBIDDEN, "VO0003", "VOLUNTEER_FORBIDDEN"),
-    TEAM_NOT_FOUND(HttpStatus.NOT_FOUND, "VO004", "TEAM_NOT_FOUND"),
+// 자원봉사
+    VOLUNTEER_INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "VO010", "서버 오류로 인해 봉사 참여 처리에 실패했습니다."),
+    VOLUNTEER_ALREADY_PARTICIPATED(HttpStatus.BAD_REQUEST, "VO011", "이미 참여 중인 봉사입니다."),
+    VOLUNTEER_POST_CLOSED(HttpStatus.CONFLICT, "VO012", "모집이 마감된 게시글입니다."),
+    VOLUNTEER_CHECKIN_TOO_LATE(HttpStatus.BAD_REQUEST, "VO013", "체크인 시작 5분 전 이후에는 참여할 수 없습니다."),
+    VOLUNTEER_CHECKIN_CONFLICT(HttpStatus.CONFLICT, "VO014", "다른 봉사 활동과 체크인 시간이 겹칩니다."),
+    VOLUNTEER_CAPACITY_EXCEEDED(HttpStatus.CONFLICT, "VO015", "팀 정원이 초과되어 참여할 수 없습니다."),
+    VOLUNTEER_NOT_FOUND(HttpStatus.NOT_FOUND, "VO004", "존재하지 않는 봉사 게시글/참여자입니다."),
+    VOLUNTEER_FORBIDDEN(HttpStatus.FORBIDDEN, "VO003", "봉사 참여 권한이 없습니다."),
+    VOLUNTEER_PARTICIPANT_BLACKLISTED(HttpStatus.FORBIDDEN, "VO016", "블랙리스트 처리된 참여자입니다."),
+    TEAM_NOT_FOUND(HttpStatus.NOT_FOUND, "VO005", "존재하지 않는 팀입니다."),
+    VOLUNTEER_CANCEL_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "VO017", "체크인 시작 이후에는 참여 취소가 불가능합니다."),
+    VOLUNTEER_INVALID_DATE_RANGE(HttpStatus.BAD_REQUEST, "VO018", "봉사 시작일이 종료일보다 늦습니다."),
+
+
 
     // 신고
     REPORT_BAD_REQUEST(HttpStatus.BAD_REQUEST, "RP004", "유효하지 않은 값입니다"),
@@ -62,6 +71,7 @@ public enum ErrorStatus implements BaseErrorCode {
     GOV_NOT_FOUND(HttpStatus.NOT_FOUND, "RP007", "해당 지역 공공기관을 찾을 수 없습니다."),
     S3_UPLOAD_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "RP010", "S3 파일 업로드 중 오류가 발생했습니다."),
     UNSUPPORTED_MEDIA_TYPE(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "RP011", "지원하지 않는 미디어 타입입니다."),
+    INVALID_PARAMETER(HttpStatus.BAD_REQUEST, "RP004", "시 정보가 누락되었습니다."),
 
     // Alert
     ALERT_BAD_REQUEST(HttpStatus.BAD_REQUEST, "AL004", "유효하지 않은 값입니다"),
