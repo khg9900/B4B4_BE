@@ -10,13 +10,12 @@ import java.util.Optional;
 
 public interface VolunteerParticipantRepository extends JpaRepository<VolunteerParticipant, Long> {
 
-    Optional<VolunteerParticipant> findByIdAndUserId(Long participantId, Long userId);
-
     @Query("""
         SELECT vp.user.id
         FROM VolunteerParticipant vp
         JOIN vp.volunteerTeam t
         WHERE t.post.id = :postId
+        and vp.checkinStatus = 'PARTICIPATED'
     """)
     List<Long> findUserIdsByPostId(@Param("postId") Long postId);
 
@@ -48,5 +47,12 @@ public interface VolunteerParticipantRepository extends JpaRepository<VolunteerP
 """)
     long countValidParticipatedByTeamId(@Param("teamId") Long teamId);
 
+    @Query("SELECT vp " +
+            "FROM VolunteerParticipant vp " +
+            "JOIN vp.volunteerTeam vt " +
+            "WHERE vp.user.id = :userId " +
+            "AND vt.post.id = :postId")
+    Optional<VolunteerParticipant> findByUserIdAndPostId(@Param("userId") Long userId,
+                                                         @Param("postId") Long postId);
 
 }

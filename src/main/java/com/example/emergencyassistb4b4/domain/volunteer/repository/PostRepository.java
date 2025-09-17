@@ -43,6 +43,7 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostQueryRepo
               OR
               (:checkinEnd BETWEEN a.checkinStart AND a.checkinEnd)
           )
+          AND vp.checkinStatus NOT IN ('CANCELLED', 'BLACKLISTED')
     """)
     boolean existsOverlappingCheckinPeriod(@Param("userId") Long userId,
                                            @Param("postId") Long postId,

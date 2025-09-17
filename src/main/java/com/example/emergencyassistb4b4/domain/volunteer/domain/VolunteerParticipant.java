@@ -48,7 +48,7 @@ public class VolunteerParticipant {
 
     public void updateStatus(CheckinStatus newStatus) {
         if (this.checkinStatus == CheckinStatus.BLACKLISTED) {
-            throw new ApiException(ErrorStatus.VOLUNTEER_BAD_REQUEST);
+            throw new ApiException(ErrorStatus.VOLUNTEER_PARTICIPANT_BLACKLISTED);
         }
         this.checkinStatus = newStatus;
     }

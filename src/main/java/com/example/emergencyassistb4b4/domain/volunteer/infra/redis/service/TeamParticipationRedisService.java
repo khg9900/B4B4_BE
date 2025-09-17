@@ -39,7 +39,7 @@ public class TeamParticipationRedisService {
             if (Boolean.FALSE.equals(inUsers)) {
                 redisTemplate.delete(duplicateKey); // 잔재 정리 후 계속 진행
             } else {
-                throw new ApiException(ErrorStatus.VOLUNTEER_CONFLICT);
+                throw new ApiException(ErrorStatus.VOLUNTEER_ALREADY_PARTICIPATED);
             }
         }
 
@@ -57,8 +57,9 @@ public class TeamParticipationRedisService {
                 ttl = ttl.isNegative() ? Duration.ofSeconds(1) : ttl;
                 redisTemplate.opsForValue().set(duplicateKey, "1", ttl);
             }
-            case 0, -1 -> throw new ApiException(ErrorStatus.VOLUNTEER_CONFLICT);
-            default -> throw new ApiException(ErrorStatus.VOLUNTEER_BAD_REQUEST);
+            case 0 -> throw new ApiException(ErrorStatus.VOLUNTEER_CAPACITY_EXCEEDED);
+            case -1 -> throw new ApiException(ErrorStatus.VOLUNTEER_ALREADY_PARTICIPATED);
+            default -> throw new ApiException(ErrorStatus.VOLUNTEER_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -73,7 +74,7 @@ public class TeamParticipationRedisService {
         String duplicateKey = String.format(DUPLICATE_KEY_FORMAT, postId, teamId, userId);
 
         Long result = redisTemplate.execute(cancelJoinScript, List.of(usersKey, countKey), String.valueOf(userId));
-        if (result == null || result == -1) throw new ApiException(ErrorStatus.VOLUNTEER_BAD_REQUEST);
+        if (result == null || result == -1) throw new ApiException(ErrorStatus.VOLUNTEER_INTERNAL_SERVER_ERROR);
 
         redisTemplate.delete(duplicateKey);
 
