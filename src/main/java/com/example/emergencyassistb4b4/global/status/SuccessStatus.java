@@ -45,6 +45,7 @@ public enum SuccessStatus implements BaseCode {
     private final ReasonDto cachedReasonDto;
 
     SuccessStatus(HttpStatus httpStatus, String code, String message) {
+
         this.httpStatus = httpStatus;
         this.code = code;
         this.message = message;
@@ -58,6 +59,7 @@ public enum SuccessStatus implements BaseCode {
 
     @Override
     public ReasonDto getReasonHttpStatus() {
+
         return cachedReasonDto;
     }
 }

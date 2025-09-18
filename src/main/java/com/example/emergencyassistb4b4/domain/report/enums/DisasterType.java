@@ -21,6 +21,7 @@ public enum DisasterType {
     private final String name;
 
     public static DisasterType from(String DisasterName) {
+
         for (DisasterType type : values()) {
             if (type.name().equalsIgnoreCase(DisasterName) || type.name.equals(DisasterName)) {
                 return type;

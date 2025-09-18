@@ -32,9 +32,9 @@ public class ReportResponseDto {
 
     private final String city;
 
-    private final Double locationLat; // 위도
+    private final Double locationLat;
 
-    private final Double locationLng; // 경도
+    private final Double locationLng;
 
     private final LocalDateTime createdAt;
 

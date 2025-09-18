@@ -1,9 +1,7 @@
 package com.example.emergencyassistb4b4.global.security.jwt;
 
-import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.global.security.auth.CustomUserDetails;
 import com.example.emergencyassistb4b4.global.security.config.JwtProperties;
-import com.example.emergencyassistb4b4.global.status.ErrorStatus;
 import com.example.emergencyassistb4b4.domain.user.domain.User;
 import com.example.emergencyassistb4b4.domain.user.dto.UserResponseDto;
 import com.example.emergencyassistb4b4.domain.user.repository.UserRepository;
@@ -18,7 +16,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
-import io.jsonwebtoken.security.SignatureException;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
@@ -27,42 +24,27 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Set;
 
-// 1. 토큰 생성 generateAccessToken(), generateRefreshToken(), createToken()
-// 2. 인증 객체 반환 getAuthentication()
-// 3. 유효성 검증 validateToken()
-// 4. 클레임 조회 getClaims(), getUserId()
 @RequiredArgsConstructor
 @Component
 @Slf4j
 public class JwtUtils {
 
-    private final JwtProperties jwtProperties; //jwt 비밀키 등의 값을 주입받기 위한 객체
+    private final JwtProperties jwtProperties;
     private final UserRepository userRepository;
 
-    /**
-     * Access Token 생성, 1시간 유효
-     */
+    // Access Token 생성 (1시간 유효)
     public String generateAccessToken(UserResponseDto userResponseDto) {
 
         return createToken(userResponseDto, Duration.ofSeconds(jwtProperties.getAccessTokenValidity()));
     }
 
-    /**
-     * 사용자 정보를 기반으로 Refresh 토큰 생성 및 Redis 에 저장
-     * @param userResponseDto 토큰에 포함될 사용자 정보
-     * @return  JWT 문자열
-     */
+    // Refresh Token 생성
     public String generateRefreshToken(UserResponseDto userResponseDto) {
 
         return createToken(userResponseDto, Duration.ofSeconds(jwtProperties.getRefreshTokenValidity()));
     }
 
-    /**
-     * 만료 시간과 사용자 정보를 기반으로 JWT를 생성
-     * @param duration 토큰 만료 시각
-     * @param user 사용자 정보
-     * @return JWT 문자열
-     */
+    // JWT 생성 (만료 시간, 사용자 정보 포함)
     public String createToken(UserResponseDto user, Duration duration) {
 
         Date now = new Date();
@@ -71,28 +53,22 @@ public class JwtUtils {
         return Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE) // 헤더 typ : JWT
                 .setIssuer(jwtProperties.getIssuer()) // 내용 iss : yml 파일에서 설정한 값
-                .setIssuedAt(now) // 내용 iat : 현재 시간
-                .setExpiration(expiry) // 내용 exp : expiry 멤버 변숫값
-                .setSubject(user.getEmail()) // 내용 sub : 유저의 이메일
-                .claim("id", user.getId()) // 클레임 id : 유저 ID
+                .setIssuedAt(now) // 현재 시간
+                .setExpiration(expiry) // expiry 멤버 변숫값
+                .setSubject(user.getEmail()) // 유저의 이메일
+                .claim("id", user.getId()) // 유저 ID
                 .claim("role", user.getUserRole().name())
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
-                // 서명 : 비밀값과 함께 해시값을 ~ 방식으로 암호화
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256) // 비밀값과 함께 해시값을 ~ 방식으로 암호화
                 .compact();
     }
 
+    // 서명 키 생성
     private Key getSigningKey() {
 
         return Keys.hmacShaKeyFor(jwtProperties.getSecret().getBytes(StandardCharsets.UTF_8));
     }
 
-    /**
-     * JWT 토큰 유효성 검증 메서드
-     * yml 파일에 선언한 비밀값과 함께 토큰 복호화를 진행 후 아무 에러도 발생하지 않으면 true 반환
-     * @param  token 토큰
-     * @return boolean 값
-     */
-    // 1. 단순 boolean 반환용
+    // 토큰 유효성 검증
     public boolean validateToken(String token) {
 
         try {
@@ -100,28 +76,21 @@ public class JwtUtils {
                     .setSigningKey(getSigningKey())
                     .build()
                     .parseClaimsJws(token);
-
             return true;
         } catch (Exception e) {
-
             return false;
         }
     }
 
-    /**
-     * 토큰 기반으로 인증 정보를 가져오는 메서드
-     * @param token
-     * @return Authentication 토큰을 받아 인증 정보를 담은 객체 Authentication 을 반환
-     */
+    // 토큰 기반 인증 객체 생성
     public Authentication getAuthentication(String token) {
 
-        Claims claims = getClaims(token); // jwt에서 claims(사용자 정보 등)를 추출
+        Claims claims = getClaims(token);
         String email = claims.getSubject();
         String role = claims.get("role", String.class);
         Set<SimpleGrantedAuthority> authorities =
                 Collections.singleton(new SimpleGrantedAuthority("ROLE_" + role));
 
-        // 이메일 기반으로 사용자 조회
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
 
@@ -129,34 +98,37 @@ public class JwtUtils {
         CustomUserDetails userDetails = new CustomUserDetails(user);
 
         return new UsernamePasswordAuthenticationToken(
-                userDetails, // principal
-                token,       // credentials (보통은 null 또는 token)
-                userDetails.getAuthorities() // 권한
+                userDetails,
+                token,
+                userDetails.getAuthorities()
         );
     }
 
-    public Long getUserId(String token) { // JWT에서 사용자 ID를 추출하는 메서드
+    // 토큰에서 사용자 ID 추출
+    public Long getUserId(String token) {
 
-        Claims claims = getClaims(token); // 클레임 정보 추출
+        Claims claims = getClaims(token);
 
-        return claims.get("id", Long.class); // "id" 키를 Long 타입으로 가져옴
+        return claims.get("id", Long.class);
     }
 
-    // JWT에서 Claims(페이로드 부분)를 파싱해 가져오는 내부 유틸 메서드
+    // 토큰에서 Claims 추출
     private Claims getClaims(String token) {
 
-        return Jwts.parserBuilder() //  JWT 파서 생성
-                .setSigningKey(getSigningKey()) // 시크릿 키 설정
+        return Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
                 .build()
-                .parseClaimsJws(token) // JWT 문자열을 파싱
-                .getBody(); // 클레임(body) 반환
+                .parseClaimsJws(token)
+                .getBody();
     }
 
+    // 토큰에서 이메일 추출
     public String getEmailFromToken(String token) {
 
         return getClaims(token).getSubject();
     }
 
+    // 토큰 만료까지 남은 시간(ms)
     public long getRemainingExpiration(String token) {
 
         Date expiration = getClaims(token).getExpiration();
@@ -164,6 +136,7 @@ public class JwtUtils {
         return expiration.getTime() - System.currentTimeMillis();
     }
 
+    // HttpServletRequest에서 Bearer 토큰 추출
     public String resolveToken(ServletRequest request) {
 
         HttpServletRequest req = (HttpServletRequest) request;

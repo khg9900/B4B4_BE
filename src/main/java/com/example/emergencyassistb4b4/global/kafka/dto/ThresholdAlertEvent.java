@@ -6,14 +6,13 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ThresholdAlertEvent { // window 집계 결과
+public class ThresholdAlertEvent {
 
     private String province;
 
     private String city;
 
-    private String alertType;  // 재난 타입
+    private String alertType; // 재난 타입
 
-    private long windowStart;  // reportedAt(epoch ms) >> KST로 날짜 산출
-
+    private long windowStart; // reportedAt(epoch ms) >> KST로 날짜 산출
 }

@@ -20,6 +20,5 @@ public class ErrorReasonDto {
 
     private final String message;
 
-    // Optional: validation error인 경우만 사용
     private final List<FieldErrorDetail> fieldErrors;
 }

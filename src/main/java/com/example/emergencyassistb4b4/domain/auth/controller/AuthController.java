@@ -27,16 +27,18 @@ public class AuthController {
     private final TokenService tokenService;
     private final JwtUtils jwtUtils;
 
+    // 회원가입 요청을 받아 유저를 생성하고 토큰을 발급하는 API
     @PostMapping("/signup")
     public ResponseEntity<ApiResponse<TokenResponseDto>> signup(
             @Valid
             @RequestBody SignUpRequestDto requestDto, ServletRequest servletRequest) {
 
-        TokenResponseDto token = authService.signup(requestDto);
+        authService.signup(requestDto);
 
         return ApiResponse.onSuccess(SuccessStatus.SIGNUP_SUCCESS, null);
     }
 
+    // 클라이언트의 아이디와 비밀번호를 검증하고 access token, refresh token 을 발급하는 API
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<TokenResponseDto>> login(
             @Valid
@@ -47,7 +49,7 @@ public class AuthController {
         return ApiResponse.onSuccess(SuccessStatus.LOGIN_SUCCESS, tokens);
     }
 
-    // 클라이언트의 refresh token을 사용해 access token 과 refresh token 을 재발급 하는 api
+    // 클라이언트의 refresh token을 사용해 access token 과 refresh token 을 재발급 하는 API
     @PostMapping("/reissue")
     public ResponseEntity<ApiResponse<TokenResponseDto>> createNewAccessToken(
             @Valid
@@ -58,6 +60,7 @@ public class AuthController {
         return ApiResponse.onSuccess(SuccessStatus.TOKEN_REISSUE_SUCCESS, tokenResponseDto);
     }
 
+    // 클라이언트의 access token을 무효화하여 로그아웃 처리하는 API
     @PostMapping("/logout")
     public ResponseEntity<ApiResponse<Void>> logout(ServletRequest servletRequest) {
 

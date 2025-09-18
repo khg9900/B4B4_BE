@@ -24,10 +24,12 @@ public class ReportRepositoryImpl implements ReportRepositoryCustom {
     private final JPAQueryFactory queryFactory;
     private final QReport r = report;
 
-    //offset
+    // 오프셋
     @Override
     public Slice<Report> findNearby(String province, String city,ReportStatus status, Pageable pageable) {
+
         BooleanBuilder where = new BooleanBuilder();
+
         if (province != null && !province.isEmpty()) {where.and(report.province.eq(province));}
         if (city != null && !city.isEmpty()) {where.and(report.city.eq(city));}
         if (status != null) {where.and(report.status.eq(status));}
@@ -42,63 +44,27 @@ public class ReportRepositoryImpl implements ReportRepositoryCustom {
                 .fetch();
 
         boolean hasNext = content.size() > pageable.getPageSize();
+
         if (hasNext) {content.remove(pageable.getPageSize());}
+
         return new SliceImpl<>(content, pageable, hasNext);
     }
 
-    @Override
-    public Slice<Report> findByReporter(Long userId, ReportStatus status, LocalDateTime start, LocalDateTime end, Pageable pageable) {
-        BooleanBuilder where = new BooleanBuilder().and(r.reporter.id.eq(userId));
-
-        if (status != null) where.and(r.status.eq(status));
-        if (start != null) where.and(r.createdAt.goe(start));
-        if (end != null) where.and(r.createdAt.loe(end));
-
-        List<Report> content = queryFactory.selectFrom(r)
-                .where(where)
-                .orderBy(r.createdAt.desc())
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize() + 1)
-                .fetch();
-
-        //true면 다음페이지 보여주기
-        boolean hasNext = content.size() > pageable.getPageSize();
-        //넘치는거 다시 제거
-        if (hasNext) content.remove(pageable.getPageSize());
-        return new SliceImpl<>(content, pageable, hasNext);
-    }
-
-    //cursor 페이지
-    @Override
-    public List<Report> findNearbyByCursor(String province, String city, ReportStatus status,
-                                           LocalDateTime lastCreatedAt, Long lastId,
-                                           int limitPlusOne) {
-        BooleanBuilder where = new BooleanBuilder();
-        if(province != null && !province.isEmpty()) where.and(r.province.eq(province));
-        if (city != null && !city.isEmpty()) where.and(r.city.eq(city));
-        if (status != null) where.and(r.status.eq(status));
-
-        BooleanBuilder cursor = buildCursorWhere(lastCreatedAt, lastId);
-
-        return queryFactory
-                .selectFrom(r)
-                .where(where.and(cursor))
-                .orderBy(r.createdAt.desc(), r.id.desc())
-                .limit(limitPlusOne)
-                .fetch();
-    }
-
+    // 커서
     @Override
     public List<Report> findByReporterByCursor(Long userId, ReportStatus status,
                                                LocalDate start, LocalDate end,
                                                LocalDateTime lastCreatedAt, Long lastId,
                                                int limitPlusOne, boolean desc) {
+
         BooleanBuilder where = new BooleanBuilder().and(r.reporter.id.eq(userId));
+
         if (status != null) where.and(r.status.eq(status));
         if (start != null) where.and(r.createdAt.goe(start.atStartOfDay()));
         if (end != null) where.and(r.createdAt.loe(end.atTime(23, 59, 59)));
 
         BooleanBuilder cursor = new BooleanBuilder();
+
         if (lastCreatedAt != null && lastId != null) {
             if (desc) {
                 cursor.and(r.createdAt.lt(lastCreatedAt)
@@ -118,12 +84,11 @@ public class ReportRepositoryImpl implements ReportRepositoryCustom {
                 .fetch();
     }
 
-    /*
-    * (createdAt DESC, id DESC) 커서 다음 구간:
-    *  createdAt < lastCreatedAt OR (createdAt = lastCreatedAt AND id < lastId)
-    */
+    // 커서 기반 페이징 조건: (createdAt DESC, id DESC) 기준 다음 구간 조회
     private BooleanBuilder buildCursorWhere(LocalDateTime lastCreatedAt, Long lastId){
+
     BooleanBuilder b = new BooleanBuilder();
+
         if(lastCreatedAt == null || lastId ==null) return b;
         b.and(
             r.createdAt.lt(lastCreatedAt)

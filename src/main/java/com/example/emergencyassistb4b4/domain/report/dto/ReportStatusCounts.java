@@ -7,12 +7,11 @@ import lombok.Getter;
 @Getter
 @Builder
 @AllArgsConstructor
-public class TodayReportStatusCounts {
+public class ReportStatusCounts {
 
     private long pending;
 
     private long received;
 
     private long closed;
-
 }
