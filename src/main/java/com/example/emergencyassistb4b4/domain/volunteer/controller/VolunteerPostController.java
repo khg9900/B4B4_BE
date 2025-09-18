@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @PreAuthorize("hasRole('NGO')")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/post")
+@RequestMapping("/posts")
 public class VolunteerPostController {
 
     private final VolunteerPostService volunteerPostService;

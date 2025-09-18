@@ -80,7 +80,7 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
             throw new JwtAuthenticationException(ErrorStatus.INVALID_ACCESS_TOKEN);
 
         } catch (Exception e) {
-            throw new JwtAuthenticationException(ErrorStatus.CUSTOM_ERROR_STATUS);
+            throw new JwtAuthenticationException(ErrorStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

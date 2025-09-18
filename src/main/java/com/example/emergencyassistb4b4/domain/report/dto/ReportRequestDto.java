@@ -22,12 +22,6 @@ public class ReportRequestDto {
     @Size(max = 1000, message = "설명은 최대 1000자까지 입력 가능합니다.")
     private String description;
 
-    @Size(max = 2048, message = "이미지 URL은 최대 2048자까지 가능합니다.")
-    private String imageUrl;
-
-    @Size(max = 2048, message = "동영상 URL은 최대 2048자까지 가능합니다.")
-    private String videoUrl;
-
     @NotNull(message = "위도는 필수입니다.")
     private Double latitude;
 

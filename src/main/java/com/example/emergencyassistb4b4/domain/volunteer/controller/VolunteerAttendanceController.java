@@ -31,7 +31,7 @@ public class VolunteerAttendanceController {
         return ApiResponse.onSuccess(SuccessStatus.VOLUNTEER_INFORMATION_SUCCESS, response);
     }
 
-    @PatchMapping("volunteer-participants/{participantId}")
+    @PatchMapping("participants/{participantId}")
     public ResponseEntity<ApiResponse<Void>> patchAttendance(
             @PathVariable Long postId,
             @PathVariable Long teamId,
