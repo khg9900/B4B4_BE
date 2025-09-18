@@ -22,28 +22,28 @@ public class TokenService {
 
     public TokenResponseDto reissueAccessToken(String refreshToken) {
 
-        // 1. 리프레시 토큰 유효성 검사
+        // Refresh Token 유효성 검사
         if (!jwtUtils.validateToken(refreshToken)) {
             throw new ApiException(ErrorStatus.INVAlID_REFRESH_TOKEN);
         }
-        // 2. 리프레시 토큰에서 userId 추출
+
+        // Refresh Token에서 userId 추출
         Long userId = jwtUtils.getUserId(refreshToken);
 
-        // 3. Redis에 저장된 리프레시 토큰과 일치하는지 확인
+        // Redis에 저장된 Refresh Token과 일치하는지 확인
         String saveRefresh = refreshTokenService.getRefreshToken(userId);
         if (!refreshToken.equals(saveRefresh)) {
            throw new ApiException(ErrorStatus.INVAlID_REFRESH_TOKEN);
         }
 
-        // 4. 유저 정보 조회
+        // 유저 정보 조회
         User user = userRepository.findById(userId).orElseThrow( ()-> new ApiException(ErrorStatus.USER_NOT_FOUND));
 
-        // 5. 새로운 access, refresh 토큰 재발급
+        // Access & Refresh Token 재발급
         String newAccessToken = jwtUtils.generateAccessToken(UserResponseDto.from(user));
         String newRefreshToken = jwtUtils.generateRefreshToken(UserResponseDto.from(user));
-        refreshTokenService.saveToken(userId, newRefreshToken); // refresh 토큰 저장
 
-        // 6. 리프레시 토큰 저장 (기존 것을 덮어씀)
+        // Refresh Token 저장
         refreshTokenService.saveToken(userId, newRefreshToken);
 
         return new TokenResponseDto(newAccessToken, newRefreshToken);
@@ -51,14 +51,13 @@ public class TokenService {
 
     public TokenResponseDto issueToken(UserResponseDto user) {
 
-        // 1. Access & Refresh Token 발급
+        // Access & Refresh Token 발급
         String accessToken = jwtUtils.generateAccessToken(user);
         String refreshToken = jwtUtils.generateRefreshToken(user);
 
-        // 2. Refresh 토큰 Redis에 저장
+        // Refresh 토큰 Redis에 저장
         refreshTokenService.saveToken(user.getId(), refreshToken);
 
-        // 3. Dto 로 변환
         return new TokenResponseDto(accessToken, refreshToken);
     }
 }

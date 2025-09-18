@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
-// 인증 되지 않은 사용자가 보호된 리소스에 접근하려고 할 때 호출되는 EntryPoint(JWT 누락, 유효하지 않은 경우 등)
 @Component
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
@@ -32,10 +31,8 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         // 기본 에러 상태
         ErrorStatus errorStatus = ErrorStatus.UNAUTHORIZED;
 
-        String message = errorStatus.getReasonHttpStatus().getMessage(); // 기본 메시지
-
         if (ex instanceof JwtAuthenticationException jwtEx) {
-            errorStatus = jwtEx.getErrorStatus(); // 예외에 담긴 메시지로 대체
+            errorStatus = jwtEx.getErrorStatus();
         }
 
         // ErrorReasonDto → ApiResponse 변환
@@ -46,11 +43,9 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
                 null
         );
 
-
         response.setStatus(errorStatus.getReasonHttpStatus().getHttpStatus().value());
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-
         response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
     }
 }

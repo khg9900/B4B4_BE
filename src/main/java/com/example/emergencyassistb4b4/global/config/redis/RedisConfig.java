@@ -16,7 +16,9 @@ public class RedisConfig {
 
     @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
+
         RedisTemplate<String, Object> template = new RedisTemplate<>();
+
         template.setConnectionFactory(connectionFactory);
 
         // ObjectMapper 설정
@@ -34,8 +36,8 @@ public class RedisConfig {
         template.setValueSerializer(serializer);
         template.setHashKeySerializer(stringSerializer);
         template.setHashValueSerializer(serializer);
-
         template.afterPropertiesSet();
+
         return template;
     }
 }

@@ -9,7 +9,7 @@ import org.springframework.kafka.config.TopicBuilder;
 
 @Configuration
 @Profile("dev") // 운영은 IaC로 관리
-public class KafkaTopicConfig { // Kafka 토픽을 코드에서 직접 생성하는 설정 (주로 개발 초기나 테스트 환경에서 유용)
+public class KafkaTopicConfig {
 
     @Value("${spring.kafka.topic.immediate}")
     private String immediateTopic;
@@ -35,26 +35,17 @@ public class KafkaTopicConfig { // Kafka 토픽을 코드에서 직접 생성하
     @Value("${kafka.topic.replicas:1}")
     private int replicas;
 
-    /**
-     * report-reported 토픽 생성
-     * - 재난 신고 이벤트가 발행되는 메인 토픽
-     * - 3개의 파티션으로 병렬 처리 가능
-     * - 복제본 수는 1 (운영 환경에서는 2 이상 권장)
-     */
+    // 재난 신고 메인 토픽
     @Bean
     public NewTopic disasterReported() {
 
         return TopicBuilder.name(immediateTopic)
-            .partitions(partitions) // 컨슈머 병렬성을 위한 파티션 수 (토픽이 3개의 파티션으로 분할됨)
-            .replicas(replicas) // 장애 대응을 위한 복제본 수, 운영 환경에서는 최소 replica = 2 이상 권장 (1이면 단일 노드에만 저장됨 >> 각 파티션의 복제본이 없다는 뜻(ex.Partition 0이 브로커 A에만 존재 → A가 죽으면 해당 파티션도 사용 불가))
+            .partitions(partitions) // 컨슈머 병렬성을 위한 파티션 수
+            .replicas(replicas) // 운영 환경에서는 최소 replica = 2 이상 권장
             .build();
     }
 
-    /**
-     * DLQ(Dead Letter Topic)용 토픽 생성
-     * - 메시지 소비 중 오류 발생 시 이 토픽으로 전송됨
-     * - 즉시알림/누적알림 모두 이 DLQ를 공통 사용
-     */
+    // 재난 신고 DLQ
     @Bean
     public NewTopic disasterReportedDLT() {
 
@@ -64,13 +55,14 @@ public class KafkaTopicConfig { // Kafka 토픽을 코드에서 직접 생성하
             .build();
     }
 
-    // 파생(임계치) 토픽
+    // 임계치 토픽
     @Bean
     public NewTopic reportThreshold() {
 
         return TopicBuilder.name(thresholdTopic).partitions(partitions).replicas(replicas).build();
     }
 
+    // 임계치 DLQ
     @Bean
     public NewTopic reportThresholdDLT() {
 
@@ -84,13 +76,14 @@ public class KafkaTopicConfig { // Kafka 토픽을 코드에서 직접 생성하
         return TopicBuilder.name(volunteerTopic).partitions(partitions).replicas(replicas).build();
     }
 
+    // 봉사글 DLQ
     @Bean
     public NewTopic volunteerPostUpdatedDLT() {
 
         return TopicBuilder.name(volunteerDltTopic).partitions(partitions).replicas(replicas).build();
     }
 
-    // 역직렬화 실패용 DLT(-deser)
+    // 역직렬화 실패용 DLQ
     @Bean
     public NewTopic disasterReportedDLTDeser() {
 

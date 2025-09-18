@@ -9,5 +9,4 @@ import lombok.RequiredArgsConstructor;
 public class ApiException extends RuntimeException {
 
     private final BaseErrorCode errorCode;
-
 }

@@ -20,7 +20,7 @@ public class Report extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "report_seq_gen")
     @SequenceGenerator(
             name = "report_seq_gen",
-            sequenceName = "report_seq", // DB에 시퀀스 직접 생성 필요
+            sequenceName = "report_seq",
             allocationSize = 50
     )
     private Long id;
@@ -72,6 +72,7 @@ public class Report extends BaseEntity {
 
     // 상태 변경 메서드
     public void updateStatus(ReportStatus newStatus) {
+
         this.status = newStatus;
     }
 }
