@@ -36,9 +36,7 @@ public class SecurityConfig {
                                 "/auth/reissue",
                                 "/error/**",
                                 "/tracking/**",
-                                "/location-tracking/**",
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**"
+                                "/location-tracking/**"
                         )
                         .permitAll()
                         .anyRequest()
