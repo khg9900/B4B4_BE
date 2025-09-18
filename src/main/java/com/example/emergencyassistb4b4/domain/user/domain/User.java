@@ -54,11 +54,4 @@ public class User extends BaseEntity{
         this.provider = provider;
         this.userRole = userRole;
     }
-
-    public User updateNickname(String nickname) {
-
-        this.nickname = nickname;
-
-        return this;
-    }
 }

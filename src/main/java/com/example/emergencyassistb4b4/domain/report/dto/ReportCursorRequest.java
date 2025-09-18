@@ -16,7 +16,9 @@ public record ReportCursorRequest(
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
 ) {
+
     public int effectivePageSize() {
+
         return (pageSize == null || pageSize <= 0) ? 10 : Math.min(pageSize, 100);
     }
 }

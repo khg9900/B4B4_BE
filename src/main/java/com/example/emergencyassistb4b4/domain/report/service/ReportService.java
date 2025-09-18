@@ -12,7 +12,6 @@ import com.example.emergencyassistb4b4.domain.report.repository.ReportRepository
 import com.example.emergencyassistb4b4.domain.user.domain.User;
 import com.example.emergencyassistb4b4.domain.user.domain.UserRole;
 import com.example.emergencyassistb4b4.domain.user.repository.UserRepository;
-import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -26,9 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.example.emergencyassistb4b4.global.status.ErrorStatus.FORBIDDEN;
 import static com.example.emergencyassistb4b4.global.status.ErrorStatus.REPORT_NOT_FOUND;
@@ -42,7 +39,6 @@ public class ReportService {
     private final UserRepository userRepository;
     private final S3Uploader s3Uploader;
 
-    // (사용자) 재난 신고 기능
     @Transactional
     public ReportResponseDto disasterReport(ReportRequestDto requestDto, User reporter, MultipartFile image, MultipartFile video) throws IOException {
 
@@ -53,7 +49,7 @@ public class ReportService {
             try {
                 imageUrl = s3Uploader.uploadFile(image, "images");
             } catch (IOException e) {
-                throw new ApiException(ErrorStatus.S3_UPLOAD_ERROR); // 커스텀 예외
+                throw new ApiException(ErrorStatus.S3_UPLOAD_ERROR);
             }
         }
 
@@ -61,7 +57,7 @@ public class ReportService {
             try {
                 videoUrl = s3Uploader.uploadFile(video, "videos");
             } catch (IOException e) {
-                throw new ApiException(ErrorStatus.S3_UPLOAD_ERROR); // 커스텀 예외
+                throw new ApiException(ErrorStatus.S3_UPLOAD_ERROR);
             }
         }
 
@@ -70,7 +66,7 @@ public class ReportService {
         String province = requestDto.getProvince();
         String rawCity = requestDto.getCity();
 
-// 빈문자/공백 → null
+        // 빈문자, 공백 -> null
         String normCity = (rawCity != null && !rawCity.isBlank()) ? rawCity.trim() : null;
 
         // 위도, 경도 -> point
@@ -96,7 +92,7 @@ public class ReportService {
                 .imageUrl(imageUrl)
                 .videoUrl(videoUrl)
                 .status(ReportStatus.PENDING)
-                .province(province) // 예시: 위치 서비스로 가져온 값
+                .province(province)
                 .city(normCity)
                 .location(location)
                 .responder(responder)
@@ -112,40 +108,26 @@ public class ReportService {
         return ReportResponseDto.from(savedReport);
     }
 
-
-    // (공공기관) 신고 내역 조회 기능
-    @Transactional(readOnly = true)
-    public List<ReportResponseDto> getReportList(User responder) {
-
-        List<Report> reports = reportRepository.findAllByResponder(responder);
-
-        return reports.stream()
-                .map(ReportResponseDto::from)
-                .collect(Collectors.toList());
-    }
-
-
-    /** 공공기관 단건 상태변경 */
     @PreAuthorize("hasRole('GOV')")
     @Transactional
     public ReportStatusResponseDto changeReportStatus(
-            Long publicId, //공공기관 Id
+            Long publicId,
             Long reportId,
             ReportStatus newStatus){
 
-        /* 공공기관인지 검증 */
-        userRepository.findById(publicId).orElseThrow(() -> new ApiException(FORBIDDEN)); //권한
+        // 권한 확인
+        userRepository.findById(publicId).orElseThrow(() -> new ApiException(FORBIDDEN));
 
         // Report 조회
         Report r = reportRepository.findById(reportId).orElseThrow(
                 ()->new ApiException(REPORT_NOT_FOUND));
 
-        //상태 변경
+        // 상태 변경
         r.updateStatus(newStatus);
+
         return new ReportStatusResponseDto(reportId,newStatus);
     }
 
-    // 주변 신고 목록 조회
     @PreAuthorize("hasRole('GOV')")
     @Transactional(readOnly = true)
     public Slice<ReportDto> getNearbyReports(String si, String gu, ReportStatus status, Pageable pageable) {
@@ -153,41 +135,9 @@ public class ReportService {
         return reportRepository.findNearby(si, gu, status, pageable).map(ReportDto::of);
     }
 
-    //내 신고 목록 조회 (신고한 유저의 목록)
-    @Transactional(readOnly = true)
-    public Slice<ReportDto> getMyReports(
-            Long userId, ReportStatus status, LocalDateTime start,
-            LocalDateTime end, Pageable pageable){
-
-        return reportRepository.findByReporter(userId, status, start, end, pageable)
-                .map(ReportDto::of);
-    }
-
-    //  Cursor
-    @Transactional(readOnly = true)
-    public CursorResponse<ReportDto> getNearbyReportsByCursor(ReportCursorRequest req) {
-        int size = req.effectivePageSize();
-        List<Report> rows = reportRepository.findNearbyByCursor(
-                req.province(), req.city(), req.status(),
-                req.lastCreatedAt(), req.lastId(),
-                size + 1
-        );
-
-        List<ReportDto> content = rows.stream()
-                .limit(size)
-                .map(ReportDto::of)
-                .toList();
-
-        // ReportDto의 getter를 그대로 사용
-        return CursorResponse.of(
-                content, size,
-                ReportDto::getCreatedAt,
-                ReportDto::getId
-        );
-    }
-
     @Transactional(readOnly = true)
     public CursorResponse<ReportDto> getMyReportsByCursor(Long userId, String sortOrder, ReportCursorRequest req) {
+
         int size = req.effectivePageSize();
         boolean isDesc = !"ASC".equalsIgnoreCase(sortOrder);
 
@@ -215,8 +165,8 @@ public class ReportService {
     }
 
     @Transactional(readOnly = true)
-    public TodayReportStatusCounts getReportsSummary(Long publicId) {
+    public ReportStatusCounts getReportsSummary(Long publicId) {
+
         return reportRepository.getReportsSummary(publicId);
     }
-
 }

@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 
-// 리프레시 토큰 저장소(Redis)와의 입출력 처리, Refresh 토큰을 저장/조회/삭제 ( RedisTemplate 을 사용 )
 @RequiredArgsConstructor
 @Service
 public class RefreshTokenService {
@@ -31,10 +30,5 @@ public class RefreshTokenService {
     public String getRefreshToken(Long userId) {
 
         return (String) redisTemplate.opsForValue().get(getKey(userId));
-    }
-
-    public void deleteRefreshToken(Long userId) {
-
-        redisTemplate.delete(getKey(userId));
     }
 }

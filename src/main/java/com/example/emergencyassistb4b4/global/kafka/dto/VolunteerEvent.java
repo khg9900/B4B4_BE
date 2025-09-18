@@ -10,5 +10,4 @@ public interface VolunteerEvent {
     String getPlaceName();
     LocalDateTime getVolunteerDate();
     VolunteerAlertSubtype getSubtype();
-
 }

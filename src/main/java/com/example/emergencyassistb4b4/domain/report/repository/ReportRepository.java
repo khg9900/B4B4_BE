@@ -1,18 +1,14 @@
 package com.example.emergencyassistb4b4.domain.report.repository;
 
 import com.example.emergencyassistb4b4.domain.report.domain.Report;
-import com.example.emergencyassistb4b4.domain.report.dto.TodayReportStatusCounts;
-import com.example.emergencyassistb4b4.domain.user.domain.User;
+import com.example.emergencyassistb4b4.domain.report.dto.ReportStatusCounts;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ReportRepository extends JpaRepository<Report, Long>, ReportRepositoryCustom {
-
-    List<Report> findAllByResponder(User responder);
 
     @Query(value = """
             SELECT
@@ -35,7 +31,7 @@ public interface ReportRepository extends JpaRepository<Report, Long>, ReportRep
     );
 
     @Query("""
-    select new com.example.emergencyassistb4b4.domain.report.dto.TodayReportStatusCounts(
+    select new com.example.emergencyassistb4b4.domain.report.dto.ReportStatusCounts(
       coalesce(sum(case when r.status = com.example.emergencyassistb4b4.domain.report.enums.ReportStatus.PENDING
                         then 1 else 0 end), 0),
       coalesce(sum(case when r.status = com.example.emergencyassistb4b4.domain.report.enums.ReportStatus.RECEIVED
@@ -46,6 +42,5 @@ public interface ReportRepository extends JpaRepository<Report, Long>, ReportRep
     from Report r
     where r.responder.id = :responderId
     """)
-    TodayReportStatusCounts getReportsSummary(@Param("responderId") Long responderId);
-
+    ReportStatusCounts getReportsSummary(@Param("responderId") Long responderId);
 }

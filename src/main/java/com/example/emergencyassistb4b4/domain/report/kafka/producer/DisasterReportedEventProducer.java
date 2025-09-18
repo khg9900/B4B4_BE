@@ -17,24 +17,19 @@ public class DisasterReportedEventProducer {
     @Value("${spring.kafka.topic.immediate}")
     private String topic;
 
-    /**
-     * 재난 신고 발생 이벤트를 Kafka로 발행하는 메서드
-     * - KafkaTemplate.send()는 비동기로 작동하며, 반환값은 CompletableFuture 기반의 ListenableFuture
-     * - thenAccept로 성공 콜백 처리
-     * - exceptionally로 실패 콜백 처리
-     */
+    // 재난 신고 이벤트를 Kafka로 비동기 발행하는 메서드 (성공 시 콜백 실행, 실패 시 예외 로그 출력)
     public void sendDisasterReportedEvent(DisasterReportedEvent event) {
 
-        // 예시 키: "Seoul:Mapo" 형태 (도메인에 맞춰 결정)
+        // ex. "Seoul:Mapo" 형태
         String key = event.getProvince() + ":" + event.getCity();
 
         kafkaTemplate.send(topic, key, event)
                 .thenAccept(result -> {
                     var meta = result.getRecordMetadata();
-                    log.info("kafka publish OK topic={}, partition={}, offset={}, key={}, event={}",
+                    log.debug("kafka publish OK topic={}, partition={}, offset={}, key={}, event={}",
                             meta.topic(), meta.partition(), meta.offset(), key, event);
-                }) // 메시지 전송 성공 시 로그 출력
-                .exceptionally(ex -> { // 메시지 전송 실패 시 예외 및 이벤트 로그 출력
+                })
+                .exceptionally(ex -> {
                     log.error("kafka publish FAIL key={}, event={}", key, event, ex);
 
                     return null;
