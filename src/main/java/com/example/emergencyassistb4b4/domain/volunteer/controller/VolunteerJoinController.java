@@ -35,7 +35,7 @@ public class VolunteerJoinController {
         return ApiResponse.onSuccess(SuccessStatus.VOLUNTEER_CREATE_SUCCESS, null);
     }
 
-    @PatchMapping("/volunteer-participants/{participantId}")
+    @PatchMapping("/participants/{participantId}")
     public ResponseEntity<ApiResponse<Void>> cancelJoin(
             @PathVariable Long participantId,
             @Valid @RequestBody CheckinStatusRequest request,
@@ -45,7 +45,7 @@ public class VolunteerJoinController {
         return ApiResponse.onSuccess(SuccessStatus.VOLUNTEER_SUCCESS, null);
     }
 
-    @GetMapping("/volunteer-participants/my")
+    @GetMapping("/participants/my")
     public ResponseEntity<ApiResponse<List<VolunteerParticipationResponse>>> getMyParticipationList(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @ModelAttribute VolunteerParticipationFilter filter
