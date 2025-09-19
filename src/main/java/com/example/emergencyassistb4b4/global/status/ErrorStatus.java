@@ -49,7 +49,6 @@ public enum ErrorStatus implements BaseErrorCode {
     INVALID_TTL(HttpStatus.BAD_REQUEST, "AU024", "TTL 값은 0보다 커야 합니다."),
 
     // 자원봉사
-// 자원봉사
     VOLUNTEER_INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "VO010", "서버 오류로 인해 봉사 참여 처리에 실패했습니다."),
     VOLUNTEER_ALREADY_PARTICIPATED(HttpStatus.BAD_REQUEST, "VO011", "이미 참여 중인 봉사입니다."),
     VOLUNTEER_POST_CLOSED(HttpStatus.CONFLICT, "VO012", "모집이 마감된 게시글입니다."),
@@ -62,8 +61,6 @@ public enum ErrorStatus implements BaseErrorCode {
     TEAM_NOT_FOUND(HttpStatus.NOT_FOUND, "VO005", "존재하지 않는 팀입니다."),
     VOLUNTEER_CANCEL_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "VO017", "체크인 시작 이후에는 참여 취소가 불가능합니다."),
     VOLUNTEER_INVALID_DATE_RANGE(HttpStatus.BAD_REQUEST, "VO018", "봉사 시작일이 종료일보다 늦습니다."),
-
-
 
     // 신고
     REPORT_BAD_REQUEST(HttpStatus.BAD_REQUEST, "RP004", "유효하지 않은 값입니다"),
@@ -102,6 +99,7 @@ public enum ErrorStatus implements BaseErrorCode {
     private final ErrorReasonDto cachedErrorReasonDto;
 
     ErrorStatus(HttpStatus httpStatus, String code, String message) {
+
         this.httpStatus = httpStatus;
         this.code = code;
         this.message = message;
@@ -115,6 +113,7 @@ public enum ErrorStatus implements BaseErrorCode {
 
     @Override
     public ErrorReasonDto getReasonHttpStatus() {
+
         return cachedErrorReasonDto;
     }
 }

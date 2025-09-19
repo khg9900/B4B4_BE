@@ -12,5 +12,4 @@ public class FieldErrorDetail {
     private final Object rejectedValue;
 
     private final String message;
-
 }

@@ -13,7 +13,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-// 위도,경도,시,구를 프론트에서 가져오기(일회성이라서)
 public class ReportRequestDto {
 
     @NotNull(message = "재난 유형은 필수입니다.")
@@ -40,5 +39,4 @@ public class ReportRequestDto {
 
     @Size(max = 50)
     private String city;
-
 }

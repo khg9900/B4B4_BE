@@ -33,7 +33,7 @@ public class AuthService {
 
     public TokenResponseDto login(LoginRequestDto loginRequestDto) {
 
-        // 1. 인증 시도
+        // 인증 시도
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -41,22 +41,20 @@ public class AuthService {
                             loginRequestDto.getPassword()
                     )
             );
-            // 2. 인증된 사용자 정보
+
+            // 인증된 사용자 정보
             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
             UserResponseDto userDto = UserResponseDto.from(userDetails.getUser());
 
-            // 3. 토큰 발급
+            // 토큰 발급
             return tokenService.issueToken(userDto);
-
         } catch (Exception e) {
             throw new ApiException(ErrorStatus.USER_NOT_FOUND);
         }
-
-
-
     }
 
     public TokenResponseDto signup(SignUpRequestDto requestDto) {
+
         if (userRepository.existsByEmail(requestDto.getEmail())) {
             throw new ApiException(ErrorStatus.DUPLICATED_EMAIL);
         }
@@ -83,17 +81,17 @@ public class AuthService {
 
     public void logout(String token) {
 
-        // 1. token 유효성 검사
+        // token 유효성 검사
         if (!jwtUtils.validateToken(token)) {
             throw new ApiException(ErrorStatus.INVALID_ACCESS_TOKEN);
         }
-        // 2. 토큰 사용자 이메일 추출
+        // 토큰 사용자 이메일 추출
         String email = jwtUtils.getEmailFromToken(token);
 
-        // 3. RefreshToken Redis에서 제거
+        // RefreshToken Redis에서 제거
         redisService.deleteRefreshToken(email);
 
-        // 4. AccessToken 블랙리스트 등록
+        // AccessToken 블랙리스트 등록
         long expiration = jwtUtils.getRemainingExpiration(token);
 
         redisService.addToBlackList(token, expiration);

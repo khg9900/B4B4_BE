@@ -13,21 +13,35 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 public class ReportDto {
+
     private final Long id;
+
     private final Long reporterId;
+
     private final DisasterType disasterType;
+
     private final String description;
+
     private final String imageUrl;
+
     private final String videoUrl;
+
     private final ReportStatus status;
+
     private final String province;
+
     private final String city;
+
     private final Double locationLat;
+
     private final Double locationLng;
+
     private final LocalDateTime createdAt;
+
     private final LocalDateTime updatedAt;
 
     public static ReportDto of(Report r) {
+
         return ReportDto.builder()
                 .id(r.getId())
                 .reporterId(r.getReporter().getId())
