@@ -26,12 +26,4 @@ public class LocationService {
     public Set<Object> getRegion(String region) {
         return locationRepository.getRegionUsers(region);
     }
-
-    public Optional<Point> getCoordinates(Long userId) {
-        return locationRepository.getCoordinates(userId.toString());
-    }
-
-    public List<Object> findUsersWithinRadius(double latitude, double longitude, double radiusMeters) {
-        return locationRepository.findUsersWithinRadius(latitude, longitude, (int) radiusMeters);
-    }
 }

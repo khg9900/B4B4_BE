@@ -12,9 +12,13 @@ import lombok.Getter;
 public class DisasterSummaryDto {
 
     private DisasterType disasterType;
+
     private ReportStatus status;
-    private long count;         // 해당 유형 + 상태 재난 신고 건수
+
+    private long count;
+
     private double latitude;
+
     private double longitude;
 
 }

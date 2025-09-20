@@ -1,115 +1,63 @@
 package com.example.emergencyassistb4b4.domain.attendance.socket.handler;
 
 import com.example.emergencyassistb4b4.domain.attendance.redis.RabbitMQRedisService;
-import com.example.emergencyassistb4b4.domain.attendance.socket.service.LocationWebSocketService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.*;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class TrackingSocketHandler implements WebSocketHandler {
 
     private final RabbitMQRedisService rabbitMQRedisService;
-    private final LocationWebSocketService locationWebSocketService;
-    private final Map<Long, Set<WebSocketSession>> userSessions = new ConcurrentHashMap<>();
-    private final ObjectMapper objectMapper;
+    private final WebSocketSessionManager sessionManager;
+    private final WebSocketMessageSender messageSender;
 
+    // 클라이언트와 WebSocket 연결이 성공적으로 맺어졌을 때 호출
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
         Long userId = (Long) session.getAttributes().get("userId");
-        if (userId == null) {
-            closeSession(session, CloseStatus.NOT_ACCEPTABLE);
-            return;
-        }
-        userSessions.computeIfAbsent(userId, k -> ConcurrentHashMap.newKeySet()).add(session);
+        if (userId != null) sessionManager.addSession(userId, session);
+        else closeSession(session, CloseStatus.NOT_ACCEPTABLE);
     }
 
+    // 클라이언트가 보낸 메시지를 처리 (현재는 미사용)
+    @Override
+    public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) {}
+
+    // 연결 중 에러가 발생했을 때 호출
+    @Override
+    public void handleTransportError(WebSocketSession session, Throwable exception) {
+        closeSession(session, CloseStatus.SERVER_ERROR);
+        sessionManager.removeSession(session);
+    }
+
+    // 연결이 정상적으로 종료되었을 때 호출
+    @Override
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
+        sessionManager.removeSession(session);
+    }
+
+    // 부분 메시지를 지원하는지 여부 (현재는 false)
+    @Override
+    public boolean supportsPartialMessages() { return false; }
+
+    // 세션을 안전하게 종료
     private void closeSession(WebSocketSession session, CloseStatus status) {
         try {
             if (session.isOpen()) session.close(status);
-        } catch (Exception e) {
-            log.error("세션 종료 실패", e);
-        }
+        } catch (Exception ignored) {}
     }
 
-    @Override
-    public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) {
-        // 필요 시 구현
-    }
-
-    @Override
-    public void handleTransportError(WebSocketSession session, Throwable exception) {
-        log.error("WebSocket 전송 오류", exception);
-        closeSession(session, CloseStatus.SERVER_ERROR);
-        removeSession(session);
-    }
-
-    @Override
-    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
-        log.info("WebSocket 연결 종료: sessionId={}", session.getId());
-        removeSession(session);
-    }
-
-    @Override
-    public boolean supportsPartialMessages() {
-        return false;
-    }
-
-    private void removeSession(WebSocketSession session) {
-        userSessions.values().forEach(sessions -> sessions.remove(session));
-        userSessions.entrySet().removeIf(entry -> entry.getValue().isEmpty());
-    }
-
-    // ================== Redis 캐싱 ==================
-    public void cacheVolunteerUserMapping(Long volunteerId, Long userId) {
-        rabbitMQRedisService.mapVolunteerToUser(volunteerId, userId);
-    }
-
-    public Long getUserIdByVolunteerId(Long volunteerParticipantId) {
-        return rabbitMQRedisService.findUserIdByVolunteer(volunteerParticipantId);
-    }
-
-    public void removeVolunteerUserMapping(Long volunteerParticipantId) {
-        rabbitMQRedisService.unmapVolunteerFromUser(volunteerParticipantId);
-    }
-
-    // ================== WebSocket 메시지 전송 ==================
-    @Transactional(readOnly = true)
+    // 특정 자원봉사자에게 메시지를 전송 (세션 없을 경우 실패 처리)
     public void sendToUser(Long volunteerId, String event, Object payload) {
-        Long userId = getUserIdByVolunteerId(volunteerId);
-        if (userId == null) {
-            log.warn("유저 매핑 없음: volunteerId={}", volunteerId);
-            locationWebSocketService.saveAndPublishAttendance(volunteerId, false);
-            return;
-        }
+        Long userId = rabbitMQRedisService.findUserIdByVolunteer(volunteerId);
+        WebSocketSession session = (userId != null) ? sessionManager.getSession(userId) : null;
 
-        Set<WebSocketSession> sessions = userSessions.get(userId);
-        WebSocketSession session = (sessions != null && !sessions.isEmpty()) ? sessions.iterator().next() : null;
-
-        if (session == null || !session.isOpen()) {
-            log.warn("웹소켓 세션 없음 또는 닫힘: volunteerId={}, userId={}", volunteerId, userId);
-            locationWebSocketService.saveAndPublishAttendance(volunteerId, false);
-            removeVolunteerUserMapping(volunteerId);
-            return;
-        }
-
-        try {
-            String json = objectMapper.writeValueAsString(Map.of("type", event, "data", payload));
-            session.sendMessage(new TextMessage(json));
-            log.debug("웹소켓 전송 성공: volunteerId={}, userId={}, event={}", volunteerId, userId, event);
-        } catch (Exception e) {
-            log.error("웹소켓 전송 실패: volunteerId={}, event={}", volunteerId, event, e);
-            locationWebSocketService.saveAndPublishAttendance(volunteerId, false);
-            removeVolunteerUserMapping(volunteerId);
+        if (session != null) {
+            messageSender.sendMessage(volunteerId, event, payload, session);
+        } else {
+            messageSender.handleSendFailure(volunteerId);
         }
     }
 }

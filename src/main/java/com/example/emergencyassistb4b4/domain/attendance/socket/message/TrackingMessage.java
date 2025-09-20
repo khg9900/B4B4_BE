@@ -4,10 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor(force = true)
-@Getter
-public class TrackingMessage {
-    private final String type;
-    private final String content;
+public class TrackingMessage<T> {
+
+    private  String type;
+
+    private  T content;
 }

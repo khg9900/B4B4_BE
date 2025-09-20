@@ -10,5 +10,6 @@ import lombok.NoArgsConstructor;
 public class RegionRequestDto {
 
     private String province;
+
     private String city;
 }

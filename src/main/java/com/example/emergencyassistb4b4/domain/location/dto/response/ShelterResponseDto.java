@@ -14,6 +14,7 @@ public class ShelterResponseDto {
     private double latitude;
     private double longitude;
 
+    // Kakao Map API 응답(JsonNode)에서 대피소 정보를 추출해 DTO로 변환
     public static ShelterResponseDto from(JsonNode doc) {
         return ShelterResponseDto.builder()
                 .name(doc.path("place_name").asText())
@@ -23,4 +24,3 @@ public class ShelterResponseDto {
                 .build();
     }
 }
-

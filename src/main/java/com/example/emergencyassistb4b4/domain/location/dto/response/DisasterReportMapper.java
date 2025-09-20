@@ -7,6 +7,7 @@ import java.util.List;
 
 public class DisasterReportMapper {
 
+    // JPA Native Query 결과(Object[] 형태)를 DisasterReportSimpleDto 리스트로 변환
     public static List<DisasterReportSimpleDto> map(List<Object[]> rawResults) {
         return rawResults.stream().map(row -> {
             String disasterTypeStr = (String) row[0];

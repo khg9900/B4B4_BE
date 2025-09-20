@@ -1,16 +1,19 @@
 package com.example.emergencyassistb4b4.domain.attendance.rabbitmq.publisher;
 
 import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.dto.MessageWrapper;
-import static com.example.emergencyassistb4b4.domain.attendance.rabbitmq.util.RabbitMqUtils.isValidMessage;
+
 import org.springframework.beans.factory.annotation.Value;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.core.MessagePostProcessor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+import static com.example.emergencyassistb4b4.domain.attendance.rabbitmq.util.RabbitMqUtils.isValidMessage;
 
 @Service
 @RequiredArgsConstructor
@@ -25,9 +28,7 @@ public class TrackingSessionPublisher {
     @Value("${spring.rabbitmq.tracking.delayed-routing-key}")
     private String delayedRoutingKey;
 
-    /**
-     * 지연 메시지 전송
-     */
+    // 지연 메시지 전송
     @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 2000))
     public void publishDelayedTrackingSession(MessageWrapper messageWrapper, long delayMillis) {
 
@@ -37,17 +38,14 @@ public class TrackingSessionPublisher {
         }
         try {
             rabbitTemplate.convertAndSend(delayedExchangeName, delayedRoutingKey, messageWrapper, buildDelayedMessagePostProcessor(delayMillis));
-
-            log.info("Published delayed tracking session: participantCount={}, delay={}ms",
-                    messageWrapper.getPayload().getParticipantUserIds().size(), delayMillis);
-
         } catch (AmqpException e) {
-            log.error("Failed to publish delayed tracking session: participantCount={}, delay={}ms",
+            log.error("Delayed tracking session 발행 실패: participantCount={}, delay={}ms",
                     messageWrapper.getPayload().getParticipantUserIds().size(), delayMillis, e);
             throw e;
         }
     }
 
+    // 메시지에 지연 설정 추가
     private MessagePostProcessor buildDelayedMessagePostProcessor(long delayMillis) {
         return message -> {
             message.getMessageProperties().setHeader("x-delay", delayMillis);

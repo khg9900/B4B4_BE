@@ -1,12 +1,15 @@
 package com.example.emergencyassistb4b4.domain.attendance.rabbitmq.service;
+
 import com.example.emergencyassistb4b4.domain.attendance.redis.RabbitMQRedisService;
 import com.example.emergencyassistb4b4.domain.volunteer.domain.VolunteerParticipant;
 import com.example.emergencyassistb4b4.domain.volunteer.enums.CheckinStatus;
 import com.example.emergencyassistb4b4.domain.volunteer.repository.VolunteerParticipantRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +25,7 @@ public class TrackingDataService {
 
     private static final int ATTENDANCE_THRESHOLD = 3;
 
+    // 세션 참여자 출석 데이터 저장
     @Transactional
     public void saveSessionAttendanceData(List<Long> volunteerIds, Long teamId) {
         List<VolunteerParticipant> updateList = new ArrayList<>();
@@ -48,19 +52,17 @@ public class TrackingDataService {
 
         // DB 저장 후 Redis 삭제
         volunteerIds.forEach(rabbitMQRedisService::clearAttendanceHistory);
-
-        log.debug("참여자 출석 상태 {}건 저장 완료 (teamId={})", updateList.size(), teamId);
     }
 
+    // 개별 출석 기록 문자열을 Boolean으로 변환
     private Optional<Boolean> parseRecordToBoolean(String record) {
         if (record == null || record.isBlank()) return Optional.empty();
 
-        // "1" → true, "0" → false
         return switch (record) {
             case "1" -> Optional.of(true);
             case "0" -> Optional.of(false);
             default -> {
-                log.warn("Unknown attendance record value: {}", record);
+                log.warn("알 수 없는 출석 기록 값: {}", record);
                 yield Optional.empty();
             }
         };

@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MessageWrapper {
+
     private SessionState sessionState;
+
     private TrackingSessionDto payload;
 }

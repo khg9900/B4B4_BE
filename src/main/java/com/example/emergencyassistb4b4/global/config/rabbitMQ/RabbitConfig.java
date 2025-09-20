@@ -1,3 +1,4 @@
+// RabbitConfig.java
 package com.example.emergencyassistb4b4.global.config.rabbitMQ;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,48 +24,43 @@ import java.util.Map;
 @Configuration
 public class RabbitConfig {
 
-    // 지연 익스체인지, 큐, 라우팅키
-    public static final String DELAYED_EXCHANGE_NAME = "tracking.delay.exchange";
-    public static final String DELAYED_QUEUE_NAME = "tracking-delay-queue";
-    public static final String DELAYED_ROUTING_KEY = "tracking.delay.routingkey";
-
     // 메시지 컨버터
     @Bean
     public Jackson2JsonMessageConverter messageConverter() {
         ObjectMapper mapper = JsonMapper.builder()
                 .addModule(new JavaTimeModule())
                 .build();
-        mapper.activateDefaultTyping(
-                mapper.getPolymorphicTypeValidator(),
-                ObjectMapper.DefaultTyping.NON_FINAL
-        );
         return new Jackson2JsonMessageConverter(mapper);
     }
 
     // RabbitTemplate (Producer 재시도)
     @Bean
-    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
+    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory,
+                                         Jackson2JsonMessageConverter messageConverter) {
         RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
         rabbitTemplate.setRetryTemplate(new RetryTemplateBuilder()
                 .maxAttempts(3)
                 .fixedBackoff(1000)
                 .build());
-        rabbitTemplate.setMessageConverter(messageConverter());
+        rabbitTemplate.setMessageConverter(messageConverter);
         return rabbitTemplate;
     }
 
-    // 지연 큐
-    @Bean
+    // 지연 큐 + Dead Letter 연결
+    @Bean("trackingDelayQueue")
     public Queue trackingDelayQueue() {
-        return new Queue(DELAYED_QUEUE_NAME, true);
+        return QueueBuilder.durable(RabbitMQConstant.DELAYED_QUEUE_NAME)
+                .withArgument("x-dead-letter-exchange", RabbitMQConstant.DEAD_LETTER_EXCHANGE_NAME)
+                .withArgument("x-dead-letter-routing-key", RabbitMQConstant.DEAD_LETTER_ROUTING_KEY)
+                .build();
     }
 
     // 지연 익스체인지
-    @Bean
+    @Bean("trackingDelayExchange")
     public CustomExchange trackingDelayExchange() {
         Map<String, Object> args = new HashMap<>();
         args.put("x-delayed-type", "direct");
-        return new CustomExchange(DELAYED_EXCHANGE_NAME, "x-delayed-message", true, false, args);
+        return new CustomExchange(RabbitMQConstant.DELAYED_EXCHANGE_NAME, "x-delayed-message", true, false, args);
     }
 
     // 바인딩
@@ -72,26 +68,26 @@ public class RabbitConfig {
     public Binding trackingDelayBinding() {
         return BindingBuilder.bind(trackingDelayQueue())
                 .to(trackingDelayExchange())
-                .with(DELAYED_ROUTING_KEY)
+                .with(RabbitMQConstant.DELAYED_ROUTING_KEY)
                 .noargs();
     }
 
-    // 데드레터 큐
-    @Bean
+    // Dead Letter 큐
+    @Bean("trackingDeadLetterQueue")
     public Queue trackingDeadLetterQueue() {
-        return QueueBuilder.durable("tracking-dead-letter-queue").build();
+        return QueueBuilder.durable(RabbitMQConstant.DEAD_LETTER_QUEUE_NAME).build();
     }
 
-    @Bean
+    @Bean("trackingDeadLetterExchange")
     public Exchange trackingDeadLetterExchange() {
-        return ExchangeBuilder.topicExchange("tracking-dlx").durable(true).build();
+        return ExchangeBuilder.topicExchange(RabbitMQConstant.DEAD_LETTER_EXCHANGE_NAME).durable(true).build();
     }
 
     @Bean
     public Binding trackingDeadLetterBinding() {
         return BindingBuilder.bind(trackingDeadLetterQueue())
                 .to(trackingDeadLetterExchange())
-                .with("tracking.session.dead")
+                .with(RabbitMQConstant.DEAD_LETTER_ROUTING_KEY)
                 .noargs();
     }
 
@@ -108,17 +104,19 @@ public class RabbitConfig {
 
     // Listener Container Factory (Consumer Ack/Nack + 재시도)
     @Bean
-    public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory(ConnectionFactory connectionFactory,
-                                                                               Jackson2JsonMessageConverter messageConverter) {
+    public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory(
+            ConnectionFactory connectionFactory,
+            Jackson2JsonMessageConverter messageConverter
+    ) {
         SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
         factory.setConnectionFactory(connectionFactory);
         factory.setMessageConverter(messageConverter);
         factory.setAcknowledgeMode(AcknowledgeMode.MANUAL); // 수동 Ack/Nack
-        factory.setPrefetchCount(10); // 한 번에 처리할 메시지 수
+        factory.setPrefetchCount(10);
         factory.setAdviceChain(RetryInterceptorBuilder.stateless()
                 .maxAttempts(3)
-                .backOffOptions(1000, 2.0, 10000) // 초기 1초, multiplier 2, max 10초
-                .recoverer(new RejectAndDontRequeueRecoverer()) // 재시도 후 실패 시 처리
+                .backOffOptions(1000, 2.0, 10000)
+                .recoverer(new RejectAndDontRequeueRecoverer())
                 .build());
         return factory;
     }
