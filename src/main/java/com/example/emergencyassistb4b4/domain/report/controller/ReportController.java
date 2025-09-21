@@ -69,7 +69,7 @@ public class ReportController {
         Long publicId = userDetails.getUser().getId();
         ReportStatusResponseDto dto = reportService.changeReportStatus(publicId,reportId,newStatus);
 
-        return ApiResponse.onSuccess(SuccessStatus.REPORT_CREATE_SUCCESS,dto);
+        return ApiResponse.onSuccess(SuccessStatus.REPORT_STATUS_UPDATE_SUCCESS,dto);
     }
 
     // 공공기관: 주변 신고 목록 조회 (시/구 기준, Slice 페이징)
@@ -85,7 +85,7 @@ public class ReportController {
 
         Slice<ReportDto> slice = reportService.getNearbyReports(si, gu, status, pageable);
 
-        return ApiResponse.onSuccess(SuccessStatus.REPORT_GET_SUCCESS,slice);
+        return ApiResponse.onSuccess(SuccessStatus.GOV_REPORT_GET_SUCCESS,slice);
     }
 
     // 사용자: 내가 작성한 신고 목록 조회 (Cursor 페이징)
@@ -100,7 +100,7 @@ public class ReportController {
         Long userId = userDetails.getUser().getId();
         CursorResponse<ReportDto> resp = reportService.getMyReportsByCursor(userId, sortOrder, req);
 
-        return ApiResponse.onSuccess(SuccessStatus.REPORT_GET_SUCCESS, resp);
+        return ApiResponse.onSuccess(SuccessStatus.IND_REPORT_GET_SUCCESS, resp);
     }
 
     // 공공기관: 접수된 신고 현황 요약 조회
@@ -113,6 +113,6 @@ public class ReportController {
         Long publicId = userDetails.getUser().getId();
         ReportStatusCounts resp = reportService.getReportsSummary(publicId);
 
-        return ApiResponse.onSuccess(SuccessStatus.REPORT_GET_SUCCESS, resp);
+        return ApiResponse.onSuccess(SuccessStatus.REPORT_SUMMARY_GET_SUCCESS, resp);
     }
 }
