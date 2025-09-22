@@ -1,7 +1,6 @@
 package com.example.emergencyassistb4b4.domain.volunteer.controller;
 
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Join.VolunteerParticipationFilter;
-import com.example.emergencyassistb4b4.domain.volunteer.enums.CheckinStatus;
 import com.example.emergencyassistb4b4.global.response.ApiResponse;
 import com.example.emergencyassistb4b4.global.security.auth.CustomUserDetails;
 import com.example.emergencyassistb4b4.global.status.SuccessStatus;

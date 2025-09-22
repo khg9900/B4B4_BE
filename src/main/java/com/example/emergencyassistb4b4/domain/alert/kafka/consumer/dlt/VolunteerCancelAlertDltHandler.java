@@ -19,16 +19,11 @@ public class VolunteerCancelAlertDltHandler {
     private final ObjectMapper objectMapper;
     private final KafkaDltLogService kafkaDltLogService;
 
-    // 원본(정상) 토픽/그룹 – 실패 로그 기록용
     @Value("${spring.kafka.topic.volunteerCancel}")
     private String volunteerTopic;
 
     @Value("${spring.kafka.group.volunteerCancel")
     private String volunteerGroup;
-
-    // DLT 토픽 – 리스너 구독용(주석용으로도 사용 가능)
-    @Value("${spring.kafka.topic.dlt.volunteerCancel}")
-    private String volunteerDltTopic;
 
     @KafkaListener(
             topics = "${spring.kafka.topic.dlt.volunteerCancel}",

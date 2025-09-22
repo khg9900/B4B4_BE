@@ -1,4 +1,5 @@
 package com.example.emergencyassistb4b4.domain.volunteer.dto.Post;
+
 import com.example.emergencyassistb4b4.domain.volunteer.domain.VolunteerParticipant;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,7 +27,6 @@ public class TeamParticipantsResponse {
                 .build();
     }
 
-    // VolunteerParticipant 리스트를 ParticipantDto로 변환 후 생성
     public static TeamParticipantsResponse fromEntities(Long teamId, int teamNumber, List<VolunteerParticipant> participants) {
         List<ParticipantDto> dtoList = participants.stream()
                 .map(ParticipantDto::from)

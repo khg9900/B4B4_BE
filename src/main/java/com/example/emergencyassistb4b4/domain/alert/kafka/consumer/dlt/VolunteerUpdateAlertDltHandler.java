@@ -18,16 +18,11 @@ public class VolunteerUpdateAlertDltHandler {
     private final ObjectMapper objectMapper;
     private final KafkaDltLogService kafkaDltLogService;
 
-    // 원본(정상) 토픽/그룹 – 실패 로그 기록용
     @Value("${spring.kafka.topic.volunteer}")
     private String volunteerTopic;
 
     @Value("${spring.kafka.group.volunteer}")
     private String volunteerGroup;
-
-    // DLT 토픽 – 리스너 구독용(주석용으로도 사용 가능)
-    @Value("${spring.kafka.topic.dlt.volunteer}")
-    private String volunteerDltTopic;
 
     @KafkaListener(
             topics = "${spring.kafka.topic.dlt.volunteer}",

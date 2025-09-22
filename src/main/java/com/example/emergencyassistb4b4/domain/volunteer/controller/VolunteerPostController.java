@@ -39,6 +39,15 @@ public class VolunteerPostController {
         return ApiResponse.onSuccess(SuccessStatus.VOLUNTEER_UPDATE_POST_SUCCESS, null);
     }
 
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<ApiResponse<Void>> deleteMyPost(
+        @PathVariable Long postId,
+        @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        volunteerPostService.deleteMyPost(userDetails.getUser().getId(), postId);
+        return ApiResponse.onSuccess(SuccessStatus.VOLUNTEER_DELETE_POST_SUCCESS, null);
+    }
+
     @GetMapping
     public ResponseEntity<ApiResponse<Slice<PostTotalResponse>>> getPosts(
             @ModelAttribute PostFilterRequest filter,
@@ -71,12 +80,4 @@ public class VolunteerPostController {
         return ApiResponse.onSuccess(SuccessStatus.VOLUNTEER_GET_TEAM_SUCCESS, response);
     }
 
-    @DeleteMapping("/{postId}")
-    public ResponseEntity<ApiResponse<Void>> deleteMyPost(
-            @PathVariable Long postId,
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
-        volunteerPostService.deleteMyPost(userDetails.getUser().getId(), postId);
-        return ApiResponse.onSuccess(SuccessStatus.VOLUNTEER_DELETE_POST_SUCCESS, null);
-    }
 }

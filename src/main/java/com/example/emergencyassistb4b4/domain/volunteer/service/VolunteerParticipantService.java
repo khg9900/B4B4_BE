@@ -1,14 +1,10 @@
 package com.example.emergencyassistb4b4.domain.volunteer.service;
 
-import com.example.emergencyassistb4b4.global.exception.ApiException;
-import com.example.emergencyassistb4b4.global.status.ErrorStatus;
 import com.example.emergencyassistb4b4.domain.user.domain.User;
-import com.example.emergencyassistb4b4.domain.user.repository.UserRepository;
 import com.example.emergencyassistb4b4.domain.volunteer.domain.VolunteerParticipant;
 import com.example.emergencyassistb4b4.domain.volunteer.domain.VolunteerTeam;
 import com.example.emergencyassistb4b4.domain.volunteer.enums.CheckinStatus;
 import com.example.emergencyassistb4b4.domain.volunteer.repository.VolunteerParticipantRepository;
-import com.example.emergencyassistb4b4.domain.volunteer.repository.VolunteerTeamRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,8 +16,6 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class VolunteerParticipantService {
 
-    private final UserRepository userRepository;
-    private final VolunteerTeamRepository teamRepository;
     private final VolunteerParticipantRepository participantRepository;
 
     @Transactional
@@ -33,14 +27,12 @@ public class VolunteerParticipantService {
                 .checkinStatus(CheckinStatus.PARTICIPATED)
                 .build();
 
-        // 저장
         participant = participantRepository.save(participant);
 
 
         return participant;
     }
 
-    // 참가 인원 조회
     public List<Long> findParticipants(Long postId) {
         return participantRepository.findUserIdsByPostId(postId);
     }

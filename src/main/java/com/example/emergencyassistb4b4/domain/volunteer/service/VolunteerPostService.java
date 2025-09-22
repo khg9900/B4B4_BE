@@ -3,7 +3,6 @@ package com.example.emergencyassistb4b4.domain.volunteer.service;
 import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.event.AttendanceEventListener;
 import com.example.emergencyassistb4b4.domain.attendance.rabbitmq.event.AttendanceStateSetEvent;
 import com.example.emergencyassistb4b4.domain.attendance.redis.RabbitMQRedisService;
-import com.example.emergencyassistb4b4.domain.user.repository.UserRepository;
 import com.example.emergencyassistb4b4.domain.volunteer.domain.VolunteerParticipant;
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Join.CheckinStatusRequest;
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Join.TeamStatusDto;
@@ -37,7 +36,6 @@ import java.util.List;
 @Slf4j
 public class VolunteerPostService {
 
-    private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final TeamParticipationRedisService teamParticipationRedisService;
     private final VolunteerUpdatedEventProducer producer;
@@ -47,57 +45,33 @@ public class VolunteerPostService {
     private final RabbitMQRedisService rabbitMQRedisService;
     private final VolunteerParticipantRepository participantRepository;
 
-    // 모집 게시글 생성
     @Transactional
     public void createPost(User user, CreatePostRequest request) {
         Post post = request.toEntity(user);
 
-        // 팀 생성
         List<VolunteerTeam> teams = generateTeams(post, request.getTotalCapacity(), request.getTeamSize());
         post.addTeams(teams);
 
-        // 저장
         postRepository.save(post);
 
         scheduleAttendanceForTeams(teams, request.getAttendancePolicy());
     }
 
-    // 모집 게시글 수정
     @Transactional
     public void updatePost(User user, Long postId, UpdatePostRequest request) {
+
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new ApiException(ErrorStatus.POST_NOT_FOUND));
+
+        if (!post.getUser().getId().equals(user.getId())) {
+            throw new ApiException(ErrorStatus.FORBIDDEN);
+        }
 
         post.update(request);
 
-        // kafka 메세지 발행
         VolunteerUpdatedEvent event = VolunteerUpdatedEvent.from(post);
         scheduleAttendanceForTeams(post.getTeams(), request.getAttendancePolicy());
         producer.sendVolunteerUpdatedEvent(event);
-    }
-
-    @Transactional(readOnly = true)
-    public Slice<PostTotalResponse> getPostList(PostFilterRequest filter, Pageable pageable) {
-        validateFilterDates(filter);
-        Slice<Post> posts = postRepository.findPosts(null, filter, pageable);
-        return getPostTotalResponses(posts);
-    }
-
-    @Transactional(readOnly = true)
-    public Slice<PostTotalResponse> getMyPostList(Long userId, PostFilterRequest filter, Pageable pageable) {
-        validateFilterDates(filter);
-        Slice<Post> posts = postRepository.findPosts(userId, filter, pageable);
-        return getPostTotalResponses(posts);
-    }
-
-    // 모집 게시글 조회
-    @Transactional(readOnly = true)
-    public PostDetailResponse getPost(Long postId) {
-
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new ApiException(ErrorStatus.POST_NOT_FOUND));
-
-        return PostDetailResponse.from(post);
     }
 
     @Transactional
@@ -109,15 +83,14 @@ public class VolunteerPostService {
         if (!post.getUser().getId().equals(userId)) {
             throw new ApiException(ErrorStatus.FORBIDDEN);
         }
+
         if (!post.isOpen()) {
             throw new ApiException(ErrorStatus.VOLUNTEER_POST_CLOSED);
         }
 
         VolunteerCancelEvent event = VolunteerCancelEvent.from(post);
         try {
-            // Kafka 전송 성공해야 다음으로 진행
             volunteerCancelEventProducer.sendVolunteerCanceledEvent(event);
-            log.info("Kafka 발행 성공: {}", event);
         } catch (Exception e) {
             log.error("Kafka 발행 실패, 롤백 처리: {}", event, e);
             throw new ApiException(ErrorStatus.KAFKA_SEND_FAILED);
@@ -136,9 +109,31 @@ public class VolunteerPostService {
     }
 
     @Transactional(readOnly = true)
+    public Slice<PostTotalResponse> getPostList(PostFilterRequest filter, Pageable pageable) {
+        validateFilterDates(filter);
+        Slice<Post> posts = postRepository.findPosts(null, filter, pageable);
+        return getPostTotalResponses(posts);
+    }
+
+    @Transactional(readOnly = true)
+    public Slice<PostTotalResponse> getMyPostList(Long userId, PostFilterRequest filter, Pageable pageable) {
+        validateFilterDates(filter);
+        Slice<Post> posts = postRepository.findPosts(userId, filter, pageable);
+        return getPostTotalResponses(posts);
+    }
+
+    @Transactional(readOnly = true)
+    public PostDetailResponse getPost(Long postId) {
+
+        Post post = postRepository.findById(postId)
+            .orElseThrow(() -> new ApiException(ErrorStatus.POST_NOT_FOUND));
+
+        return PostDetailResponse.from(post);
+    }
+
+    @Transactional(readOnly = true)
     public TeamParticipantsResponse getTeamParticipants(Long postId, Long teamId){
 
-        // Redis 또는 DB 기반으로 팀 참여자 상태 조회
         VolunteerTeam volunteerTeam = postRepository.findTeamByPostIdAndTeamId(postId, teamId).
                 orElseThrow(() -> new ApiException(ErrorStatus.POST_NOT_FOUND));
 
@@ -159,7 +154,6 @@ public class VolunteerPostService {
 
     }
 
-    // 게시글 별 팀 인원 조회
     @Transactional(readOnly = true)
     public PostTeamsResponse getTeamStatus(Long postId) {
 
@@ -228,7 +222,6 @@ public class VolunteerPostService {
         return volunteerTeams;
     }
 
-    // 제네릭 메서드로 변경
     private <T extends AttendancePolicyProvider> void scheduleAttendanceForTeams(
             List<VolunteerTeam> teams,
             T request

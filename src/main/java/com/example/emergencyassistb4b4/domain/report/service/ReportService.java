@@ -130,9 +130,9 @@ public class ReportService {
 
     @PreAuthorize("hasRole('GOV')")
     @Transactional(readOnly = true)
-    public Slice<ReportDto> getNearbyReports(String si, String gu, ReportStatus status, Pageable pageable) {
+    public Slice<ReportDto> getNearbyReports(String province, String city, ReportStatus status, Pageable pageable) {
 
-        return reportRepository.findNearby(si, gu, status, pageable).map(ReportDto::of);
+        return reportRepository.findNearby(province, city, status, pageable).map(ReportDto::of);
     }
 
     @Transactional(readOnly = true)

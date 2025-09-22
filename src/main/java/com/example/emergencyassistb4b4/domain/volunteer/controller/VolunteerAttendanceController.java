@@ -1,6 +1,3 @@
-// ==============================
-// VolunteerAttendanceController
-// ==============================
 package com.example.emergencyassistb4b4.domain.volunteer.controller;
 
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Join.CheckinStatusRequest;

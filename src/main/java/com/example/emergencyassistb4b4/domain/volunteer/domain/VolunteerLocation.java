@@ -7,39 +7,39 @@ import lombok.*;
 @Entity
 @Getter
 @Builder
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "volunteer_location")
+@SequenceGenerator(
+    name = "volunteer_location_seq_gen",
+    sequenceName = "volunteer_location_seq",
+    allocationSize = 50
+)
 public class VolunteerLocation extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(
+        strategy = GenerationType.SEQUENCE,
+        generator = "volunteer_location_seq_gen"
+    )
     private Long id;
 
-    // 행정구역 (시/도)
     @Column(nullable = false, length = 255)
     private String province;
 
-    // 행정구역 (구/군)
     private String city;
 
-    // 상세 주소
     @Column(nullable = false)
     private String placeName;
 
-    // 위도
     private Double locationLat;
 
-    // 경도
     private Double locationLng;
 
+    @Setter
     @OneToOne
     @JoinColumn(name = "post_id", nullable = false, unique = true)
     private Post post;
-
-    public void setPost(Post post) {
-        this.post = post;
-    }
 
     public void update(String province, String city, String placeName, Double latitude, Double longitude) {
         this.province = province;

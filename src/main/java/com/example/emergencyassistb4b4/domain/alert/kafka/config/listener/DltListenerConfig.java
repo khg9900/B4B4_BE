@@ -20,7 +20,7 @@ public class DltListenerConfig {
     @Bean(name = "dltListenerFactory")
     public ConcurrentKafkaListenerContainerFactory<String, String> dltListenerFactory() {
 
-        var props = consumerConfig.dltConsumerProps(null); // groupId는 @KafkaListener에서
+        var props = consumerConfig.dltConsumerProps(null);
 
         var cf = new DefaultKafkaConsumerFactory<>(
                 props, new StringDeserializer(), new StringDeserializer()

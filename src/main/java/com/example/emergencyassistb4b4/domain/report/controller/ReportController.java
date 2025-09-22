@@ -78,12 +78,12 @@ public class ReportController {
     public ResponseEntity<ApiResponse<Slice<ReportDto>>> getNearby
     (
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestParam String si,
-            @RequestParam String gu,
+            @RequestParam String province,
+            @RequestParam String city,
             @RequestParam(required = false) ReportStatus status,
             Pageable pageable){
 
-        Slice<ReportDto> slice = reportService.getNearbyReports(si, gu, status, pageable);
+        Slice<ReportDto> slice = reportService.getNearbyReports(province, city, status, pageable);
 
         return ApiResponse.onSuccess(SuccessStatus.GOV_REPORT_GET_SUCCESS,slice);
     }

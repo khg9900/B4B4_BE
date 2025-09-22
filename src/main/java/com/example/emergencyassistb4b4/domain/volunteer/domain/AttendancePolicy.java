@@ -9,16 +9,26 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "attendance_policy")
+@SequenceGenerator(
+    name = "attendance_policy_seq_gen",
+    sequenceName = "attendance_policy_seq",
+    allocationSize = 50
+)
 public class AttendancePolicy extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(
+        strategy = GenerationType.SEQUENCE,
+        generator = "attendance_policy_seq_gen"
+    )
     private Long id;
 
     private LocalDateTime checkinStart;
@@ -26,13 +36,10 @@ public class AttendancePolicy extends BaseEntity {
 
     private int attendanceRadiusMeters;
 
+    @Setter
     @OneToOne
     @JoinColumn(name = "post_id", nullable = false, unique = true)
     private Post post;
-
-    public void setPost(Post post) {
-        this.post = post;
-    }
 
     public void update(LocalDateTime start, LocalDateTime end, int radius) {
         this.checkinStart = start;

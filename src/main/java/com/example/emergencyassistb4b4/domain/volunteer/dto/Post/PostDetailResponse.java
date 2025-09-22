@@ -33,29 +33,32 @@ public class PostDetailResponse {
     private PostAttendancePolicyDto attendancePolicy;
 
     public static PostDetailResponse from(Post post) {
+        var location = post.getLocation();
+        var policy = post.getAttendancePolicy();
+
         return PostDetailResponse.builder()
-                .title(post.getTitle())
-                .content(post.getContent())
-                .volunteerDate(post.getVolunteerDate())
-                .volunteerStartTime(post.getVolunteerStartTime())
-                .volunteerEndTime(post.getVolunteerEndTime())
-                .recruitmentStartDate(post.getRecruitmentStartDate())
-                .recruitmentEndDate(post.getRecruitmentEndDate())
-                .totalCapacity(post.getTotalCapacity())
-                .category(post.getCategory())
-                .status(post.getStatus())
-                .location(PostLocationDto.builder()
-                        .province(post.getLocation().getProvince())
-                        .city(post.getLocation().getCity())
-                        .placeName(post.getLocation().getPlaceName())
-                        .latitude(post.getLocation().getLocationLat())
-                        .longitude(post.getLocation().getLocationLng())
-                        .build())
-                .attendancePolicy(PostAttendancePolicyDto.builder()
-                        .checkinStart(post.getAttendancePolicy().getCheckinStart())
-                        .checkinEnd(post.getAttendancePolicy().getCheckinEnd())
-                        .allowedRadiusM(post.getAttendancePolicy().getAttendanceRadiusMeters())
-                        .build())
-                .build();
+            .title(post.getTitle())
+            .content(post.getContent())
+            .volunteerDate(post.getVolunteerDate())
+            .volunteerStartTime(post.getVolunteerStartTime())
+            .volunteerEndTime(post.getVolunteerEndTime())
+            .recruitmentStartDate(post.getRecruitmentStartDate())
+            .recruitmentEndDate(post.getRecruitmentEndDate())
+            .totalCapacity(post.getTotalCapacity())
+            .category(post.getCategory())
+            .status(post.getStatus())
+            .location(PostLocationDto.builder()
+                .province(location.getProvince())
+                .city(location.getCity())
+                .placeName(location.getPlaceName())
+                .latitude(location.getLocationLat())
+                .longitude(location.getLocationLng())
+                .build())
+            .attendancePolicy(PostAttendancePolicyDto.builder()
+                .checkinStart(policy.getCheckinStart())
+                .checkinEnd(policy.getCheckinEnd())
+                .allowedRadiusM(policy.getAttendanceRadiusMeters())
+                .build())
+            .build();
     }
 }

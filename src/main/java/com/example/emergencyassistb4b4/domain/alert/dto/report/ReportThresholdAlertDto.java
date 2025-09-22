@@ -23,10 +23,9 @@ public class ReportThresholdAlertDto {
 
     public static ReportThresholdAlertDto fromKey(String notifyKey) {
 
-        // notifyKey ex) alert:10:report:서울:강남구:홍수:20xx-xx-xx
+        // ex. alert:10:report:서울:강남구:홍수:20xx-xx-xx
         String[] parts = notifyKey.split(":");
 
-        // 키 검증
         if (!PREFIX.equals(parts[0])) {
             throw new ApiException(ErrorStatus.ALERT_BAD_REQUEST);
         }

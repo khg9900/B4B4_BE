@@ -25,18 +25,23 @@ public class VolunteerParticipationResponse {
     private LocalTime volunteerEndTime;
 
     public static VolunteerParticipationResponse from(VolunteerParticipant vp) {
+
+        var team = vp.getVolunteerTeam();
+        var post = team.getPost();
+        var location = post.getLocation();
+
         return VolunteerParticipationResponse.builder()
-                .participantId(vp.getId())
-                .postId(vp.getVolunteerTeam().getPost().getId())
-                .postTitle(vp.getVolunteerTeam().getPost().getTitle())
-                .teamNumber(vp.getVolunteerTeam().getTeamNumber())
-                .status(vp.getCheckinStatus().name())
-                .volunteerDate(vp.getVolunteerTeam().getPost().getVolunteerDate())
-                .volunteerStartTime(vp.getVolunteerTeam().getPost().getVolunteerStartTime())
-                .volunteerEndTime(vp.getVolunteerTeam().getPost().getVolunteerEndTime())
-                .province(vp.getVolunteerTeam().getPost().getLocation().getProvince())
-                .city(vp.getVolunteerTeam().getPost().getLocation().getCity())
-                .placeName(vp.getVolunteerTeam().getPost().getLocation().getPlaceName())
-                .build();
+            .participantId(vp.getId())
+            .postId(post.getId())
+            .postTitle(post.getTitle())
+            .teamNumber(team.getTeamNumber())
+            .status(vp.getCheckinStatus().name())
+            .volunteerDate(post.getVolunteerDate())
+            .volunteerStartTime(post.getVolunteerStartTime())
+            .volunteerEndTime(post.getVolunteerEndTime())
+            .province(location.getProvince())
+            .city(location.getCity())
+            .placeName(location.getPlaceName())
+            .build();
     }
 }

@@ -26,20 +26,17 @@ public class AlertCommandService {
 
     public void saveReportThresholdAlert(ReportThresholdAlertDto dto, List<Long> userIds) {
 
-        // 1. 누적 알림 기록 저장
         ReportAlert alert = reportAlertRepository.save(dto.toEntity());
 
-        // 2. 사용자별 누적 알림 전송 기록 저장
         List<UserReportAlert> userReportAlerts = UserReportAlert.fromUsers(alert, userIds);
+
         userReportAlertBulkService.saveAllInBatches(userReportAlerts, 1000);
     }
 
     public void saveVolunteerPostAlert(VolunteerPostAlertDto dto, List<Long> participants) {
 
-        // 1. VolunteerAlert 생성 및 저장
         VolunteerAlert alert = volunteerAlertRepository.save(dto.toEntity());
 
-        // 2. UserVolunteerAlert 생성 및 일괄 저장
-        userVolunteerAlertRepository.saveAll(UserVolunteerAlert.from(alert, participants));
+        userVolunteerAlertRepository.saveAll(UserVolunteerAlert.fromUsers(alert, participants));
     }
 }

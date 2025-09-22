@@ -4,7 +4,7 @@ import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 import java.lang.annotation.*;
 
-@Target({ ElementType.TYPE }) // DTO 클래스 단위에서 검사
+@Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = AttendancePolicyConstraintValidator.class)
 @Documented
@@ -16,4 +16,3 @@ public @interface ValidAttendancePolicy {
 
     Class<? extends Payload>[] payload() default {};
 }
-
