@@ -30,35 +30,24 @@ public class ReportThresholdAlertOrchestratorService {
 
     public void process(String notifyKey) {
 
-        // 1. notifyKey -> ReportThresholdAlertDto
         ReportThresholdAlertDto info = ReportThresholdAlertDto.fromKey(notifyKey);
 
-        // 2. FCM 메시지 내용 작성
-        FcmMessageDto message = FcmMessageDto.fromReportThresholdAlert(info);
-
-        // 3. FCM 발송 대상 선정 - 사용자 현 위치를 기준으로 (민간단체는 FCM Topic 구독을 통해 처리)
         List<Long> userIds = userService.findUsersByRegion(info.getProvince(), info.getCity());
 
         if (userIds == null || userIds.isEmpty()) {
-            // 재난 신고는 사용자 현 위치 기준 -> 지역 내 사용자 없을 경우 시스템 오류로 간주
-            throw new ApiException(ErrorStatus.ALERT_SERVER_ERROR);
+            throw new ApiException(ErrorStatus.ALERT_NO_TARGET_USER);
         }
 
-        // 4. FCM Token 조회
         List<String> tokens = userDeviceService.findFcmTokensByUserIds(userIds);
+
         if (tokens == null || tokens.isEmpty()) {
            return;
         }
 
-        // 5. FCM 발송
-        try {
-            fcmSender.sendReportThresholdAlert(message, tokens);
-        } catch (Exception e) {
-            log.error("누적 알림 발송 실패 - notifyKey={}", notifyKey, e);
-            // fcm 전송 실패하더라도 DB에 알림 이력은 저장되도록 함.
-        }
+        FcmMessageDto message = FcmMessageDto.fromReportThresholdAlert(info);
 
-        // 6. 알림 저장
+        fcmSender.sendReportThresholdAlert(message, tokens);
+
         try {
             alertCommandService.saveReportThresholdAlert(info, userIds);
         } catch (Exception e) {

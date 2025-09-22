@@ -23,19 +23,25 @@ public class ReportThresholdAlertDto {
 
     public static ReportThresholdAlertDto fromKey(String notifyKey) {
 
-        // notifyKey ex) alert:10:report:서울:강남구:홍수:20xx-xx-xx
+        // ex. alert:10:report:서울:강남구:홍수:20xx-xx-xx
         String[] parts = notifyKey.split(":");
 
-        // 키 검증
         if (!PREFIX.equals(parts[0])) {
-            throw new ApiException(ErrorStatus.ALERT_BAD_REQUEST);
+            throw new ApiException(ErrorStatus.ALERT_INVALID_KEY_PREFIX);
+        }
+
+        long count;
+        try {
+            count = Long.parseLong(parts[IDX_CNT]);
+        } catch (NumberFormatException e) {
+            throw new ApiException(ErrorStatus.ALERT_INVALID_KEY_FORMAT);
         }
 
         return ReportThresholdAlertDto.builder()
             .province(parts[IDX_PROVINCE])
             .city(parts[IDX_CITY])
             .disasterType(parts[IDX_TYPE])
-            .count(Long.parseLong(parts[IDX_CNT]))
+            .count(count)
             .build();
     }
 

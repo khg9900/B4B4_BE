@@ -15,7 +15,4 @@ public enum CheckinStatus {
 
     private final String displayName;
 
-    public boolean isParticipated() {
-        return this != CANCELLED && this != BLACKLISTED;
-    }
 }

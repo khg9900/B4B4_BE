@@ -46,8 +46,8 @@ public class ThresholdDetectionTopology {
             ThresholdAlertEvent evt = new ThresholdAlertEvent(
                     v.getProvince(),
                     v.getCity(),
-                    v.getDisasterType(),   // alertType 슬롯에 재난타입 유지
-                    reportedAtEpoch       // windowStart=신고 시각 → 트리거에서 '날짜'로 사용
+                    v.getDisasterType(),
+                    reportedAtEpoch
             );
 
             return KeyValue.pair(groupKey, evt);

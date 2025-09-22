@@ -23,7 +23,6 @@ public class VolunteerUpdatedEventProducer {
     public void sendVolunteerUpdatedEvent(VolunteerUpdatedEvent event) {
 
         kafkaTemplate.send(topic, event)
-                .thenAccept(result -> log.info("kafka - volunteer-post-updated 발행 성공: {}", event))
                 .exceptionally(ex -> {
                     log.error("kafka - volunteer-post-updated 발행 실패: {}", event, ex);
                     return null;

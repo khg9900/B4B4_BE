@@ -25,12 +25,10 @@ public class UserDeviceService {
     private final UserDeviceRepository userDeviceRepository;
     private final FcmSubService fcmSubService;
 
-    // 기기 등록
     public void saveDevice(User user, UserDeviceRequestDto dto) {
 
         UserDevice device = userDeviceRepository
             .findByUser(user)
-            // 한 유저 당 하나의 기기만 등록 가능
             .orElseGet(() -> UserDevice.builder()
                 .user(user)
                 .build());
@@ -43,7 +41,6 @@ public class UserDeviceService {
 
         if (user.getUserRole() == NGO) {
 
-            // 이전 토큰 존재할 경우 fcm 구독 해제
             if (oldToken != null && !Objects.equals(oldToken, newToken)) {
                 try {
                     fcmSubService.unsubscribeNgoTokens(List.of(oldToken));

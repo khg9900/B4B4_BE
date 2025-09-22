@@ -17,7 +17,7 @@ import org.springframework.util.backoff.FixedBackOff;
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
-public class KafkaErrorHandlerConfig { // CommonErrorHandler 빈 제공 (DLT 라우팅/재시도/백오프)
+public class KafkaErrorHandlerConfig {
 
     @Value("${spring.kafka.topic.immediate}")
     private String immediateTopic;
@@ -68,7 +68,7 @@ public class KafkaErrorHandlerConfig { // CommonErrorHandler 빈 제공 (DLT 라
                 }
         );
 
-        FixedBackOff backoff = new FixedBackOff(1000L, 3); // 초기 간격 1초, 최대 3번 재시도
+        FixedBackOff backoff = new FixedBackOff(1000L, 3);
 
         DefaultErrorHandler handler = new DefaultErrorHandler(recoverer, backoff);
         handler.addNotRetryableExceptions(

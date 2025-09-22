@@ -4,16 +4,24 @@ import com.example.emergencyassistb4b4.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+@Entity
 @Getter
 @Builder
-@Entity
 @AllArgsConstructor
-@Table(name = "users")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "users")
+@SequenceGenerator(
+    name = "users_seq_gen",
+    sequenceName = "users_seq",
+    allocationSize = 50
+)
 public class User extends BaseEntity{
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(
+        strategy = GenerationType.SEQUENCE,
+        generator = "users_seq_gen"
+    )
     private Long id;
 
     @Column(name = "nickname")
@@ -23,19 +31,17 @@ public class User extends BaseEntity{
     private String phoneNumber;
 
     @Column(unique = true, nullable = false, length = 100)
-    private String email; //필수
+    private String email;
 
     @Column(length = 255)
-    private String password; //필수
+    private String password;
 
     @Column(name = "provider", length = 255)
     private String provider;
 
-    // 시,도
     @Column(name = "province")
     private String province;
 
-    // 구,군
     @Column(name = "city")
     private String city;
 

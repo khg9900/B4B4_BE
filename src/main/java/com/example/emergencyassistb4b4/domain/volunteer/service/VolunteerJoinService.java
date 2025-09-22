@@ -8,7 +8,6 @@ import com.example.emergencyassistb4b4.domain.volunteer.dto.Join.CheckinPeriodDt
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Join.CheckinStatusRequest;
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Join.VolunteerParticipationFilter;
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Join.VolunteerParticipationResponse;
-import com.example.emergencyassistb4b4.domain.volunteer.dto.Post.PostFilterRequest;
 import com.example.emergencyassistb4b4.domain.volunteer.enums.CheckinStatus;
 import com.example.emergencyassistb4b4.domain.volunteer.enums.PostStatus;
 import com.example.emergencyassistb4b4.domain.volunteer.infra.redis.service.TeamParticipationCleanupScheduler;
@@ -45,7 +44,6 @@ public class VolunteerJoinService {
         LocalDateTime now = LocalDateTime.now();
         Long userId = user.getId();
 
-        // 팀 + post 조회
         VolunteerTeam team = teamRepository.findByPost_IdAndTeamNumber(postId, teamNumber)
                 .orElseThrow(() -> new ApiException(ErrorStatus.VOLUNTEER_NOT_FOUND));
         Post post = team.getPost();
@@ -70,7 +68,6 @@ public class VolunteerJoinService {
             throw new ApiException(ErrorStatus.VOLUNTEER_CHECKIN_CONFLICT);
         }
 
-        // DB에서 기존 참가 정보 조회
         VolunteerParticipant participant = participantRepository
                 .findByUserIdAndPostId(userId, postId)
                 .orElse(null);
@@ -79,19 +76,16 @@ public class VolunteerJoinService {
             if (CheckinStatus.PARTICIPATED.equals(participant.getCheckinStatus())) {
                 throw new ApiException(ErrorStatus.VOLUNTEER_ALREADY_PARTICIPATED);
             }
-            // 취소 상태 -> 재참가
             participant.updateStatus(CheckinStatus.PARTICIPATED);
         } else {
-            // 새 참가 row 생성
             participantService.joinSave(user, team);
         }
 
-        // Redis 처리
         executeWithRetry(
                 () -> teamParticipationRedisService.tryJoinTeam(
                         postId, team.getId(), userId, team.getMaxCapacity(), period.checkinEnd()
                 ),
-                () -> teamParticipationRedisService.cancelJoin(
+                () -> teamParticipationRedisService.cancelJoinWithTTL(
                         postId, team.getId(), userId, period.checkinEnd()
                 )
         );
@@ -119,7 +113,7 @@ public class VolunteerJoinService {
         }
 
         executeWithRetry(
-                () -> teamParticipationRedisService.cancelJoin(
+                () -> teamParticipationRedisService.cancelJoinWithTTL(
                         post.getId(), team.getId(), userId, period.checkinEnd()
                 ),
                 null

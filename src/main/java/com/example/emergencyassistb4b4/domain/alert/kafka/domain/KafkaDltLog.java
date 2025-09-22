@@ -12,33 +12,33 @@ import lombok.NoArgsConstructor;
 @Table(name = "kafka_fail_log")
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SequenceGenerator( // 시퀀스 기반 자동 증가 ID 생성 전략 설정
+@SequenceGenerator(
     name = "kafka_fail_log_seq_gen",
-    sequenceName = "kafka_fail_log_seq", // DB 시퀀스 이름
-    allocationSize = 50 // 50개씩 미리 할당해 성능 최적화
+    sequenceName = "kafka_fail_log_seq",
+    allocationSize = 50
 )
-public class KafkaDltLog { // Kafka DLQ 메시지의 실패 내역 저장용 엔티티
+public class KafkaDltLog {
 
     @Id
     @GeneratedValue(
         strategy = GenerationType.SEQUENCE,
-        generator = "kafka_fail_log_seq_gen" // 위에서 정의한 시퀀스 사용
+        generator = "kafka_fail_log_seq_gen"
     )
     private Long id;
 
-    private String topic; // 실패 메시지가 발생한 Kafka 토픽
+    private String topic;
 
-    private String consumerGroup; // 실패를 발생시킨 consumer group ID
+    private String consumerGroup;
 
-    private String payload; // 원본 Kafka 메시지 (JSON 문자열 등)
+    private String payload;
 
     @Column(length = 1000)
-    private String reason; // 실패 사유 (역직렬화 실패, 비즈니스 로직 예외 등)
+    private String reason;
 
-    private String listener; // 실패를 발생시킨 리스너 이름 (메서드명 포함)
+    private String listener;
 
-    private String exception; // 실제 발생한 예외 클래스 및 메시지
+    private String exception;
 
-    private LocalDateTime failedAt; // 실패 발생 시각
+    private LocalDateTime failedAt;
 
 }

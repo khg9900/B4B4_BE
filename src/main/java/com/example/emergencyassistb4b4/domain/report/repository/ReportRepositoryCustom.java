@@ -12,7 +12,7 @@ import java.util.List;
 public interface ReportRepositoryCustom {
 
     // 공공기관: 주변 신고 목록 조회 (거리순 + 최신순 페이징)
-    Slice<Report> findNearby(String si, String gu, ReportStatus status, Pageable pageable);
+    Slice<Report> findNearby(String province, String city, ReportStatus status, Pageable pageable);
 
     List<Report> findByReporterByCursor(Long userId, ReportStatus status,
                                         LocalDate start, LocalDate end,

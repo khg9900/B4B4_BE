@@ -6,16 +6,15 @@ import org.springframework.data.redis.core.script.DefaultRedisScript;
 
 @Configuration
 public class TeamParticipationRedisScriptConfig {
-    // 팀 참가 스크립트
+
     @Bean
     public DefaultRedisScript<Long> joinTeamScript() {
         DefaultRedisScript<Long> script = new DefaultRedisScript<>();
         script.setScriptText("""
-            -- 정원 초과
             if redis.call("SCARD", KEYS[2]) >= tonumber(ARGV[1]) then return 0 end
-            -- 중복 참가
+
             if redis.call("SISMEMBER", KEYS[2], ARGV[2]) == 1 then return -1 end
-            -- 추가
+
             redis.call("SADD", KEYS[2], ARGV[2])
             redis.call("INCR", KEYS[1])
             return 1
@@ -24,7 +23,6 @@ public class TeamParticipationRedisScriptConfig {
         return script;
     }
 
-    // 팀 취소 스크립트
     @Bean
     public DefaultRedisScript<Long> cancelJoinScript() {
         DefaultRedisScript<Long> script = new DefaultRedisScript<>();

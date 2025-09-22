@@ -17,21 +17,28 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 
 @Entity
 @Getter
-@AllArgsConstructor
-@Table(name = "Post")
 @Builder
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "post")
+@SequenceGenerator(
+    name = "post_seq_gen",
+    sequenceName = "post_seq",
+    allocationSize = 50
+)
 public class Post extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(
+        strategy = GenerationType.SEQUENCE,
+        generator = "post_seq_gen"
+    )
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -60,6 +67,7 @@ public class Post extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private PostCategory category;
 
+    @Setter
     @Enumerated(EnumType.STRING)
     private PostStatus status;
 
@@ -83,10 +91,6 @@ public class Post extends BaseEntity {
         policy.setPost(this);
     }
 
-    public void setStatus(PostStatus postStatus){
-        this.status=postStatus;
-    }
-
     public boolean isOpen() {
         return PostStatus.OPEN.equals(this.status);
     }
@@ -106,7 +110,6 @@ public class Post extends BaseEntity {
         this.recruitmentEndDate = request.getRecruitmentEndDate();
         this.status = request.getStatus();
 
-        // 위치 수정
         PostLocationDto location = request.getLocation();
         this.getLocation().update(
             location.getProvince(),
@@ -116,7 +119,6 @@ public class Post extends BaseEntity {
             location.getLongitude()
         );
 
-        // 출석 정책 수정
         PostAttendancePolicyDto policy = request.getAttendancePolicy();
         this.getAttendancePolicy().update(
             policy.getCheckinStart(),

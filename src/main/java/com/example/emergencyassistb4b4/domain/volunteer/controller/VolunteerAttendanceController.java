@@ -1,6 +1,3 @@
-// ==============================
-// VolunteerAttendanceController
-// ==============================
 package com.example.emergencyassistb4b4.domain.volunteer.controller;
 
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Join.CheckinStatusRequest;
@@ -28,7 +25,7 @@ public class VolunteerAttendanceController {
             @PathVariable Long teamId
     ) {
         TeamParticipantsResponse response = volunteerPostService.getTeamParticipants(postId, teamId);
-        return ApiResponse.onSuccess(SuccessStatus.VOLUNTEER_INFORMATION_SUCCESS, response);
+        return ApiResponse.onSuccess(SuccessStatus.VOLUNTEER_GET_PARTICIPANT_SUCCESS, response);
     }
 
     @PatchMapping("participants/{participantId}")
@@ -39,6 +36,6 @@ public class VolunteerAttendanceController {
             @Valid @RequestBody CheckinStatusRequest checkinStatusRequest
     ) {
         volunteerPostService.updateParticipantAttendance(postId, teamId, participantId, checkinStatusRequest);
-        return ApiResponse.onSuccess(SuccessStatus.VOLUNTEER_STATUS_SUCCESS, null);
+        return ApiResponse.onSuccess(SuccessStatus.VOLUNTEER_UPDATE_PARTICIPATION_STATUS_SUCCESS, null);
     }
 }

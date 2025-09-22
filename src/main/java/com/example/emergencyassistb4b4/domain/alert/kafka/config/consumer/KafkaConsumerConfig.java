@@ -12,7 +12,7 @@ import org.springframework.kafka.support.serializer.JsonDeserializer;
 
 @Configuration
 @RequiredArgsConstructor
-public class KafkaConsumerConfig { // 공통 Consumer props 제공 (DTO/DLT)
+public class KafkaConsumerConfig {
 
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;

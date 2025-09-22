@@ -3,7 +3,6 @@ package com.example.emergencyassistb4b4.domain.volunteer.repository;
 import static com.example.emergencyassistb4b4.domain.volunteer.domain.QPost.post;
 import static com.example.emergencyassistb4b4.domain.volunteer.domain.QVolunteerLocation.volunteerLocation;
 
-
 import com.example.emergencyassistb4b4.domain.volunteer.domain.Post;
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Post.PostFilterRequest;
 import com.querydsl.core.BooleanBuilder;

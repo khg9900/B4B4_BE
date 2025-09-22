@@ -20,18 +20,14 @@ public class AlertQueryService {
     private final UserReportAlertRepository userReportAlertRepository;
     private final UserVolunteerAlertRepository userVolunteerAlertRepository;
 
-    // 알림 조회
     public List<UserAlert> listAlerts(AlertType type, User user) {
 
         return switch (type) {
-            // 재난 알림
             case DISASTER -> listDisasterAlerts(user.getId());
-            // 봉사 알림
             case VOLUNTEER -> listVolunteerAlerts(user.getId());
         };
     }
 
-    // 재난 알림 조회
     private List<UserAlert> listDisasterAlerts(Long userId) {
 
         return userReportAlertRepository
@@ -41,7 +37,6 @@ public class AlertQueryService {
             .toList();
     }
 
-    // 봉사 알림 조회
     private List<UserAlert> listVolunteerAlerts(Long userId) {
 
         return userVolunteerAlertRepository

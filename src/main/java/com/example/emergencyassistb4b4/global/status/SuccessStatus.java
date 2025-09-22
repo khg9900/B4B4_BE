@@ -9,35 +9,46 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum SuccessStatus implements BaseCode {
 
-    // 인증
-    LOGIN_SUCCESS(HttpStatus.OK, "S1000", "로그인에 성공했습니다."),
-    LOGOUT_SUCCESS(HttpStatus.OK,"S1002", "로그아웃에 성공했습니다."),
-    SIGNUP_SUCCESS(HttpStatus.OK, "S1009" ,"회원가입에 성공했습니다"),
-    TOKEN_REISSUE_SUCCESS(HttpStatus.CREATED, "S1003", "액세스 토큰 재발급에 성공했습니다."),
+    // Auth
+    SIGNUP_SUCCESS(HttpStatus.CREATED, "AU002" ,"회원가입이 완료되었습니다."),
+    LOGIN_SUCCESS(HttpStatus.OK, "AU001", "로그인이 완료되었습니다."),
+    LOGOUT_SUCCESS(HttpStatus.OK,"AU001", "로그아웃이 완료되었습니다."),
+    TOKEN_REISSUE_SUCCESS(HttpStatus.OK, "AU001", "액세스 토큰 재발급이 완료되었습니다."),
+
+    // User
+    USER_INFO_GET_SUCCESS(HttpStatus.OK, "US001", "사용자 정보 조회가 완료되었습니다."),
 
     // Report
-    REPORT_GET_SUCCESS(HttpStatus.OK, "RP001", "페이지 조회가 완료되었습니다."),
-    REPORT_REPORTER_GET_SUCCESS(HttpStatus.OK, "RP001", "신고자 조회가 완료되었습니다."),
-    REPORT_CREATE_SUCCESS(HttpStatus.CREATED, "RP002", "재난 신고가 접수되었습니다."),
-
-    // Volunteer
-    VOLUNTEER_CREATE_SUCCESS(HttpStatus.CREATED, "VO001", "자원봉사 모집글이 성공적으로 생성되었습니다."),
-    VOLUNTEER_SUCCESS(HttpStatus.OK, "VO002", "자원봉사 모집글 상세 내역이 정상적으로 조회되었습니다."),
-    LOCATION_SAVE_SUCCESS(HttpStatus.CREATED, "LC002", "Location information save is success"),
-    VOLUNTEER_STATUS_SUCCESS(HttpStatus.OK, "VO002", "자원봉사 봉사 변경 되었습니다.."),
-    VOLUNTEER_INFORMATION_SUCCESS(HttpStatus.OK, "VO002", "자원봉사 정보조회가 완료되었습니다."),
-
-    // Location
-    SHELTER_SEARCH_SUCCESS(HttpStatus.OK, "LC001", "Shelter search completed successfully"),
-    DISASTER_SEARCH_SUCCESS(HttpStatus.OK, "LC001", "Disaster summary search completed successfully"),
+    REPORT_CREATE_SUCCESS(HttpStatus.CREATED, "RP002", "재난 신고가 완료되었습니다."),
+    IND_REPORT_GET_SUCCESS(HttpStatus.OK, "RP001", "재난 신고 이력 조회가 완료되었습니다."),
+    GOV_REPORT_GET_SUCCESS(HttpStatus.OK, "RP001", "재난 신고 목록 조회가 완료되었습니다."),
+    REPORT_SUMMARY_GET_SUCCESS(HttpStatus.OK, "RP001", "재난 신고 현황 조회가 완료되었습니다."),
+    REPORT_STATUS_UPDATE_SUCCESS(HttpStatus.OK, "RP001", "재난 신고 접수 상태 변경이 완료되었습니다."),
 
     // Alert
-    ALERTS_GET_SUCCESS(HttpStatus.OK, "AL001", "알림 조회 성공"),
+    ALERTS_GET_SUCCESS(HttpStatus.OK, "AL001", "알림 조회가 완료되었습니다."),
 
     // UserDevice
-    DEVICE_CREATE_SUCCESS(HttpStatus.CREATED, "UD002", "디바이스 저장 성공"),
+    DEVICE_CREATE_SUCCESS(HttpStatus.CREATED, "UD002", "기기 정보 저장이 완료되었습니다."),
 
-    CUSTOM_SUCCESS_STATUS(HttpStatus.OK, "S1001", "Custom Success");
+    // Volunteer
+    VOLUNTEER_CREATE_POST_SUCCESS(HttpStatus.CREATED, "VO002", "봉사활동 게시글 작성이 완료되었습니다."),
+    VOLUNTEER_UPDATE_POST_SUCCESS(HttpStatus.OK, "VO001", "봉사활동 게시글 수정이 완료되었습니다."),
+    VOLUNTEER_DELETE_POST_SUCCESS(HttpStatus.OK, "VO001", "봉사활동 게시글 삭제가 완료되었습니다."),
+    VOLUNTEER_GET_POSTS_SUCCESS(HttpStatus.OK, "VO001", "(전체) 봉사활동 게시글 조회가 완료되었습니다."),
+    VOLUNTEER_GET_MY_POSTS_SUCCESS(HttpStatus.OK, "VO001", "(본인 작성) 봉사활동 게시글 조회가 완료되었습니다."),
+    VOLUNTEER_GET_POST_DETAIL_SUCCESS(HttpStatus.OK, "VO001", "봉사활동 게시글 상세 조회가 완료되었습니다."),
+    VOLUNTEER_GET_TEAM_SUCCESS(HttpStatus.OK, "VO001", "봉사활동 게시글 팀별 모집 현황 조회가 완료되었습니다."),
+    VOLUNTEER_APPLY_SUCCESS(HttpStatus.OK, "VO001", "봉사활동 참가 신청이 완료되었습니다."),
+    VOLUNTEER_CANCEL_SUCCESS(HttpStatus.OK, "VO001", "봉사활동 참가 취소가 완료되었습니다."),
+    VOLUNTEER_GET_PARTICIPATION_SUCCESS(HttpStatus.OK, "VO001", "봉사활동 참여 이력 조회가 완료되었습니다."),
+    VOLUNTEER_GET_PARTICIPANT_SUCCESS(HttpStatus.OK, "VO001", "봉사활동 참여자 정보 조회가 완료되었습니다."),
+    VOLUNTEER_UPDATE_PARTICIPATION_STATUS_SUCCESS(HttpStatus.OK, "VO001", "봉사활동 참여자 출결 상태 변경이 완료되었습니다."),
+
+    // Location
+    LOCATION_SAVE_SUCCESS(HttpStatus.CREATED, "LC002", "실시간 위치 정보 전송이 완료되었습니다."),
+    SHELTER_SEARCH_SUCCESS(HttpStatus.OK, "LC001", "대피소 위치 조회가 완료되었습니다."),
+    DISASTER_SEARCH_SUCCESS(HttpStatus.OK, "LC001", "재난 발생 위치 조회가 완료되었습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

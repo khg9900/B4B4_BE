@@ -7,8 +7,6 @@ import java.time.format.DateTimeFormatter;
 import lombok.Builder;
 import lombok.Getter;
 
-import static org.apache.kafka.common.utils.Sanitizer.sanitize;
-
 @Getter
 @Builder
 public class FcmMessageDto {

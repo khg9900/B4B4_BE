@@ -30,7 +30,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         // 비밀번호가 null 이면 예외
         if (!StringUtils.hasText(user.getPassword())) {
-            throw new ApiException(ErrorStatus.INVALID_PASSWORD);
+            throw new ApiException(ErrorStatus.INVALID_CREDENTIALS);
         }
 
         return new CustomUserDetails(user);

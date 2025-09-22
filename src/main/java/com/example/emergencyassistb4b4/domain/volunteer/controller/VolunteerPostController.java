@@ -1,6 +1,3 @@
-// ==============================
-// VolunteerPostController
-// ==============================
 package com.example.emergencyassistb4b4.domain.volunteer.controller;
 
 import com.example.emergencyassistb4b4.domain.volunteer.dto.Post.*;
@@ -30,7 +27,7 @@ public class VolunteerPostController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody CreatePostRequest request) {
         volunteerPostService.createPost(userDetails.getUser(), request);
-        return ApiResponse.onSuccess(SuccessStatus.VOLUNTEER_CREATE_SUCCESS, null);
+        return ApiResponse.onSuccess(SuccessStatus.VOLUNTEER_CREATE_POST_SUCCESS, null);
     }
 
     @PatchMapping("/{postId}")
@@ -39,7 +36,16 @@ public class VolunteerPostController {
             @PathVariable Long postId,
             @Valid @RequestBody UpdatePostRequest request) {
         volunteerPostService.updatePost(userDetails.getUser(), postId, request);
-        return ApiResponse.onSuccess(SuccessStatus.VOLUNTEER_SUCCESS, null);
+        return ApiResponse.onSuccess(SuccessStatus.VOLUNTEER_UPDATE_POST_SUCCESS, null);
+    }
+
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<ApiResponse<Void>> deleteMyPost(
+        @PathVariable Long postId,
+        @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        volunteerPostService.deleteMyPost(userDetails.getUser().getId(), postId);
+        return ApiResponse.onSuccess(SuccessStatus.VOLUNTEER_DELETE_POST_SUCCESS, null);
     }
 
     @GetMapping
@@ -48,7 +54,7 @@ public class VolunteerPostController {
             Pageable pageable
     ) {
         Slice<PostTotalResponse> response = volunteerPostService.getPostList(filter, pageable);
-        return ApiResponse.onSuccess(SuccessStatus.VOLUNTEER_SUCCESS, response);
+        return ApiResponse.onSuccess(SuccessStatus.VOLUNTEER_GET_POSTS_SUCCESS, response);
     }
 
     @GetMapping("/my")
@@ -59,27 +65,19 @@ public class VolunteerPostController {
     ) {
         Slice<PostTotalResponse> response =
                 volunteerPostService.getMyPostList(userDetails.getUser().getId(), filter, pageable);
-        return ApiResponse.onSuccess(SuccessStatus.VOLUNTEER_SUCCESS, response);
+        return ApiResponse.onSuccess(SuccessStatus.VOLUNTEER_GET_MY_POSTS_SUCCESS, response);
     }
 
     @GetMapping("/{postId}")
     public ResponseEntity<ApiResponse<PostDetailResponse>> getPost(@PathVariable Long postId) {
         PostDetailResponse response = volunteerPostService.getPost(postId);
-        return ApiResponse.onSuccess(SuccessStatus.VOLUNTEER_SUCCESS, response);
+        return ApiResponse.onSuccess(SuccessStatus.VOLUNTEER_GET_POST_DETAIL_SUCCESS, response);
     }
 
     @GetMapping("/{postId}/teams")
     public ResponseEntity<ApiResponse<PostTeamsResponse>> getTeamStatus(@PathVariable Long postId) {
         PostTeamsResponse response = volunteerPostService.getTeamStatus(postId);
-        return ApiResponse.onSuccess(SuccessStatus.VOLUNTEER_SUCCESS, response);
+        return ApiResponse.onSuccess(SuccessStatus.VOLUNTEER_GET_TEAM_SUCCESS, response);
     }
 
-    @DeleteMapping("/{postId}")
-    public ResponseEntity<ApiResponse<Void>> deleteMyPost(
-            @PathVariable Long postId,
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
-        volunteerPostService.deleteMyPost(userDetails.getUser().getId(), postId);
-        return ApiResponse.onSuccess(SuccessStatus.VOLUNTEER_SUCCESS, null);
-    }
 }
