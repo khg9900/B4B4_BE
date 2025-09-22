@@ -19,7 +19,6 @@ import static com.example.emergencyassistb4b4.global.status.SuccessStatus.SHELTE
 @RequiredArgsConstructor
 public class KakaoMapController {
 
-
     private final KakaoMapService kakaoMapService;
 
     // 쿼리 파라미터로 위도, 경도, 반경을 받아 대피소 목록 조회
@@ -29,8 +28,8 @@ public class KakaoMapController {
             @RequestParam double longitude,
             @RequestParam(defaultValue = "1000") double radiusMeter) {
 
-        List<ShelterResponseDto> shelterResponseDtoList =kakaoMapService.searchShelters(latitude, longitude, radiusMeter);
-
+        List<ShelterResponseDto> shelterResponseDtoList =kakaoMapService.searchShelters(
+                latitude, longitude, radiusMeter);
         return ApiResponse.onSuccess(SHELTER_SEARCH_SUCCESS, shelterResponseDtoList);
     }
 
@@ -42,9 +41,7 @@ public class KakaoMapController {
             @RequestParam(defaultValue = "1000") int radiusMeter) {
 
         List<DisasterSummaryDto> summary = kakaoMapService.getDisasterSummary(
-                latitude, longitude, radiusMeter
-        );
-
+                latitude, longitude, radiusMeter);
         return ApiResponse.onSuccess(DISASTER_SEARCH_SUCCESS, summary);
     }
 

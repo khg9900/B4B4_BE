@@ -11,16 +11,10 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RabbitMQ {
+
     boolean state;
+
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     LocalDateTime joinedAt;
-
-    public void updateState(boolean state) {
-        this.state = state;
-    }
-
-    public void updateJoinedAt(LocalDateTime joinedAt) {
-        this.joinedAt = joinedAt;
-    }
-
 }
+

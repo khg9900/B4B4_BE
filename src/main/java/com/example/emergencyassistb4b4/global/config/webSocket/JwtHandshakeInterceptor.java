@@ -1,7 +1,6 @@
 package com.example.emergencyassistb4b4.global.config.webSocket;
 
 import com.example.emergencyassistb4b4.global.security.jwt.JwtUtils;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.security.core.Authentication;
@@ -11,18 +10,19 @@ import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import java.net.URI;
 import java.util.Map;
 
 @Slf4j
+@RequiredArgsConstructor
 public class JwtHandshakeInterceptor implements HandshakeInterceptor {
 
     private final JwtUtils jwtUtils;
 
-    public JwtHandshakeInterceptor(JwtUtils jwtUtils) {
-        this.jwtUtils = jwtUtils;
-    }
-
+    // WebSocket 연결 전에 JWT 토큰을 검증하고 인증 정보를 설정
     @Override
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response,
                                    WebSocketHandler wsHandler, Map<String, Object> attributes) {
@@ -32,13 +32,9 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
             String token = queryParams.getFirst("token");
 
             if (token == null || token.isEmpty()) {
-                log.warn("WebSocket 연결 거부: token 파라미터가 없음 또는 비어있음");
+                log.warn("WebSocket 연결 거부: token 파라미터 없음 또는 비어있음");
                 return false;
             }
-
-            // 토큰 일부 마스킹 (앞 6글자 + 뒤 6글자)
-            String maskedToken = token.length() > 12 ? token.substring(0, 6) + "..." + token.substring(token.length() - 6) : token;
-            log.info("WebSocket 핸드셰이크 token: {}", maskedToken);
 
             if (jwtUtils.validateToken(token)) {
                 Authentication authentication = jwtUtils.getAuthentication(token);
@@ -47,9 +43,8 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
                 attributes.put("authentication", authentication);
                 Long userId = jwtUtils.getUserId(token);
                 attributes.put("userId", userId);
-                attributes.put("token", token);  // 추가
+                attributes.put("token", token);
 
-                log.info("WebSocket 연결 허용 - 사용자 ID: {}", userId);
                 return true;
             } else {
                 log.warn("WebSocket 연결 거부: 토큰 검증 실패");
@@ -60,10 +55,10 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
         return false;
     }
 
-
+    // WebSocket 연결 후 처리 (필요 시 구현)
     @Override
     public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response,
                                WebSocketHandler wsHandler, Exception exception) {
-        // 필요 시 후처리
+        // 후처리 목적 메서드
     }
 }

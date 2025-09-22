@@ -8,9 +8,13 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class DisasterReportSimpleDto {
+
     private DisasterType disasterType;
+
     private ReportStatus status;
+
     private double latitude;
+
     private double longitude;
 
 }
