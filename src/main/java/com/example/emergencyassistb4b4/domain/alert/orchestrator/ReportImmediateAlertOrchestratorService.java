@@ -27,10 +27,6 @@ public class ReportImmediateAlertOrchestratorService {
 
         String token = userDeviceService.findFcmTokenByUserId(info.getGovernmentId());
 
-        if (token == null || token.isBlank()) {
-            throw new ApiException(ErrorStatus.ALERT_SERVER_ERROR);
-        }
-
         FcmMessageDto message = FcmMessageDto.fromReportImmediateAlert(info);
 
         fcmSender.sendReportImmediateAlert(message, token);

@@ -35,7 +35,7 @@ public class ReportThresholdAlertOrchestratorService {
         List<Long> userIds = userService.findUsersByRegion(info.getProvince(), info.getCity());
 
         if (userIds == null || userIds.isEmpty()) {
-            throw new ApiException(ErrorStatus.ALERT_SERVER_ERROR);
+            throw new ApiException(ErrorStatus.ALERT_NO_TARGET_USER);
         }
 
         List<String> tokens = userDeviceService.findFcmTokensByUserIds(userIds);

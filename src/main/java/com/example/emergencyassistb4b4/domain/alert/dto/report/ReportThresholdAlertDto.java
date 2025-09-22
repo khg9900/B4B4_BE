@@ -27,14 +27,21 @@ public class ReportThresholdAlertDto {
         String[] parts = notifyKey.split(":");
 
         if (!PREFIX.equals(parts[0])) {
-            throw new ApiException(ErrorStatus.ALERT_BAD_REQUEST);
+            throw new ApiException(ErrorStatus.ALERT_INVALID_KEY_PREFIX);
+        }
+
+        long count;
+        try {
+            count = Long.parseLong(parts[IDX_CNT]);
+        } catch (NumberFormatException e) {
+            throw new ApiException(ErrorStatus.ALERT_INVALID_KEY_FORMAT);
         }
 
         return ReportThresholdAlertDto.builder()
             .province(parts[IDX_PROVINCE])
             .city(parts[IDX_CITY])
             .disasterType(parts[IDX_TYPE])
-            .count(Long.parseLong(parts[IDX_CNT]))
+            .count(count)
             .build();
     }
 
