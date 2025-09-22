@@ -2,7 +2,7 @@
 
 ### 재난의 골든타임을 지킨다, "모두가 함께"
 개인(IND) · 공공기관(GOV) · 민간단체(NGO)를 하나로 연결하는 **실시간 재난 긴급 지원 플랫폼**
-
+<br><br>
 
 ## 📌 서비스 소개 (Service Overview)
 
@@ -10,25 +10,25 @@
 한 개인의 신고가 공공기관과 민간단체를 움직이고, 봉사자들은 안전하게 조직되어 현장으로 향합니다.
 
 👉 **우리의 목표**는 기술로 사람을 연결하고 생명을 구하는 것입니다.
-
+<br><br>
 ![img.png](docs/img_0.png)
-
+<br><br>
 
 ## 📌 주요 기능 (Key Features)
 
-### 🔘 인증 / 인가
+### ⚪ 인증 / 인가
 - JWT 기반 로그인 / 회원가입
 - AccessToken + RefreshToken 구조
 - Redis 기반 RefreshToken 저장 및 재발급
 - Role 기반 접근 제어 (IND, GOV, NGO)
 
 
-### 🔘 위치
+### ⚪ 위치
 - 사용자 주변 nkm 반경 내 재난 히트맵 표시
 - 사용자 근처 대피소 정보 제공 (카카오 맵 연동)
 
 
-### 🔘 신고
+### ⚪ 신고
 - 재난 신고 등록 기능
 - Kafka 기반 실시간 알림 → 공공기관 전달
 - 신고 상태 관리 (PENDING → RECEIVED → CLOSED)
@@ -36,7 +36,7 @@
 - Kafka DLQ 기반 실패/예외 처리
 
 
-### 🔘 봉사
+### ⚪ 봉사
 - 민간단체: 봉사 모집글 생성 / 수정 / 조회
 - 개인: 모집글 참가 / 취소
 - Redis Lua Script 기반 실시간 팀 인원 관리 (INCR/DECR)
@@ -44,13 +44,13 @@
 - Kafka + DLQ 기반 재처리
 
 
-### 🔘 알림
+### ⚪ 알림
 - FCM 디바이스 토큰 등록
 - 재난 신고 실시간 알림 (관할 공공기관 → 푸시 전송)
 - 동일 유형 신고 다수 발생 시 전국 단위 알림 전송
 - 봉사 모집글 수정 시 신청자 대상 알림
 - 사용자별 수신 알림 조회 (최대 30건)
-
+  <br><br>
 
 ## 📌 기술 스택 (Tech Stack)
 
@@ -92,7 +92,7 @@
 <img width="86" height="28" alt="image" src="https://github.com/user-attachments/assets/935fd7b3-e11c-4627-8650-db85114a0b84" />
 <img width="87" height="28" alt="image" src="https://github.com/user-attachments/assets/ef81f407-95b2-4018-b0dc-b588af503293" />
 <img width="99" height="28" alt="image" src="https://github.com/user-attachments/assets/d1492cb2-783c-4fed-87c8-8426fd93135e" />
-
+<br><br>
 
 ## 📌 아키텍처 (Cloud Architecture)
 
@@ -101,11 +101,100 @@
 
 ### V2  
 ![img_2.png](docs/img_2.png)
+<br><br>
 
-
-## 📌 ERD
+## 📌 ERD (Full Database Schema)
 <img src="https://github.com/khg9900/B4B4_BE/blob/dev/docs/postgres@localhost.png?raw=true" />
+<br><br>
+
+## 📌 API 명세서 (API Documentation)
+- ### [📍 API Docs](https://www.notion.so/API-2721e5c0190780b7b11bef3256ee1cae)
+- ### [📍 Postman](https://martian-star-327930.postman.co/workspace/삐뽀삐4~2cb45876-a337-46ea-8506-c2f99d501588/collection/27616662-26a871b4-6ed2-44b5-83b5-989b0134054c?action=share&source=copy-link&creator=47651707)
+<br><br>
+
+## 📌 화면 구성 (Screens Overview)
+
+### ⚪ App 화면 (일반사용자 전용)
+- **회원가입 화면**
+
+  <img src="https://github.com/khg9900/B4B4_BE/blob/dev/docs/ScreensOverview/App_signup.jpg?raw=true" width="200" />
+- **로그인 화면**
+
+  <img src="https://github.com/khg9900/B4B4_BE/blob/dev/docs/ScreensOverview/App_login.jpg?raw=true" width="200" />
+- **홈 화면 (대피소)**
+
+  <img src="https://github.com/khg9900/B4B4_BE/blob/dev/docs/ScreensOverview/App_home(emergencyShelter).jpg?raw=true" width="200" />
+- **홈 화면 (재난정보)**
+
+  <img src="https://github.com/khg9900/B4B4_BE/blob/dev/docs/ScreensOverview/App_home(disasterInformation).jpg?raw=true" width="200" />
+- **신고하기 화면**
+
+  <img src="https://github.com/khg9900/B4B4_BE/blob/dev/docs/ScreensOverview/App_report.jpg?raw=true" width="200" />
+- **자원봉사 화면**
+
+  <img src="https://github.com/khg9900/B4B4_BE/blob/dev/docs/ScreensOverview/App_volunteering.jpg?raw=true" width="200" />
+- **자원봉사 신청 화면**
+
+  <img src="https://github.com/khg9900/B4B4_BE/blob/dev/docs/ScreensOverview/App_volunteerApplicationDetails.jpg?raw=true" width="200" />
+- **나의 활동 화면**
+
+  <img src="https://github.com/khg9900/B4B4_BE/blob/dev/docs/ScreensOverview/App_myActivities.jpg?raw=true" width="200" />
+- **내 신고 목록 화면**
+
+  <img src="https://github.com/khg9900/B4B4_BE/blob/dev/docs/ScreensOverview/App_myReportList.jpg?raw=true" width="200" />
+- **자원봉사 신청내역 화면**
+
+  <img src="https://github.com/khg9900/B4B4_BE/blob/dev/docs/ScreensOverview/App_volunteerApplicationHistory.jpg?raw=true" width="200" />
+- **알림 내역 화면**
+
+  <img src="https://github.com/khg9900/B4B4_BE/blob/dev/docs/ScreensOverview/App_notifications_01.jpg?raw=true" width="200" />
+  <img src="https://github.com/khg9900/B4B4_BE/blob/dev/docs/ScreensOverview/App_notifications_02.jpg?raw=true" width="200" />
+- **FCM 알림**
+
+  <img src="https://github.com/khg9900/B4B4_BE/blob/dev/docs/ScreensOverview/App_FCM_01.jpg?raw=true" width="200" />
+  <img src="https://github.com/khg9900/B4B4_BE/blob/dev/docs/ScreensOverview/App_FCM_02.jpg?raw=true" width="200" />
+  <img src="https://github.com/khg9900/B4B4_BE/blob/dev/docs/ScreensOverview/App_FCM_03.jpg?raw=true" width="200" />
 
 
-## 📌 API 명세서
-- API Docs: https://www.notion.so/API-2721e5c0190780b7b11bef3256ee1cae
+### ⚪ Web 화면 (공공기관, 민간봉사단체 전용)
+- **회원가입 화면**
+
+  <img src="https://github.com/khg9900/B4B4_BE/blob/dev/docs/ScreensOverview/Web_signup_01.png?raw=true" width="600" />
+  <img src="https://github.com/khg9900/B4B4_BE/blob/dev/docs/ScreensOverview/Web_signup_02(GOV).png?raw=true" width="600" />
+  <img src="https://github.com/khg9900/B4B4_BE/blob/dev/docs/ScreensOverview/Web_signup_03(NGO).png?raw=true" width="600" />
+- **로그인 화면**
+
+  <img src="https://github.com/khg9900/B4B4_BE/blob/dev/docs/ScreensOverview/Web_login.png?raw=true" width="600" />
+- **홈 화면 (공공기관)**
+
+  <img src="https://github.com/khg9900/B4B4_BE/blob/dev/docs/ScreensOverview/Web_home(GOV).png?raw=true" width="600" />
+- **신고 목록 화면 (공공기관)**
+
+  <img src="https://github.com/khg9900/B4B4_BE/blob/dev/docs/ScreensOverview/Web_reportList(GOV).png?raw=true" width="600" />
+- **신고 상세 화면 (공공기관)**
+
+  <img src="https://github.com/khg9900/B4B4_BE/blob/dev/docs/ScreensOverview/Web_reportDetails_01(GOV).png?raw=true" width="600" />
+  <img src="https://github.com/khg9900/B4B4_BE/blob/dev/docs/ScreensOverview/Web_reportDetails_02(GOV).png?raw=true" width="600" />
+- **지도 화면 (공공기관)**
+
+  <img src="https://github.com/khg9900/B4B4_BE/blob/dev/docs/ScreensOverview/Web_reportStatusMap_01(GOV).png?raw=true" width="600" />
+  <img src="https://github.com/khg9900/B4B4_BE/blob/dev/docs/ScreensOverview/Web_reportStatusMap_02(GOV).png?raw=true" width="600" />
+  <img src="https://github.com/khg9900/B4B4_BE/blob/dev/docs/ScreensOverview/Web_reportStatusMap_03(GOV).png?raw=true" width="600" />
+- **봉사활동 게시글 관리 화면 (민간봉사단체)**
+
+  <img src="https://github.com/khg9900/B4B4_BE/blob/dev/docs/ScreensOverview/Web_volunteerPostManagement(NGO).png?raw=true" width="600" />
+- **봉사모집 게시글 작성 화면 (민간봉사단체)**
+
+  <img src="https://github.com/khg9900/B4B4_BE/blob/dev/docs/ScreensOverview/Web_createVolunteerPost_01(NGO).png?raw=true" width="600" />
+  <img src="https://github.com/khg9900/B4B4_BE/blob/dev/docs/ScreensOverview/Web_createVolunteerPost_02(NGO).png?raw=true" width="600" />
+  <img src="https://github.com/khg9900/B4B4_BE/blob/dev/docs/ScreensOverview/Web_createVolunteerPost_03(NGO).png?raw=true" width="600" />
+  <img src="https://github.com/khg9900/B4B4_BE/blob/dev/docs/ScreensOverview/Web_createVolunteerPost_04(NGO).png?raw=true" width="600" />
+- **봉사활동 상세정보 화면 (민간봉사단체)**
+
+  <img src="https://github.com/khg9900/B4B4_BE/blob/dev/docs/ScreensOverview/Web_volunteerPostDetails_01(NGO).png?raw=true" width="600" />
+  <img src="https://github.com/khg9900/B4B4_BE/blob/dev/docs/ScreensOverview/Web_volunteerPostDetails_02(NGO).png?raw=true" width="600" />
+  <img src="https://github.com/khg9900/B4B4_BE/blob/dev/docs/ScreensOverview/Web_volunteerPostDetails_03(NGO).png?raw=true" width="600" />
+  <img src="https://github.com/khg9900/B4B4_BE/blob/dev/docs/ScreensOverview/Web_volunteerPostDetails_04(NGO).png?raw=true" width="600" />
+- **FCM 알림**
+
+  <img src="https://github.com/khg9900/B4B4_BE/blob/dev/docs/ScreensOverview/Web_FCM.png?raw=true" />
