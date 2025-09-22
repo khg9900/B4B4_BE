@@ -16,19 +16,19 @@
 
 ## 📌 주요 기능 (Key Features)
 
-### 🔘 인증 / 인가
+### ⚪ 인증 / 인가
 - JWT 기반 로그인 / 회원가입
 - AccessToken + RefreshToken 구조
 - Redis 기반 RefreshToken 저장 및 재발급
 - Role 기반 접근 제어 (IND, GOV, NGO)
 
 
-### 🔘 위치
+### ⚪ 위치
 - 사용자 주변 nkm 반경 내 재난 히트맵 표시
 - 사용자 근처 대피소 정보 제공 (카카오 맵 연동)
 
 
-### 🔘 신고
+### ⚪ 신고
 - 재난 신고 등록 기능
 - Kafka 기반 실시간 알림 → 공공기관 전달
 - 신고 상태 관리 (PENDING → RECEIVED → CLOSED)
@@ -36,7 +36,7 @@
 - Kafka DLQ 기반 실패/예외 처리
 
 
-### 🔘 봉사
+### ⚪ 봉사
 - 민간단체: 봉사 모집글 생성 / 수정 / 조회
 - 개인: 모집글 참가 / 취소
 - Redis Lua Script 기반 실시간 팀 인원 관리 (INCR/DECR)
@@ -44,7 +44,7 @@
 - Kafka + DLQ 기반 재처리
 
 
-### 🔘 알림
+### ⚪ 알림
 - FCM 디바이스 토큰 등록
 - 재난 신고 실시간 알림 (관할 공공기관 → 푸시 전송)
 - 동일 유형 신고 다수 발생 시 전국 단위 알림 전송
@@ -113,7 +113,7 @@
 
 ## 📌 화면 구성 (Screens Overview)
 
-### 🔘 App 화면 (일반사용자 전용)
+### ⚪ App 화면 (일반사용자 전용)
 - **회원가입 화면**
 
   <img src="https://github.com/khg9900/B4B4_BE/blob/dev/docs/ScreensOverview/App_signup.jpg?raw=true" width="200" />
@@ -155,7 +155,7 @@
   <img src="https://github.com/khg9900/B4B4_BE/blob/dev/docs/ScreensOverview/App_FCM_03.jpg?raw=true" width="200" />
 
 
-### 🔘 Web 화면 (공공기관, 민간봉사단체 전용)
+### ⚪ Web 화면 (공공기관, 민간봉사단체 전용)
 - **회원가입 화면**
 
   <img src="https://github.com/khg9900/B4B4_BE/blob/dev/docs/ScreensOverview/Web_signup_01.png?raw=true" width="600" />
