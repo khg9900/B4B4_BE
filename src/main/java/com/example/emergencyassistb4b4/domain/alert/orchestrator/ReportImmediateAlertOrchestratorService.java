@@ -23,25 +23,13 @@ public class ReportImmediateAlertOrchestratorService {
 
     public void process(DisasterReportedEvent event) {
 
-        // 1. KafkaEvent -> ReportImmediateAlertDto
         ReportImmediateAlertDto info = ReportImmediateAlertDto.fromEvent(event);
 
-        // 2. FCM 메시지 내용 작성
-        FcmMessageDto message = FcmMessageDto.fromReportImmediateAlert(info);
-
-        // 3. FCM Token 조회
         String token = userDeviceService.findFcmTokenByUserId(info.getGovernmentId());
 
-        if (token == null || token.isBlank()) {
-            // 즉시 알림은 발송 대상(관할 공공기관)이 반드시 있어야 함.
-            throw new ApiException(ErrorStatus.ALERT_SERVER_ERROR);
-        }
+        FcmMessageDto message = FcmMessageDto.fromReportImmediateAlert(info);
 
-        try {
-            fcmSender.sendReportImmediateAlert(message, token);
-        } catch (Exception e) {
-            log.error("즉시 알림 발송 실패 - governmentId()={}, token={}", info.getGovernmentId(), token, e);
-            throw e;
-        }
+        fcmSender.sendReportImmediateAlert(message, token);
+
     }
 }

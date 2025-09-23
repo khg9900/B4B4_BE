@@ -51,7 +51,7 @@ public class UserVolunteerAlert extends BaseEntity {
     @JoinColumn(name = "alert_id", nullable = false)
     private VolunteerAlert volunteerAlert;
 
-    public static List<UserVolunteerAlert> from(VolunteerAlert alert, List<Long> userIds) {
+    public static List<UserVolunteerAlert> fromUsers(VolunteerAlert alert, List<Long> userIds) {
         return userIds.stream()
             .map(userId -> UserVolunteerAlert.builder()
                 .userId(userId)

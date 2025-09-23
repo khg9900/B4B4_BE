@@ -15,8 +15,10 @@ import com.example.emergencyassistb4b4.global.security.jwt.JwtUtils;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -48,8 +50,9 @@ public class AuthService {
 
             // 토큰 발급
             return tokenService.issueToken(userDto);
+
         } catch (Exception e) {
-            throw new ApiException(ErrorStatus.USER_NOT_FOUND);
+            throw new ApiException(ErrorStatus.INVALID_CREDENTIALS);
         }
     }
 

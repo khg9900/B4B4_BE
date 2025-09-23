@@ -6,26 +6,28 @@ import com.google.firebase.FirebaseOptions;
 import com.google.firebase.messaging.FirebaseMessaging;
 import jakarta.annotation.PostConstruct;
 import java.io.IOException;
-import java.io.InputStream;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 
 @Configuration
 public class FcmConfig {
 
+    @Value("${fcm.credentials.path}")
+    private Resource serviceAccount;
+
     @PostConstruct
     public void init() throws IOException {
 
-        InputStream serviceAccount = new ClassPathResource("firebase/firebase-service-account.json").getInputStream();
-
         FirebaseOptions options = FirebaseOptions.builder()
-            .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+            .setCredentials(GoogleCredentials.fromStream(serviceAccount.getInputStream()))
             .build();
 
         if (FirebaseApp.getApps().isEmpty()) {
             FirebaseApp.initializeApp(options);
         }
+
     }
 
     @Bean

@@ -23,7 +23,6 @@ public interface VolunteerTeamRepository extends JpaRepository<VolunteerTeam, Lo
 """)
     Optional<VolunteerTeam> findWithPostAndDetailsById(@Param("teamId") Long teamId);
 
-    // 스윕용 추가
     @Query("select vt.id from VolunteerTeam vt where vt.id in :ids")
     List<Long> findExistingIdsIn(@Param("ids") Collection<Long> ids);
 }

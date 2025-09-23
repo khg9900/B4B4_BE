@@ -11,7 +11,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.AssertTrue;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import lombok.*;
@@ -60,11 +59,6 @@ public class CreatePostRequest {
     @Valid
     @NotNull(message = "출석 정책은 필수입니다.")
     private PostAttendancePolicyDto attendancePolicy;
-
-    @AssertTrue(message = "전체 인원는 팀 인원으로 나누어 떨어져야 합니다.")
-    public boolean isTotalCapacityDivisibleByTeamSize() {
-        return teamSize > 0 && totalCapacity % teamSize == 0;
-    }
 
     public Post toEntity(User user) {
         Post post = Post.builder()

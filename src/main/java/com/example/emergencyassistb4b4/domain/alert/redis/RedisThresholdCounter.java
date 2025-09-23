@@ -26,41 +26,39 @@ public class RedisThresholdCounter {
         LUA_SCRIPT = new DefaultRedisScript<>();
         LUA_SCRIPT.setScriptText(
             """
-            -- 카운터 증가 및 TTL 설정
             local count = redis.call('INCR', KEYS[1])
-            redis.call('EXPIRE', KEYS[1], tonumber(ARGV[1]))
+            redis.call('EXPIRE', KEYS[1], toNumber(ARGV[1]))
 
-            -- 임계치 목록 순회
             for i = 2, #ARGV do
-                local threshold = tonumber(ARGV[i])
+                local threshold = toNumber(ARGV[i])
                 if count == threshold then
-                    -- 알림 키 구성 및 중복 알림 방지 (SETNX)
                     local notifyKey = KEYS[2] .. ":" .. threshold
                     local set = redis.call('SETNX', notifyKey, "true")
                     if set == 1 then
-                        redis.call('EXPIRE', notifyKey, tonumber(ARGV[1]))
+                        redis.call('EXPIRE', notifyKey, toNumber(ARGV[1]))
                         return threshold
                     else
-                        return -1 -- 이미 알림 처리됨
+                        return -1
                     end
                 end
             end
 
-            return -1 -- 임계치 조건 미충족
+            return -1
             """
         );
         LUA_SCRIPT.setResultType(Long.class);
     }
 
-    public Long incrementAndCheckThreshold(String counterKey,
+    public Long incrementAndCheckThreshold(
+        String counterKey,
         String notifyKeyPrefix,
         Duration ttl,
-        List<Long> thresholds) {
-        // 키 정의: counterKey, notifyKeyPrefix
+        List<Long> thresholds
+    ) {
         List<String> keys = List.of(counterKey, notifyKeyPrefix);
 
-        // 파라미터 준비: 첫 번째는 TTL, 이후는 유효한 threshold
         List<String> args = new ArrayList<>();
+
         args.add(String.valueOf(ttl.getSeconds()));
 
         thresholds.stream()

@@ -26,7 +26,7 @@ public class ReportRepositoryImpl implements ReportRepositoryCustom {
 
     // 오프셋
     @Override
-    public Slice<Report> findNearby(String province, String city,ReportStatus status, Pageable pageable) {
+    public Slice<Report> findNearby(String province, String city, ReportStatus status, Pageable pageable) {
 
         BooleanBuilder where = new BooleanBuilder();
 

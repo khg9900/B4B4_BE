@@ -20,7 +20,7 @@ public enum ErrorStatus implements BaseErrorCode {
     EXPIRED_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "AU005","액세스 토큰이 만료되었습니다."),
     INVAlID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "AU005","유효하지 않은 리프레시 토큰입니다."),
     DUPLICATED_EMAIL(HttpStatus.CONFLICT, "AU008", "이미 존재하는 이메일입니다."),
-    INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "AU004", "비밀번호가 일치하지 않습니다."),
+    INVALID_CREDENTIALS(HttpStatus.BAD_REQUEST, "AU004", "아이디 또는 비밀번호가 잘못되었습니다."),
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "AU007", "해당 사용자를 찾을 수 없습니다."),
     LOGOUT_TOKEN(HttpStatus.INTERNAL_SERVER_ERROR, "AU010", "로그아웃 된 토큰입니다."),
 
@@ -52,8 +52,9 @@ public enum ErrorStatus implements BaseErrorCode {
     UNSUPPORTED_MEDIA_TYPE(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "RP011", "지원하지 않는 미디어 타입입니다."),
 
     // Alert
-    ALERT_BAD_REQUEST(HttpStatus.BAD_REQUEST, "AL004", "유효하지 않은 값입니다"),
-    ALERT_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "AL010", "알림 전송을 실패했습니다."),
+    ALERT_INVALID_KEY_PREFIX(HttpStatus.BAD_REQUEST, "AL004", "알림 키 접두사가 올바르지 않습니다"),
+    ALERT_INVALID_KEY_FORMAT(HttpStatus.BAD_REQUEST, "AL004", "알림 키 형식이 올바르지 않습니다"),
+    ALERT_NO_TARGET_USER(HttpStatus.BAD_REQUEST, "AL004", "재난 신고 수신 대상자가 존재하지 않습니다"),
 
     // UserDevice
     USER_DEVICE_NOT_FOUND(HttpStatus.NOT_FOUND, "UD007", "유저 디바이스가 존재하지 않습니다."),

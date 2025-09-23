@@ -12,7 +12,7 @@ import org.springframework.kafka.listener.ContainerProperties;
 
 @Configuration
 @RequiredArgsConstructor
-public class ThresholdAlertListenerConfig { // 임계치 알림 수신 전용
+public class ThresholdAlertListenerConfig {
 
     private final KafkaConsumerConfig consumerConfig;
     private final KafkaErrorHandlerConfig errorHandlerConfig;

@@ -14,7 +14,7 @@ public class TeamParticipationSweepRunner {
     @EventListener(org.springframework.boot.context.event.ApplicationReadyEvent.class)
     public void onReady() { sweep.sweepOnce(2000, 1000); }
 
-    @Scheduled(fixedDelay = 300_000) // 5분
+    @Scheduled(fixedDelay = 300_000)
     public void periodic() { sweep.sweepOnce(5000, 1000); }
 }
 

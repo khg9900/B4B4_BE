@@ -14,15 +14,15 @@ import org.locationtech.jts.geom.Point;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Table(name = "report")
+@SequenceGenerator(
+    name = "report_seq_gen",
+    sequenceName = "report_seq",
+    allocationSize = 50
+)
 public class Report extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "report_seq_gen")
-    @SequenceGenerator(
-            name = "report_seq_gen",
-            sequenceName = "report_seq",
-            allocationSize = 50
-    )
     private Long id;
 
     // 신고자 (FK)

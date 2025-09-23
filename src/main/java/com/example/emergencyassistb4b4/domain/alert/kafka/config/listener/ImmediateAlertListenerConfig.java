@@ -13,7 +13,7 @@ import org.springframework.kafka.listener.ContainerProperties;
 
 @Configuration
 @RequiredArgsConstructor
-public class ImmediateAlertListenerConfig { // 즉시 알림 처리용 Kafka 리스너 설정
+public class ImmediateAlertListenerConfig {
 
     private final KafkaConsumerConfig consumerConfig;
     private final KafkaErrorHandlerConfig errorHandlerConfig;

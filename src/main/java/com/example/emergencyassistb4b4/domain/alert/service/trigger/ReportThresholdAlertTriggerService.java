@@ -3,13 +3,16 @@ package com.example.emergencyassistb4b4.domain.alert.service.trigger;
 import com.example.emergencyassistb4b4.domain.alert.redis.RedisThresholdCounter;
 import com.example.emergencyassistb4b4.domain.alert.orchestrator.ReportThresholdAlertOrchestratorService;
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.List;
 
 import com.example.emergencyassistb4b4.global.kafka.dto.ThresholdAlertEvent;
 import java.time.Instant;
 import java.time.ZoneId;
+import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -22,18 +25,28 @@ public class ReportThresholdAlertTriggerService {
 
     private static final Duration KEY_TTL = Duration.ofDays(1);
 
+    @Value("${alert.thresholds}")
+    private String thresholdsConfig;
+    private List<Long> thresholds;
+
+    @PostConstruct
+    public void init() {
+        thresholds = Arrays.stream(thresholdsConfig.split(","))
+            .map(Long::parseLong)
+            .toList();
+    }
+
     public void handleThresholdAlert(ThresholdAlertEvent event) {
 
         String counterKey = generateReportCounterKey(event);
         String notifyKeyPrefix = "alert:" + counterKey;
-        List<Long> thresholds = List.of(3L, 5L, 7L, 10L);
 
-        Long matchedThreshold = redisThresholdCounter.incrementAndCheckThreshold(counterKey,
-            notifyKeyPrefix, KEY_TTL, thresholds);
+        Long matchedThreshold =
+            redisThresholdCounter.incrementAndCheckThreshold(counterKey, notifyKeyPrefix, KEY_TTL, thresholds);
 
         if (matchedThreshold != null && matchedThreshold > 0) {
             String notifyKey = String.format("alert:%d:%s", matchedThreshold, counterKey);
-            log.info("임계치 도달 - key={}, count={}", notifyKey, matchedThreshold);
+            log.info("임계치 도달 - {}", notifyKey);
             reportAlertOrchestratorService.process(notifyKey);
         }
     }

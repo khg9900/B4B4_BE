@@ -9,19 +9,29 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Setter;
 
 @Entity
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
 @Builder
-@Table(name = "VolunteerTeam")
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "volunteer_team")
+@SequenceGenerator(
+    name = "volunteer_team_seq_gen",
+    sequenceName = "volunteer_team_seq",
+    allocationSize = 50
+)
 public class VolunteerTeam {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(
+        strategy = GenerationType.SEQUENCE,
+        generator = "volunteer_team_seq_gen"
+    )
     private Long id;
 
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
@@ -33,8 +43,4 @@ public class VolunteerTeam {
     @OneToMany(mappedBy = "volunteerTeam", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<VolunteerParticipant> participants = new ArrayList<>();
 
-
-    public void setPost(Post post) {
-        this.post = post;
-    }
 }

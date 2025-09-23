@@ -20,7 +20,6 @@ public class VolunteerCancelEventProducer {
     public void sendVolunteerCanceledEvent(VolunteerCancelEvent event) {
 
         kafkaTemplate.send(topic, event)
-                .thenAccept(result -> log.info("kafka - volunteer-post-canceled 발행 성공: {}", event))
                 .exceptionally(ex -> {
                     log.error("kafka - volunteer-post-canceled 발행 실패: {}", event, ex);
                     return null;

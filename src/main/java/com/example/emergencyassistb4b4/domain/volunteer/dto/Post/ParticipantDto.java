@@ -13,7 +13,7 @@ public class ParticipantDto {
     private String name;
     private String email;
     private String phone;
-    private String status; // PRESENT, ABSENT
+    private String status;
 
     public static ParticipantDto from(VolunteerParticipant participant) {
         return ParticipantDto.builder()

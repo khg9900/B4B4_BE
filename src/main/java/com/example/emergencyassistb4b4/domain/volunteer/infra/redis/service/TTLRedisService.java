@@ -21,7 +21,6 @@ public class TTLRedisService {
     private static final String USERS_KEY_FORMAT = "team:%d:%d:users";
     private static final String DUPLICATE_KEY_FORMAT = "team:%d:%d:%d:duplicate";
 
-    // TTL 설정 - 직접 시간 단위
     public void setTeamKeyTTL(Long postId, Long teamId, Long userId, long duration, TimeUnit unit) {
 
         String countKey = String.format(COUNT_KEY_FORMAT, postId, teamId);
@@ -36,7 +35,6 @@ public class TTLRedisService {
         }
     }
 
-    // 팀 전체 duplicate 삭제
     public long deleteAllDuplicateKeys(Long postId, Long teamId) {
 
         String pattern = String.format("team:%d:%d:*:duplicate", postId, teamId);
@@ -59,7 +57,6 @@ public class TTLRedisService {
         return keys.size();
     }
 
-    // 팀 전체 키 삭제(duplicate 전체 + count/users)
     public long deleteWholeTeamKeys(Long postId, Long teamId) {
 
         String countKey = String.format("team:%d:%d:count", postId, teamId);

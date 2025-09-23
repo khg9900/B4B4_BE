@@ -28,6 +28,6 @@ public class UserController {
 
         UserResponseDto responseDto = userService.getMyInfo(userDetails.getUsername());
 
-        return ApiResponse.onSuccess(SuccessStatus.CUSTOM_SUCCESS_STATUS, responseDto);
+        return ApiResponse.onSuccess(SuccessStatus.USER_INFO_GET_SUCCESS, responseDto);
     }
 }

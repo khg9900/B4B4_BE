@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -24,6 +25,9 @@ public class FcmSender {
 
     // FCM Multicast 최대 발송 건수
     private static final int FCM_MAX_TOKEN_BATCH_SIZE = 500;
+
+    @Value("${fcm.topics.threshold}")
+    private String thresholdTopic;
 
     /* ---------- Android ----------*/
     private Notification buildNotification(FcmMessageDto dto) {
@@ -104,7 +108,7 @@ public class FcmSender {
 
         // 전국 민간단체 (토픽 구독)
         Message topicMessage = Message.builder()
-            .setTopic("threshold-alert")
+            .setTopic(thresholdTopic)
             .setWebpushConfig(buildWebpushConfig(dto))
             .build();
         try {
