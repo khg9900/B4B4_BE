@@ -25,26 +25,26 @@ public class RedisThresholdCounter {
     static {
         LUA_SCRIPT = new DefaultRedisScript<>();
         LUA_SCRIPT.setScriptText(
-            """
-            local count = redis.call('INCR', KEYS[1])
-            redis.call('EXPIRE', KEYS[1], toNumber(ARGV[1]))
-
-            for i = 2, #ARGV do
-                local threshold = toNumber(ARGV[i])
-                if count == threshold then
-                    local notifyKey = KEYS[2] .. ":" .. threshold
-                    local set = redis.call('SETNX', notifyKey, "true")
-                    if set == 1 then
-                        redis.call('EXPIRE', notifyKey, toNumber(ARGV[1]))
-                        return threshold
-                    else
-                        return -1
+                """
+                local count = redis.call('INCR', KEYS[1])
+                redis.call('EXPIRE', KEYS[1], tonumber(ARGV[1]))
+    
+                for i = 2, #ARGV do
+                    local threshold = tonumber(ARGV[i])
+                    if count == threshold then
+                        local notifyKey = KEYS[2] .. ":" .. threshold
+                        local set = redis.call('SETNX', notifyKey, "true")
+                        if set == 1 then
+                            redis.call('EXPIRE', notifyKey, tonumber(ARGV[1]))
+                            return threshold
+                        else
+                            return -1
+                        end
                     end
                 end
-            end
-
-            return -1
-            """
+    
+                return -1
+                """
         );
         LUA_SCRIPT.setResultType(Long.class);
     }
